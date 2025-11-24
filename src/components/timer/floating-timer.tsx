@@ -45,7 +45,7 @@ export function FloatingTimer() {
   const { isSupported, request, release } = useWakeLock();
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const getDuration = () => {
+  const getInitialDuration = useCallback(() => {
     switch (mode) {
       case 'pomodoro':
         return pomodoroDuration;
@@ -56,23 +56,16 @@ export function FloatingTimer() {
       default:
         return pomodoroDuration;
     }
-  };
+  }, [mode, pomodoroDuration, shortBreakDuration, longBreakDuration]);
   
-  const [duration, setDuration] = useState(getDuration());
+  const [duration, setDuration] = useState(getInitialDuration());
   const [pathLength, setPathLength] = useState(0);
   const pathRef = useRef<SVGPathElement>(null);
 
 
   useEffect(() => {
-      const newDuration = getDuration();
-      // Only update duration if it's different from the current timeLeft
-      // This prevents the total duration from changing when time is added.
-      if (timeLeft > duration) {
-        setDuration(timeLeft);
-      } else {
-        setDuration(newDuration);
-      }
-  }, [mode, pomodoroDuration, shortBreakDuration, longBreakDuration, timeLeft]);
+      setDuration(getInitialDuration());
+  }, [mode, getInitialDuration]);
 
 
   useEffect(() => {
@@ -108,8 +101,8 @@ export function FloatingTimer() {
 
   const handleAddTime = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addTime(5 * 60); // Add 5 minutes
-    setDuration(prev => prev + 5 * 60);
+    addTime(3 * 60); // Add 3 minutes
+    setDuration(prev => prev + 3 * 60);
   }
 
   useEffect(() => {
