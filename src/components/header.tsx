@@ -1,10 +1,12 @@
 'use client';
 import Link from "next/link";
-import { Timer } from "lucide-react";
+import { Timer, Loader } from "lucide-react";
 import { Settings } from "@/components/settings";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/firebase";
 import { cn } from "@/lib/utils";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const Logo = () => (
   <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
@@ -20,6 +22,14 @@ const Logo = () => (
 export function Header() {
   const { user } = useUser();
   const isRegisteredUser = user && !user.isAnonymous;
+  const [loading, setLoading] = useState<false | 'deep-focus' | 'dashboard'>(false);
+  
+  const pathname = usePathname();
+
+  useEffect(() => {
+    // Hide spinner whenever the path changes
+    setLoading(false);
+  }, [pathname]);
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
@@ -33,9 +43,10 @@ export function Header() {
             asChild
             className={cn(glassButtonClasses)}
             aria-label="Deep Focus"
+            onClick={() => setLoading('deep-focus')}
         >
           <Link href="/deep-focus">
-            Deep Focus
+            {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
           </Link>
         </Button>
         <Button 
@@ -45,9 +56,10 @@ export function Header() {
             disabled={!isRegisteredUser} 
             className={cn(glassButtonClasses)}
             aria-label="Progress"
+            onClick={() => setLoading('dashboard')}
         >
           <Link href="/dashboard">
-            Progress
+            {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
           </Link>
         </Button>
         <Settings />
