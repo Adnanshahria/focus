@@ -91,14 +91,19 @@ export function FloatingTimer() {
   useEffect(() => {
     if (!antiBurnIn) return;
     const shiftPixel = () => {
-      const x = Math.floor(Math.random() * 21) - 10;
-      const y = Math.floor(Math.random() * 21) - 10;
+      if(!containerRef.current) return;
+      const { clientWidth, clientHeight } = containerRef.current;
+      const maxJitterX = clientWidth > 480 ? 20 : 10;
+      const maxJitterY = clientHeight > 270 ? 20 : 10;
+      const x = Math.floor(Math.random() * (maxJitterX * 2 + 1)) - maxJitterX;
+      const y = Math.floor(Math.random() * (maxJitterY * 2 + 1)) - maxJitterY;
       pixelShiftControls.start({ x, y, transition: { duration: 1, ease: 'easeOut' } });
     };
     pixelShiftControls.set({ x: 0, y: 0 });
     const intervalId = setInterval(shiftPixel, 60000);
     return () => clearInterval(intervalId);
   }, [pixelShiftControls, antiBurnIn]);
+
 
   const handleContainerClick = () => {
     showControls();
@@ -128,15 +133,15 @@ export function FloatingTimer() {
                     </div>
                 </div>
             </div>
-
         </motion.div>
+
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={controlsAnimation}
             className="absolute bottom-10 flex items-center gap-4"
             style={{ pointerEvents: controlsVisible ? 'auto' : 'none' }}
         >
-            <Button variant="ghost" size="icon" onClick={handleExit} className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white">
+            <Button variant="ghost" size="icon" onClick={handleExit} className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm">
                 <ArrowLeft className="w-8 h-8"/>
             </Button>
             <Button
@@ -146,7 +151,7 @@ export function FloatingTimer() {
                 }}
                 variant="ghost"
                 size="icon"
-                className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white"
+                className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
             >
                 {isActive ? <Pause className="w-10 h-10"/> : <Play className="w-10 h-10 ml-1"/>}
             </Button>
