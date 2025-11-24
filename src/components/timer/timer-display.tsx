@@ -11,18 +11,9 @@ const formatTime = (seconds: number) => {
 };
 
 export function TimerDisplay() {
-  const { timeLeft, mode, pomodoroDuration, shortBreakDuration, longBreakDuration } = useTimer();
+  const { timeLeft, sessionDuration } = useTimer();
 
-  const getDuration = () => {
-    switch (mode) {
-      case "pomodoro": return pomodoroDuration;
-      case "shortBreak": return shortBreakDuration;
-      case "longBreak": return longBreakDuration;
-    }
-  }
-
-  const duration = getDuration();
-  const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
+  const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
   const circumference = 2 * Math.PI * 120;
   const strokeDashoffset = circumference * (1 - progress);
 
