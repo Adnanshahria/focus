@@ -16,6 +16,7 @@ import { TimerSettings } from "./settings/timer-settings";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
+import React from "react";
 
 const devInfo = {
     name: "Mohammed Adnan Shahria",
