@@ -23,7 +23,7 @@ export function TimerDisplay() {
 
   const duration = getDuration();
   const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
-  const circumference = 2 * Math.PI * 120; // Adjusted radius
+  const circumference = 2 * Math.PI * 120;
   const strokeDashoffset = circumference * (1 - progress);
 
   return (
@@ -34,7 +34,7 @@ export function TimerDisplay() {
           cy="130"
           r="120"
           fill="none"
-          stroke="hsl(var(--border) / 0.5)"
+          stroke="hsl(var(--border) / 0.2)"
           strokeWidth="10"
         />
         <motion.circle
@@ -42,19 +42,26 @@ export function TimerDisplay() {
           cy="130"
           r="120"
           fill="none"
-          stroke="hsl(var(--primary))"
-          strokeWidth="10"
+          stroke="url(#gradient)"
+          strokeWidth="12"
           strokeLinecap="round"
           transform="rotate(-90 130 130)"
           strokeDasharray={circumference}
           initial={false}
           animate={{ strokeDashoffset }}
-          transition={{ duration: 0.3, ease: "linear" }}
+          transition={{ duration: 0.35, ease: "linear" }}
         />
+        <defs>
+            <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="hsl(var(--primary))" />
+                <stop offset="100%" stopColor="hsl(220, 90%, 70%)" />
+            </linearGradient>
+        </defs>
       </svg>
       <div className="z-10 text-center">
         <h2 className={cn(
-          "text-6xl md:text-7xl font-black tracking-tighter tabular-nums text-foreground"
+          "text-6xl md:text-7xl font-black tracking-tight tabular-nums text-foreground",
+          "bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-300"
         )}>
           {formatTime(timeLeft)}
         </h2>

@@ -16,10 +16,11 @@ export function TimerControls() {
           onClick={isActive ? pause : start}
           size="lg"
           className={cn(
-            "rounded-full w-32 h-14 text-lg font-bold uppercase tracking-wider transition-all duration-300",
+            "rounded-full w-36 h-14 text-lg font-bold uppercase tracking-wider transition-all duration-300",
+            "text-background shadow-[0_0_20px_hsl(var(--primary)/0.4)]",
             isActive 
-              ? "bg-secondary text-secondary-foreground" 
-              : "bg-primary text-primary-foreground"
+              ? "bg-secondary hover:bg-secondary/90 text-secondary-foreground" 
+              : "bg-primary hover:bg-primary/90"
           )}
         >
           {isActive ? <Pause className="mr-2" /> : <Play className="mr-2" />}
