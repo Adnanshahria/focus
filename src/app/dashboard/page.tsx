@@ -194,6 +194,11 @@ export default function DashboardPage() {
 
   const { data: focusRecords, isLoading: focusRecordsLoading } = useCollection(focusRecordsQuery);
 
+  const totalFocusForPeriod = useMemo(() => {
+    if (!focusRecords) return 0;
+    return focusRecords.reduce((acc, record) => acc + (record.totalFocusMinutes || 0), 0);
+  }, [focusRecords]);
+
   const sortedFocusRecords = useMemo(() => {
       if (!focusRecords) return [];
       return [...focusRecords].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -261,8 +266,15 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2">
                 <CardHeader>
-                    <CardTitle>Focus Activity</CardTitle>
-                    <CardDescription>Your focus minutes over the selected period.</CardDescription>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <div>
+                          <CardTitle>Focus Activity</CardTitle>
+                          <CardDescription>Your focus minutes over the selected period.</CardDescription>
+                      </div>
+                      <div className="text-2xl font-bold text-right sm:text-left">
+                          {formatDuration(totalFocusForPeriod)}
+                      </div>
+                  </div>
                 </CardHeader>
                 <CardContent>
                     <Tabs defaultValue="week" onValueChange={(value) => setTimeRange(value as 'day'|'week'|'month')} className="w-full">
