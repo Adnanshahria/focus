@@ -44,25 +44,27 @@ export function ForgotPasswordDialog({ open, onOpenChange }: ForgotPasswordDialo
     resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const onSubmit = async (data: ForgotPasswordFormValues) => {
+  const onSubmit = (data: ForgotPasswordFormValues) => {
     setIsSubmitting(true);
-    try {
-      await sendPasswordResetEmail(auth, data.email);
-      toast({
-        title: 'Password Reset Email Sent',
-        description: 'Check your inbox for a link to reset your password.',
+    sendPasswordResetEmail(auth, data.email)
+      .then(() => {
+        toast({
+          title: 'Password Reset Email Sent',
+          description: 'Check your inbox for a link to reset your password.',
+        });
+        onOpenChange(false);
+        reset();
+      })
+      .catch((error: any) => {
+        toast({
+          variant: 'destructive',
+          title: 'Error Sending Email',
+          description: error.message || 'An unexpected error occurred. Please try again.',
+        });
+      })
+      .finally(() => {
+        setIsSubmitting(false);
       });
-      onOpenChange(false);
-      reset();
-    } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Error Sending Email',
-        description: error.message || 'An unexpected error occurred. Please try again.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
   };
 
   return (
