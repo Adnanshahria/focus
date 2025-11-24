@@ -118,13 +118,24 @@ export function FloatingTimer() {
                 isDimmed ? "opacity-30" : "opacity-100"
             )}
         >
-            <div className="relative w-[320px] h-[180px] md:w-[480px] md:h-[270px] p-1 flex items-center justify-center rounded-2xl overflow-hidden">
-                 <div className="absolute inset-0 bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl" />
-                 <motion.div
-                    className="absolute inset-0 border-2 border-white/50 rounded-2xl"
-                    style={{
-                        clipPath: `inset(0 ${100 - progress}% 0 0)`,
+            <div className="relative w-[320px] h-[180px] md:w-[480px] md:h-[270px] flex items-center justify-center">
+                 <div 
+                    className="absolute inset-0 bg-black/30 backdrop-blur-xl rounded-2xl" 
+                    style={{ 
+                        border: '1px solid rgba(255, 255, 255, 0.1)'
                     }}
+                 />
+                 <motion.div
+                    className="absolute inset-0 rounded-2xl"
+                    style={{
+                        padding: '1px',
+                        background: `linear-gradient(to right, white, white) no-repeat`,
+                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                        WebkitMaskComposite: 'xor',
+                        maskComposite: 'exclude',
+                    }}
+                    initial={{ backgroundSize: '0% 100%'}}
+                    animate={{ backgroundSize: `${progress}% 100%` }}
                     transition={{ duration: 1, ease: "linear" }}
                  />
                 <div className="relative z-10 flex flex-col items-center justify-center">
