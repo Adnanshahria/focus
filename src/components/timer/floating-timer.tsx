@@ -32,6 +32,8 @@ export function FloatingTimer() {
   const pixelShiftControls = useAnimation();
   const { isSupported, request, release } = useWakeLock();
   const containerRef = useRef<HTMLDivElement>(null);
+  const svgBoxRef = useRef<SVGSVGElement>(null);
+  const [pathLength, setPathLength] = useState(0);
 
   const getDuration = () => {
     switch (mode) {
@@ -43,7 +45,17 @@ export function FloatingTimer() {
   }
 
   const duration = getDuration();
-  const progress = duration > 0 ? ((duration - timeLeft) / duration) * 100 : 0;
+  const progress = duration > 0 ? (timeLeft / duration) : 0;
+  const strokeDashoffset = pathLength * (1 - progress);
+
+  useEffect(() => {
+    if (svgBoxRef.current) {
+        const rect = svgBoxRef.current.querySelector('rect');
+        if (rect) {
+            setPathLength(rect.getTotalLength());
+        }
+    }
+  }, []);
 
   const showControls = useCallback(() => {
     setIsDimmed(false);
@@ -125,19 +137,36 @@ export function FloatingTimer() {
                         border: '1px solid rgba(255, 255, 255, 0.1)'
                     }}
                  />
-                 <motion.div
-                    className="absolute inset-0 rounded-2xl"
-                    style={{
-                        padding: '1px',
-                        background: `linear-gradient(to right, white, white) no-repeat`,
-                        WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                        WebkitMaskComposite: 'xor',
-                        maskComposite: 'exclude',
-                    }}
-                    initial={{ backgroundSize: '0% 100%'}}
-                    animate={{ backgroundSize: `${progress}% 100%` }}
-                    transition={{ duration: 1, ease: "linear" }}
-                 />
+                <svg ref={svgBoxRef} className="absolute inset-0 w-full h-full" viewBox="0 0 480 270">
+                    <rect
+                        x="1"
+                        y="1"
+                        width="478"
+                        height="268"
+                        rx="15"
+                        ry="15"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.2)"
+                        strokeWidth="2"
+                    />
+                    <motion.rect
+                        x="1"
+                        y="1"
+                        width="478"
+                        height="268"
+                        rx="15"
+                        ry="15"
+                        fill="none"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeDasharray={pathLength}
+                        initial={false}
+                        animate={{ strokeDashoffset }}
+                        transition={{ duration: 1, ease: 'linear' }}
+                        transform="rotate(-90 240 135)"
+                    />
+                </svg>
+
                 <div className="relative z-10 flex flex-col items-center justify-center">
                     <div className="text-white text-7xl md:text-8xl font-thin tracking-tighter tabular-nums">
                         {formatTime(timeLeft)}
