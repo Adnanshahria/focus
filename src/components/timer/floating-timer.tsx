@@ -64,7 +64,7 @@ export function FloatingTimer() {
 
 
   useEffect(() => {
-      setDuration(getInitialDuration());
+    setDuration(getInitialDuration());
   }, [mode, getInitialDuration]);
 
 
@@ -101,8 +101,9 @@ export function FloatingTimer() {
 
   const handleAddTime = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addTime(3 * 60); // Add 3 minutes
-    setDuration(prev => prev + 3 * 60);
+    const timeToAdd = 3 * 60;
+    addTime(timeToAdd); // Add 3 minutes
+    setDuration(prev => prev + timeToAdd);
   }
 
   useEffect(() => {
