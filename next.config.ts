@@ -1,8 +1,14 @@
 import type { NextConfig } from "next";
 
+// আমরা চেক করছি কোডটি GitHub Actions-এ রান হচ্ছে কিনা
+const isGithub = process.env.GITHUB_ACTIONS === "true";
+
 const nextConfig: NextConfig = {
-  basePath: "/focus",  // 👈 এই লাইনটিই সব ঠিক করে দেবে (আপনার রেপো নাম focus)
   output: "export",
+  
+  // 👇 স্মার্ট লজিক: গিটহাবে হলে '/focus', অন্যথায় খালি (root)
+  basePath: isGithub ? "/focus" : "",
+  
   images: {
     unoptimized: true,
   },
