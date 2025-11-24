@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { collection, query, orderBy, limit, where } from 'firebase/firestore';
-import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, eachDayOfInterval, formatDistanceToNow } from 'date-fns';
+import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, eachDayOfInterval, formatDistanceToNow, add } from 'date-fns';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
@@ -33,8 +33,8 @@ type ChartData = {
   totalFocusMinutes: number;
 }
 
-const StatCard = ({ title, value, icon: Icon, description, onClick, isSelected }: { title: string, value: string, icon: React.ElementType, description?: string, onClick?: () => void, isSelected?: boolean }) => (
-    <Card onClick={onClick} className={cn(onClick && "cursor-pointer", isSelected && "ring-2 ring-primary")}>
+const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string, icon: React.ElementType, description?: string }) => (
+    <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -46,15 +46,72 @@ const StatCard = ({ title, value, icon: Icon, description, onClick, isSelected }
     </Card>
 );
 
-const renderChart = (data: ChartData[], loading: boolean, timeRange: 'day' | 'week' | 'month', dateRanges: any) => {
+const DailyFocusChart = () => {
+    const { user } = useUser();
+    const firestore = useFirestore();
+    const today = useMemo(() => new Date(), []);
+    const todayDateString = useMemo(() => format(today, 'yyyy-MM-dd'), [today]);
+
+    const sessionsQuery = useMemoFirebase(() => {
+        if (!user || user.isAnonymous) return null;
+        return query(
+            collection(firestore, `users/${user.uid}/focusRecords/${todayDateString}/sessions`),
+            orderBy('startTime', 'asc')
+        );
+    }, [user, firestore, todayDateString]);
+
+    const { data: sessions, isLoading } = useCollection(sessionsQuery);
+
+    const chartData = useMemo(() => {
+        const hourlyFocus = Array.from({ length: 24 }, (_, i) => ({
+            time: `${String(i).padStart(2, '0')}:00`,
+            minutes: 0,
+        }));
+
+        if (sessions) {
+            sessions.forEach(session => {
+                if (session.startTime && typeof session.duration === 'number') {
+                    const start = parseISO(session.startTime);
+                    const hour = start.getHours();
+                    hourlyFocus[hour].minutes += session.duration;
+                }
+            });
+        }
+        return hourlyFocus;
+    }, [sessions]);
+
+    if (isLoading) return <Skeleton className="h-[250px] w-full" />;
+
+    const hasData = chartData.some(d => d.minutes > 0);
+
+    return (
+        <div className="h-[250px] w-full">
+            {hasData ? (
+                <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
+                    <BarChart data={chartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
+                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
+                        <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                        <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                        <Bar dataKey="minutes" fill="hsl(var(--primary))" radius={4} />
+                    </BarChart>
+                </ChartContainer>
+            ) : (
+                <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+                    No focus sessions recorded today.
+                </div>
+            )}
+        </div>
+    );
+};
+
+const renderChart = (data: ChartData[], loading: boolean, timeRange: 'week' | 'month', dateRanges: any) => {
     if (loading) return <Skeleton className="h-[250px] w-full" />;
     
     let chartData = data;
     let tickFormatter = (val: string) => format(parseISO(val), 'MMM d');
     
-    if (timeRange === 'day') {
-        return <DailyFocusChart />;
-    } else if (timeRange === 'week' || timeRange === 'month') {
+    if (timeRange === 'week' || timeRange === 'month') {
         const { start, end } = dateRanges[timeRange];
         const interval = eachDayOfInterval({ start, end });
         const dataMap = new Map(data.map(d => [d.date, d.totalFocusMinutes]));
@@ -70,7 +127,7 @@ const renderChart = (data: ChartData[], loading: boolean, timeRange: 'day' | 'we
         if (timeRange === 'month') {
             tickFormatter = (val: string, index: number) => {
                 const date = parseISO(val);
-                if(date.getDate() === 1 || date.getDate() % 7 === 0) {
+                if(date.getDate() === 1 || (date.getDate() - 1) % 7 === 0) {
                     return format(date, 'd');
                 }
                 return '';
@@ -100,62 +157,6 @@ const renderChart = (data: ChartData[], loading: boolean, timeRange: 'day' | 'we
     );
 }
 
-const DailyFocusChart = () => {
-    const { user } = useUser();
-    const firestore = useFirestore();
-    const today = new Date().toISOString().split('T')[0];
-
-    const sessionsQuery = useMemoFirebase(() => {
-        if (!user || user.isAnonymous) return null;
-        return query(
-            collection(firestore, `users/${user.uid}/focusRecords/${today}/sessions`),
-            orderBy('startTime', 'desc')
-        );
-    }, [user, firestore, today]);
-
-    const { data: sessions, isLoading } = useCollection(sessionsQuery);
-
-    const chartData = useMemo(() => {
-        const hourlyFocus = Array.from({ length: 24 }, (_, i) => ({
-            time: `${String(i).padStart(2, '0')}:00`,
-            minutes: 0,
-        }));
-
-        if (sessions) {
-            sessions.forEach(session => {
-                const start = parseISO(session.startTime);
-                const hour = start.getHours();
-                hourlyFocus[hour].minutes += session.duration;
-            });
-        }
-        return hourlyFocus;
-    }, [sessions]);
-
-    if (isLoading) return <Skeleton className="h-[250px] w-full" />;
-
-    const hasData = chartData.some(d => d.minutes > 0);
-
-    return (
-        <div className="h-[250px] w-full">
-            {hasData ? (
-                <ChartContainer config={{}} className="w-full h-full">
-                    <BarChart data={chartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
-                        <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-                        <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
-                        <Bar dataKey="minutes" fill="hsl(var(--primary))" radius={4} />
-                    </BarChart>
-                </ChartContainer>
-            ) : (
-                <div className="h-[250px] flex items-center justify-center text-muted-foreground">
-                    No focus sessions recorded today.
-                </div>
-            )}
-        </div>
-    );
-};
-
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -171,9 +172,10 @@ export default function DashboardPage() {
   
   const today = useMemo(() => startOfDay(new Date()), []);
   const dateRanges = useMemo(() => {
+    const endOfWeekDate = endOfWeek(today, { weekStartsOn: 1 });
     return {
       day: { start: today, end: today },
-      week: { start: startOfWeek(today, { weekStartsOn: 1 }), end: endOfWeek(today, { weekStartsOn: 1 }) },
+      week: { start: startOfWeek(today, { weekStartsOn: 1 }), end: endOfWeekDate },
       month: { start: startOfMonth(today), end: endOfMonth(today) },
     }
   }, [today]);
@@ -182,28 +184,30 @@ export default function DashboardPage() {
     if (!user || user.isAnonymous) return null;
     const { start, end } = dateRanges[timeRange];
     
+    // Firestore does not allow orderBy on a different field than a range comparison.
+    // We will sort by date client-side after fetching.
     return query(collection(firestore, `users/${user.uid}/focusRecords`), 
         where('date', '>=', format(start, 'yyyy-MM-dd')),
-        where('date', '<=', format(end, 'yyyy-MM-dd')),
-        orderBy('date', 'desc')
+        where('date', '<=', format(end, 'yyyy-MM-dd'))
     );
   }, [user, firestore, timeRange, dateRanges]);
 
   const { data: focusRecords, isLoading: focusRecordsLoading } = useCollection(focusRecordsQuery);
 
-  const stats = useMemo(() => {
-    const recordsToProcess = focusRecords || [];
-    const totalPomos = recordsToProcess.reduce((acc, record) => acc + (record.totalPomos || 0), 0);
-    const totalFocus = recordsToProcess.reduce((acc, record) => acc + (record.totalFocusMinutes || 0), 0);
-    const todayRecord = recordsToProcess.find(r => r.id === format(today, 'yyyy-MM-dd'));
+  const sortedFocusRecords = useMemo(() => {
+      if (!focusRecords) return [];
+      return [...focusRecords].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [focusRecords]);
 
+  const stats = useMemo(() => {
+    const todayDateStr = format(today, 'yyyy-MM-dd');
+    const todayRecord = sortedFocusRecords.find(r => r.id === todayDateStr);
+    
     return {
       todayPomos: todayRecord?.totalPomos || 0,
       todayFocus: todayRecord?.totalFocusMinutes || 0,
-      totalPomos,
-      totalFocus,
     };
-  }, [focusRecords, today]);
+  }, [sortedFocusRecords, today]);
   
   const sessionsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
@@ -218,21 +222,17 @@ export default function DashboardPage() {
 
   const chartSourceData = useMemo(() => {
     if (!focusRecords) return [];
+    // Ensure we use the unsorted records for the chart source as it will be processed again
     return focusRecords.map(r => ({ date: r.id, totalFocusMinutes: r.totalFocusMinutes }));
   }, [focusRecords]);
+
 
   if (isUserLoading || !user || user.isAnonymous) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />
         <main className="flex-1 flex flex-col items-center justify-center p-4 pt-20">
-          <Skeleton className="w-24 h-4 mb-4" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl px-4">
-            <Skeleton className="h-28" />
-            <Skeleton className="h-28" />
-            <Skeleton className="h-28" />
-            <Skeleton className="h-28" />
-          </div>
+          <Skeleton className="w-full h-full" />
         </main>
       </div>
     );
@@ -272,7 +272,7 @@ export default function DashboardPage() {
                             <TabsTrigger value="month">Month</TabsTrigger>
                         </TabsList>
                         <TabsContent value="day">
-                            {renderChart(chartSourceData, focusRecordsLoading, 'day', dateRanges)}
+                            <DailyFocusChart />
                         </TabsContent>
                         <TabsContent value="week">
                             {renderChart(chartSourceData, focusRecordsLoading, 'week', dateRanges)}
