@@ -2,10 +2,8 @@
 
 import { Header } from "@/components/header";
 import { Timer } from "@/components/timer/timer";
-import { useUser } from "@/firebase";
+import { useUser, useAuth, initiateAnonymousSignIn } from "@/firebase";
 import { useEffect } from "react";
-import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
-import { useAuth } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
@@ -22,7 +20,7 @@ export default function Home() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
       <main className="flex-1 flex flex-col items-center justify-center p-4 pt-20 md:pt-24">
-        {isUserLoading ? (
+        {isUserLoading || !user ? (
           <div className="flex flex-col items-center justify-center gap-8">
             <Skeleton className="w-[340px] h-[500px] md:w-[420px] md:h-[540px] rounded-3xl" />
           </div>

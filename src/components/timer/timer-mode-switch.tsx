@@ -20,14 +20,14 @@ export function TimerModeSwitch() {
   };
 
   return (
-    <Tabs value={mode} onValueChange={handleModeChange} className="w-full">
+    <Tabs value={mode} onValueChange={handleModeChange} className="w-full max-w-xs">
       <TabsList className="grid w-full grid-cols-3">
         {modes.map(modeItem => (
           <TabsTrigger
             key={modeItem.id}
             value={modeItem.id}
             disabled={isActive}
-            className="text-xs"
+            className="text-xs sm:text-sm"
           >
             {modeItem.label}
           </TabsTrigger>
