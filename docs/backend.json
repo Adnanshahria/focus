@@ -1,0 +1,248 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the FocusFlow application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "preferencesId": {
+          "type": "string",
+          "description": "Reference to UserPreferences. (Relationship: User 1:1 UserPreferences)"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "preferencesId"
+      ]
+    },
+    "UserPreferences": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserPreferences",
+      "type": "object",
+      "description": "Stores user-specific preferences for the FocusFlow application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user preferences."
+        },
+        "theme": {
+          "type": "string",
+          "description": "The user's chosen theme (e.g., neon-blue, cyberpunk-purple)."
+        },
+        "blurIntensity": {
+          "type": "string",
+          "description": "The intensity of the Glassmorphism blur effect (e.g., high, medium, low)."
+        },
+        "antiBurnIn": {
+          "type": "boolean",
+          "description": "Whether the anti-burn-in 'DVD screensaver' mode is enabled."
+        },
+        "pomodoroDuration": {
+          "type": "number",
+          "description": "Custom Pomodoro duration in minutes."
+        },
+        "shortBreakDuration": {
+          "type": "number",
+          "description": "Custom short break duration in minutes."
+        },
+        "longBreakDuration": {
+          "type": "number",
+          "description": "Custom long break duration in minutes."
+        }
+      },
+      "required": [
+        "id",
+        "theme",
+        "blurIntensity",
+        "antiBurnIn"
+      ]
+    },
+    "FocusRecord": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FocusRecord",
+      "type": "object",
+      "description": "Represents a single focus session record for a user on a specific date.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the focus record."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N FocusRecord)"
+        },
+        "date": {
+          "type": "string",
+          "description": "The date of the focus record in YYYY-MM-DD format.",
+          "format": "date"
+        },
+        "totalFocusMinutes": {
+          "type": "number",
+          "description": "Total focus minutes for the day."
+        },
+        "totalPomos": {
+          "type": "number",
+          "description": "Total Pomodoro sessions completed for the day."
+        },
+        "sessionIds": {
+          "type": "array",
+          "description": "References to Sessions. (Relationship: Session 1:N FocusRecord)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "date",
+        "totalFocusMinutes",
+        "totalPomos"
+      ]
+    },
+    "Session": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Session",
+      "type": "object",
+      "description": "Represents a single focus session within a focus record.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the session."
+        },
+        "focusRecordId": {
+          "type": "string",
+          "description": "Reference to FocusRecord. (Relationship: FocusRecord 1:N Session)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The start time of the session (timestamp).",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The end time of the session (timestamp).",
+          "format": "date-time"
+        },
+        "duration": {
+          "type": "number",
+          "description": "The duration of the session in minutes."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of session (e.g., pomodoro, countdown)."
+        }
+      },
+      "required": [
+        "id",
+        "focusRecordId",
+        "startTime",
+        "endTime",
+        "duration",
+        "type"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles.  Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user.  Used to enforce ownership."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/userPreferences/{userPreferenceId}",
+        "definition": {
+          "entityName": "UserPreferences",
+          "schema": {
+            "$ref": "#/backend/entities/UserPreferences"
+          },
+          "description": "Stores user preferences. Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user. Used to enforce ownership."
+            },
+            {
+              "name": "userPreferenceId",
+              "description": "The unique identifier for user preference. Used to identify user preference document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/focusRecords/{focusRecordId}",
+        "definition": {
+          "entityName": "FocusRecord",
+          "schema": {
+            "$ref": "#/backend/entities/FocusRecord"
+          },
+          "description": "Stores daily focus records for each user. Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user. Used to enforce ownership."
+            },
+            {
+              "name": "focusRecordId",
+              "description": "The unique identifier for the focus record. Used to identify focus record document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}",
+        "definition": {
+          "entityName": "Session",
+          "schema": {
+            "$ref": "#/backend/entities/Session"
+          },
+          "description": "Stores individual sessions within a focus record. Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user. Used to enforce ownership."
+            },
+            {
+              "name": "focusRecordId",
+              "description": "The unique identifier for the focus record. Used to identify focus record document."
+            },
+            {
+              "name": "sessionId",
+              "description": "The unique identifier for the session. Used to identify session document."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. User preferences and focus records are stored in separate collections to optimize querying and security rules.\n\n1.  **Authorization Independence**: The structure achieves authorization independence by avoiding `get()` calls in security rules. Since each user's data is under their respective user ID path, access control is based solely on `request.auth.uid`, making operations atomic and easy to debug.\n2.  **Clarity of Intent:** The paths clearly indicate the data's purpose and ownership.\n3.  **DBAC:** User roles are not stored; authorization is based solely on `request.auth.uid`.\n4.  **QAPs:** Secure `list` operations are supported by segregating data into user-specific collections. Listing focus records for a specific user is done via the `/users/{userId}/focusRecords` path, making it efficient and secure. The structure ensures that only the authenticated user can access their own data.\n\nSpecifically:\n\n*   `/users/{userId}/userPreferences/{userPreferenceId}`: Stores user preferences. Access is restricted to the authenticated user.\n*   `/users/{userId}/focusRecords/{focusRecordId}`: Stores daily focus records for each user. Access is restricted to the authenticated user.\n*   `/users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}`: Stores individual sessions within a focus record. Access is restricted to the authenticated user.\n\nThis design promotes clear, robust, and easily debuggable security rules while maintaining scalability and data integrity."
+  }
+}

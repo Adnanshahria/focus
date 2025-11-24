@@ -1,0 +1,134 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model. All user-generated
+ * data is stored in subcollections under that user's unique document ID (`/users/{userId}`).
+ * This ensures that a user can only ever access their own data tree, providing strong
+ * security and isolation by default.
+ *
+ * Data Structure: The database uses a hierarchical structure where all application data
+ * (preferences, focus records, sessions) is nested under the `/users/{userId}` path. This
+ * design makes authorization checks simple and highly performant.
+ *
+ * Key Security Decisions:
+ * - Strict Ownership: All access control is based on matching the authenticated user's
+ *   UID (`request.auth.uid`) with the `{userId}` wildcard in the document path.
+ * - No Public Data: There are no publicly readable collections. All data requires authentication.
+ * - No User Listing: It is not possible to list all documents in the top-level `/users`
+ *   collection, preventing enumeration of all application users.
+ * - Authorization-Centric Validation: Data validation is intentionally minimal, focusing only
+ *   on fields critical for maintaining ownership links and relational integrity (e.g., ensuring
+ *   a `FocusRecord`'s internal `userId` matches the path). This supports rapid development
+ *   while maintaining robust security.
+ *
+ * Denormalization for Authorization: The entire data model is built on this principle. By
+ * nesting all data under a user-specific path, we avoid slow and costly `get()` or `exists()`
+ * calls to other documents for authorization. The path itself contains all the necessary
+ * information to make a security decision.
+ *
+ * Structural Segregation: User data is naturally segregated into separate subcollections
+ * (e.g., `userPreferences`, `focusRecords`), which simplifies rules and improves query
+ * performance for list operations.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions for improved readability and reusability.
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently signed-in user is the owner of the document
+     * based on the userId provided in the path.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * A robust check for update/delete operations. Ensures the user is the owner
+     * AND that the document they are trying to modify actually exists.
+     * This prevents unauthorized actions on non-existent paths.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Manages user profile documents. A user can create their own profile,
+     *              and can only read or modify their own document after it is created.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user with UID 'user123' creating their own
+     *        profile at `/users/user123`.
+     * @deny (get) An authenticated user 'user456' trying to read `/users/user123`.
+     * @principle Restricts access to a user's own data tree and allows for self-creation
+     *            of the root user document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Disallow listing all users for security.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Secures a user's private application preferences. Only the owner
+       *              of the parent user document can manage their preferences.
+       * @path /users/{userId}/userPreferences/{userPreferenceId}
+       * @allow (get) User 'user123' reading their preferences at
+       *        `/users/user123/userPreferences/pref_abc`.
+       * @deny (update) User 'user456' trying to update preferences at
+       *       `/users/user123/userPreferences/pref_abc`.
+       * @principle Enforces strict ownership for all operations on a user's private subcollection.
+       */
+      match /userPreferences/{userPreferenceId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.id == userPreferenceId;
+        allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Manages a user's daily focus records. Only the owner can create,
+       *              view, update, or delete their own records.
+       * @path /users/{userId}/focusRecords/{focusRecordId}
+       * @allow (create) User 'user123' creating a new record at
+       *        `/users/user123/focusRecords/record_abc`.
+       * @deny (list) User 'user456' trying to list records at `/users/user123/focusRecords`.
+       * @principle Enforces strict ownership and validates the internal `userId` field to
+       *            ensure data integrity and prevent misattribution.
+       */
+      match /focusRecords/{focusRecordId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && request.resource.data.userId == userId;
+        allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+        allow delete: if isExistingOwner(userId);
+
+        /**
+         * @description Secures individual focus sessions within a daily record. Access is
+         *              inherited from the parent `focusRecord`, meaning only the user who
+         *              owns the record can manage its sessions.
+         * @path /users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}
+         * @allow (delete) User 'user123' deleting a session at
+         *        `/users/user123/focusRecords/record_abc/sessions/session_xyz`.
+         * @deny (create) User 'user456' trying to create a session under another user's record.
+         * @principle Validates relational integrity by ensuring the session's `focusRecordId`
+         *            field matches its parent document ID in the path.
+         */
+        match /sessions/{sessionId} {
+          allow get: if isOwner(userId);
+          allow list: if isOwner(userId);
+          allow create: if isOwner(userId) && request.resource.data.focusRecordId == focusRecordId;
+          allow update: if isExistingOwner(userId) && request.resource.data.focusRecordId == resource.data.focusRecordId;
+          allow delete: if isExistingOwner(userId);
+        }
+      }
+    }
+  }
+}
