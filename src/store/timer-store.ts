@@ -38,7 +38,6 @@ type TimerState = {
   sessionDuration: number; // The total duration for the current session including added time
   totalFocusMinutes: number;
   totalPomos: number;
-  isAmoledProtectionMode: boolean;
 } & TimerDurations &
   VisualSettings;
 
@@ -55,7 +54,6 @@ type TimerActions = {
     totalPomos: number;
   }) => void;
   setVisuals: (visuals: Partial<VisualSettings>) => void;
-  toggleAmoledProtectionMode: () => void;
   addTime: (seconds: number) => void;
 };
 
@@ -72,7 +70,6 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   totalFocusMinutes: 0,
   totalPomos: 0,
   antiBurnIn: true, // Enabled by default for better UX on OLED
-  isAmoledProtectionMode: false,
 
   setMode: mode => {
     const initialTime = getInitialTime(mode, get());
@@ -140,9 +137,6 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   },
   setVisuals: visuals => {
     set(visuals);
-  },
-  toggleAmoledProtectionMode: () => {
-    set(state => ({ isAmoledProtectionMode: !state.isAmoledProtectionMode }));
   },
   addTime: seconds => {
     set(state => ({

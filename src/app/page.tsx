@@ -7,7 +7,6 @@ import { useEffect } from "react";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { useAuth } from "@/firebase";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const { user, isUserLoading } = useUser();

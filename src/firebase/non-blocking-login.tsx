@@ -8,36 +8,25 @@ import {
 
 /** Initiate anonymous sign-in (non-blocking). */
 export function initiateAnonymousSignIn(authInstance: Auth): Promise<void> {
-  return new Promise((resolve, reject) => {
-    signInAnonymously(authInstance)
-      .then(() => resolve())
-      .catch((error) => {
-        console.warn("Anonymous sign-in failed", error);
-        reject(error);
-      });
+  return signInAnonymously(authInstance).then(() => {}).catch((error) => {
+    console.warn("Anonymous sign-in failed", error);
+    // Propagate the error to allow the caller to handle it.
+    throw error;
   });
 }
 
 /** Initiate email/password sign-up (non-blocking). */
 export function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        createUserWithEmailAndPassword(authInstance, email, password)
-            .then(() => resolve())
-            .catch((error) => {
-                console.error("Sign up failed", error);
-                reject(error);
-            });
+    return createUserWithEmailAndPassword(authInstance, email, password).then(() => {}).catch((error) => {
+        console.error("Sign up failed", error);
+        throw error;
     });
 }
 
 /** Initiate email/password sign-in (non-blocking). */
 export function initiateEmailSignIn(authInstance: Auth, email: string, password: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-        signInWithEmailAndPassword(authInstance, email, password)
-            .then(() => resolve())
-            .catch((error) => {
-                console.error("Sign in failed", error);
-                reject(error);
-            });
+    return signInWithEmailAndPassword(authInstance, email, password).then(() => {}).catch((error) => {
+        console.error("Sign in failed", error);
+        throw error;
     });
 }
