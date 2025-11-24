@@ -16,24 +16,10 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  // Open Graph
-  openGraph: {
-    type: "website",
-    siteName: APP_NAME,
-    title: {
-      default: APP_NAME,
-      template: `%s | ${APP_NAME}`,
-    },
-    description: APP_DESCRIPTION,
-  },
-  // Twitter
-  twitter: {
-    card: "summary",
-    title: {
-      default: APP_NAME,
-      template: `%s | ${APP_NAME}`,
-    },
-    description: APP_DESCRIPTION,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: APP_NAME,
   },
 };
 
@@ -47,7 +33,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="mobile-web-app-capable" content="yes" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />

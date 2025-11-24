@@ -40,7 +40,6 @@ export function FloatingTimer() {
   const controlsAnimation = useAnimation();
   const pixelShiftControls = useAnimation();
   const { isSupported, request, release } = useWakeLock();
-  const containerRef = useRef<HTMLDivElement>(null);
   
   const [pathLength, setPathLength] = useState(0);
   const pathRef = useRef<SVGPathElement>(null);
@@ -74,6 +73,9 @@ export function FloatingTimer() {
   }, [controlsAnimation]);
 
   const handleExit = useCallback(() => {
+    if (document.fullscreenElement) {
+        document.exitFullscreen().catch(err => console.error(err));
+    }
     router.push('/');
   }, [router]);
 
@@ -109,10 +111,8 @@ export function FloatingTimer() {
   useEffect(() => {
     if (!antiBurnIn) return;
     const shiftPixel = () => {
-      if (!containerRef.current) return;
-      const { clientWidth, clientHeight } = containerRef.current;
-      const maxJitterX = clientWidth > 480 ? 20 : 10;
-      const maxJitterY = clientHeight > 270 ? 20 : 10;
+      const maxJitterX = window.innerWidth > 480 ? 20 : 10;
+      const maxJitterY = window.innerHeight > 270 ? 20 : 10;
       const x = Math.floor(Math.random() * (maxJitterX * 2 + 1)) - maxJitterX;
       const y = Math.floor(Math.random() * (maxJitterY * 2 + 1)) - maxJitterY;
       pixelShiftControls.start({
@@ -132,8 +132,7 @@ export function FloatingTimer() {
 
   return (
     <div
-      ref={containerRef}
-      className="fixed inset-0 bg-black flex flex-col items-center justify-center cursor-pointer"
+      className="w-full h-full flex flex-col items-center justify-center cursor-pointer"
       onClick={handleContainerClick}
     >
       <motion.div
