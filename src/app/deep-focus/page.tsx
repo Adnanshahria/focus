@@ -20,12 +20,12 @@ export default function DeepFocusPage() {
 
     const enterFullScreen = () => {
         const elem = containerRef.current;
-        if (elem) {
+        if (elem && !document.fullscreenElement) {
             if (elem.requestFullscreen) {
                 elem.requestFullscreen().catch(err => {
-                    if (err.name !== 'NotAllowedError') {
-                        console.error("Fullscreen request failed:", err);
-                    }
+                    // It's better to catch and log specific errors if needed,
+                    // but often, user denial doesn't need to be an error.
+                    // This can be left silent or logged for analytics.
                 });
             } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
                 (elem as any).webkitRequestFullscreen();
@@ -39,7 +39,9 @@ export default function DeepFocusPage() {
     useEffect(() => {
         return () => {
             if (document.fullscreenElement && document.exitFullscreen) {
-                 document.exitFullscreen().catch(err => console.error("Error exiting fullscreen:", err));
+                 document.exitFullscreen().catch(err => {
+                    // Avoid logging errors if exiting fails, as it can be noisy.
+                 });
             }
         };
     }, []);
