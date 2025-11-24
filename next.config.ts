@@ -1,16 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  basePath: "/focus",  // 👈 এই লাইনটিই সব ঠিক করে দেবে (আপনার রেপো নাম focus)
   output: "export",
   images: {
     unoptimized: true,
   },
-  // 👇 এই অংশটি নতুন যোগ করা হলো
   typescript: {
-    ignoreBuildErrors: true, // টাইপ এরর থাকলেও বিল্ড হবে
+    ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true, // লিন্ট এরর থাকলেও বিল্ড হবে
+    ignoreDuringBuilds: true,
   },
 };
 
