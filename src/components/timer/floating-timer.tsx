@@ -6,7 +6,7 @@ import { useTimer, useTimerStore } from '@/hooks/use-timer';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const formatTime = (seconds: number) => {
@@ -14,14 +14,26 @@ const formatTime = (seconds: number) => {
   const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
   if (hours > 0) {
-    return `${String(hours)}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    return `${String(hours)}:${String(mins).padStart(2, '0')}:${String(
+      secs
+    ).padStart(2, '0')}`;
   }
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
 export function FloatingTimer() {
   const router = useRouter();
-  const { timeLeft, isActive, start, pause, pomodoroDuration, shortBreakDuration, longBreakDuration, mode } = useTimer();
+  const {
+    timeLeft,
+    isActive,
+    start,
+    pause,
+    pomodoroDuration,
+    shortBreakDuration,
+    longBreakDuration,
+    mode,
+    addTime,
+  } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
   const [controlsVisible, setControlsVisible] = useState(false);
@@ -32,28 +44,46 @@ export function FloatingTimer() {
   const pixelShiftControls = useAnimation();
   const { isSupported, request, release } = useWakeLock();
   const containerRef = useRef<HTMLDivElement>(null);
-  const pathRef = useRef<SVGPathElement>(null);
-  const [pathLength, setPathLength] = useState(0);
-
+  
   const getDuration = () => {
     switch (mode) {
-      case "pomodoro": return pomodoroDuration;
-      case "shortBreak": return shortBreakDuration;
-      case "longBreak": return longBreakDuration;
-      default: return pomodoroDuration;
+      case 'pomodoro':
+        return pomodoroDuration;
+      case 'shortBreak':
+        return shortBreakDuration;
+      case 'longBreak':
+        return longBreakDuration;
+      default:
+        return pomodoroDuration;
     }
-  }
-
-  const duration = getDuration();
-  const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
-  const strokeDashoffset = pathLength * (1 - progress);
+  };
   
+  const [duration, setDuration] = useState(getDuration());
+  const [pathLength, setPathLength] = useState(0);
+  const pathRef = useRef<SVGPathElement>(null);
+
+
+  useEffect(() => {
+      const newDuration = getDuration();
+      // Only update duration if it's different from the current timeLeft
+      // This prevents the total duration from changing when time is added.
+      if (timeLeft > duration) {
+        setDuration(timeLeft);
+      } else {
+        setDuration(newDuration);
+      }
+  }, [mode, pomodoroDuration, shortBreakDuration, longBreakDuration, timeLeft]);
+
+
   useEffect(() => {
     if (pathRef.current) {
-      setPathLength(pathRef.current.getTotalLength());
+        const length = pathRef.current.getTotalLength();
+        setPathLength(length);
     }
   }, []);
 
+  const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
+  const strokeDashoffset = pathLength * (1 - progress);
 
   const showControls = useCallback(() => {
     setIsDimmed(false);
@@ -64,21 +94,28 @@ export function FloatingTimer() {
     if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
 
     controlsTimeoutRef.current = setTimeout(() => {
-      controlsAnimation.start({ opacity: 0, y: 10 }).then(() => setControlsVisible(false));
+      controlsAnimation
+        .start({ opacity: 0, y: 10 })
+        .then(() => setControlsVisible(false));
     }, 3000);
-    
-    dimTimeoutRef.current = setTimeout(() => setIsDimmed(true), 20000);
 
+    dimTimeoutRef.current = setTimeout(() => setIsDimmed(true), 20000);
   }, [controlsAnimation]);
-  
+
   const handleExit = useCallback(() => {
     router.push('/');
   }, [router]);
 
+  const handleAddTime = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addTime(5 * 60); // Add 5 minutes
+    setDuration(prev => prev + 5 * 60);
+  }
+
   useEffect(() => {
     if (isSupported) request();
     showControls(); // Show controls on mount
-    
+
     return () => {
       if (isSupported) release();
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -101,89 +138,117 @@ export function FloatingTimer() {
   useEffect(() => {
     if (!antiBurnIn) return;
     const shiftPixel = () => {
-      if(!containerRef.current) return;
+      if (!containerRef.current) return;
       const { clientWidth, clientHeight } = containerRef.current;
       const maxJitterX = clientWidth > 480 ? 20 : 10;
       const maxJitterY = clientHeight > 270 ? 20 : 10;
       const x = Math.floor(Math.random() * (maxJitterX * 2 + 1)) - maxJitterX;
       const y = Math.floor(Math.random() * (maxJitterY * 2 + 1)) - maxJitterY;
-      pixelShiftControls.start({ x, y, transition: { duration: 1, ease: 'easeOut' } });
+      pixelShiftControls.start({
+        x,
+        y,
+        transition: { duration: 1, ease: 'easeOut' },
+      });
     };
     pixelShiftControls.set({ x: 0, y: 0 });
     const intervalId = setInterval(shiftPixel, 60000);
     return () => clearInterval(intervalId);
   }, [pixelShiftControls, antiBurnIn]);
 
-
   const handleContainerClick = () => {
     showControls();
-  }
+  };
 
   return (
-    <div ref={containerRef} className="fixed inset-0 bg-black flex flex-col items-center justify-center cursor-pointer" onClick={handleContainerClick}>
-        <motion.div
-            animate={pixelShiftControls}
-            className={cn(
-                "relative flex flex-col items-center justify-center gap-8 transition-opacity duration-1000",
-                isDimmed ? "opacity-30" : "opacity-100"
-            )}
-        >
-            <div className="relative w-[320px] h-[180px] md:w-[480px] md:h-[270px] flex items-center justify-center">
-                 <div 
-                    className="absolute inset-0 bg-black/30 backdrop-blur-xl rounded-2xl" 
-                    style={{ 
-                        border: '1px solid rgba(255, 255, 255, 0.1)'
-                    }}
-                 />
-                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 480 270">
-                    <path
-                        d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-                        fill="none"
-                        stroke="rgba(255,255,255,0.2)"
-                        strokeWidth="3"
-                    />
-                    <motion.path
-                        ref={pathRef}
-                        d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-                        fill="none"
-                        stroke="white"
-                        strokeWidth="3"
-                        strokeDasharray={pathLength}
-                        initial={false}
-                        animate={{ strokeDashoffset }}
-                        transition={{ duration: 1, ease: 'linear' }}
-                    />
-                </svg>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 bg-black flex flex-col items-center justify-center cursor-pointer"
+      onClick={handleContainerClick}
+    >
+      <motion.div
+        animate={pixelShiftControls}
+        className={cn(
+          'relative flex flex-col items-center justify-center gap-8 transition-opacity duration-1000',
+          isDimmed ? 'opacity-30' : 'opacity-100'
+        )}
+      >
+        <div className="relative w-[320px] h-[180px] md:w-[480px] md:h-[270px] flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/30 backdrop-blur-xl rounded-2xl"
+            style={{
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          />
+          <svg
+            className="absolute inset-0 w-full h-full"
+            viewBox="0 0 480 270"
+          >
+            <path
+              d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
+              fill="none"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="3"
+            />
+            <motion.path
+                ref={pathRef}
+                d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
+                fill="none"
+                stroke="white"
+                strokeWidth="3"
+                strokeDasharray={pathLength}
+                strokeDashoffset={strokeDashoffset}
+                initial={false}
+                animate={{ strokeDashoffset }}
+                transition={{ duration: 1, ease: 'linear' }}
+            />
+          </svg>
 
-                <div className="relative z-10 flex flex-col items-center justify-center">
-                    <div className="text-white text-7xl md:text-8xl font-thin tracking-tighter tabular-nums">
-                        {formatTime(timeLeft)}
-                    </div>
-                </div>
+          <div className="relative z-10 flex flex-col items-center justify-center">
+            <div className="text-white text-7xl md:text-8xl font-thin tracking-tighter tabular-nums">
+              {formatTime(timeLeft)}
             </div>
-        </motion.div>
+          </div>
+        </div>
+      </motion.div>
 
-        <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={controlsAnimation}
-            className="absolute bottom-10 flex items-center gap-4"
-            style={{ pointerEvents: controlsVisible ? 'auto' : 'none' }}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={controlsAnimation}
+        className="absolute bottom-10 flex items-center gap-4"
+        style={{ pointerEvents: controlsVisible ? 'auto' : 'none' }}
+      >
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleExit}
+          className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
         >
-            <Button variant="ghost" size="icon" onClick={handleExit} className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm">
-                <ArrowLeft className="w-8 h-8"/>
-            </Button>
-            <Button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    isActive ? pause() : start()
-                }}
-                variant="ghost"
-                size="icon"
-                className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
-            >
-                {isActive ? <Pause className="w-10 h-10"/> : <Play className="w-10 h-10 ml-1"/>}
-            </Button>
-        </motion.div>
+          <ArrowLeft className="w-8 h-8" />
+        </Button>
+        <Button
+          onClick={e => {
+            e.stopPropagation();
+            isActive ? pause() : start();
+          }}
+          variant="ghost"
+          size="icon"
+          className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
+        >
+          {isActive ? (
+            <Pause className="w-10 h-10" />
+          ) : (
+            <Play className="w-10 h-10 ml-1" />
+          )}
+        </Button>
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleAddTime}
+            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+        >
+          <Plus className="w-8 h-8" />
+        </Button>
+      </motion.div>
     </div>
   );
 }

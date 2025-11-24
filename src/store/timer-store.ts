@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { create } from "zustand";
+import { create } from 'zustand';
 
-export type TimerMode = "pomodoro" | "shortBreak" | "longBreak";
+export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
 const POMODORO_DUR = 25 * 60;
 const SHORT_BREAK_DUR = 5 * 60;
@@ -10,11 +10,11 @@ const LONG_BREAK_DUR = 15 * 60;
 
 const getInitialTime = (mode: TimerMode, durations?: Partial<TimerDurations>) => {
   switch (mode) {
-    case "pomodoro":
+    case 'pomodoro':
       return durations?.pomodoroDuration || POMODORO_DUR;
-    case "shortBreak":
+    case 'shortBreak':
       return durations?.shortBreakDuration || SHORT_BREAK_DUR;
-    case "longBreak":
+    case 'longBreak':
       return durations?.longBreakDuration || LONG_BREAK_DUR;
   }
 };
@@ -23,11 +23,11 @@ export type TimerDurations = {
   pomodoroDuration: number;
   shortBreakDuration: number;
   longBreakDuration: number;
-}
+};
 
 type VisualSettings = {
   antiBurnIn: boolean;
-}
+};
 
 type TimerState = {
   mode: TimerMode;
@@ -38,7 +38,8 @@ type TimerState = {
   totalFocusMinutes: number;
   totalPomos: number;
   isAmoledProtectionMode: boolean;
-} & TimerDurations & VisualSettings;
+} & TimerDurations &
+  VisualSettings;
 
 type TimerActions = {
   setMode: (mode: TimerMode) => void;
@@ -48,13 +49,17 @@ type TimerActions = {
   tick: (decrement: number) => void;
   completeCycle: () => void;
   setDurations: (durations: Partial<TimerDurations>) => void;
-  setFocusHistory: (data: {totalFocusMinutes: number, totalPomos: number}) => void;
+  setFocusHistory: (data: {
+    totalFocusMinutes: number;
+    totalPomos: number;
+  }) => void;
   setVisuals: (visuals: Partial<VisualSettings>) => void;
   toggleAmoledProtectionMode: () => void;
+  addTime: (seconds: number) => void;
 };
 
 export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
-  mode: "pomodoro",
+  mode: 'pomodoro',
   pomodoroDuration: POMODORO_DUR,
   shortBreakDuration: SHORT_BREAK_DUR,
   longBreakDuration: LONG_BREAK_DUR,
@@ -67,22 +72,22 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   antiBurnIn: true, // Enabled by default for better UX on OLED
   isAmoledProtectionMode: false,
 
-  setMode: (mode) => {
+  setMode: mode => {
     set({
       mode,
       isActive: false,
       timeLeft: getInitialTime(mode, get()),
     });
   },
-  start: (startTime) => set({ isActive: true, sessionStartTime: startTime }),
+  start: startTime => set({ isActive: true, sessionStartTime: startTime }),
   pause: () => set({ isActive: false }),
   reset: () =>
-    set((state) => ({
+    set(state => ({
       isActive: false,
       timeLeft: getInitialTime(state.mode, state),
     })),
-  tick: (decrement) => {
-    set((state) => {
+  tick: decrement => {
+    set(state => {
       const newTimeLeft = Math.max(0, state.timeLeft - decrement);
       if (newTimeLeft === 0 && state.isActive) {
         return { timeLeft: 0 };
@@ -92,39 +97,42 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   },
   completeCycle: () => {
     const currentMode = get().mode;
-    if (currentMode === "pomodoro") {
+    if (currentMode === 'pomodoro') {
       const pomodoros = get().pomodorosCompleted + 1;
       set({ pomodorosCompleted: pomodoros, isActive: false });
       if (pomodoros % 4 === 0) {
-        get().setMode("longBreak");
+        get().setMode('longBreak');
       } else {
-        get().setMode("shortBreak");
+        get().setMode('shortBreak');
       }
     } else {
       set({ isActive: false });
-      get().setMode("pomodoro");
+      get().setMode('pomodoro');
     }
   },
   setDurations: (durations: Partial<TimerDurations>) => {
     const currentDurations = {
-        pomodoroDuration: get().pomodoroDuration,
-        shortBreakDuration: get().shortBreakDuration,
-        longBreakDuration: get().longBreakDuration,
-    }
+      pomodoroDuration: get().pomodoroDuration,
+      shortBreakDuration: get().shortBreakDuration,
+      longBreakDuration: get().longBreakDuration,
+    };
     const newDurations = { ...currentDurations, ...durations };
     set(newDurations);
 
     if (!get().isActive) {
-        set(state => ({ timeLeft: getInitialTime(state.mode, newDurations) }));
+      set(state => ({ timeLeft: getInitialTime(state.mode, newDurations) }));
     }
   },
-  setFocusHistory: (data) => {
+  setFocusHistory: data => {
     set(data);
   },
-  setVisuals: (visuals) => {
+  setVisuals: visuals => {
     set(visuals);
   },
   toggleAmoledProtectionMode: () => {
-    set(state => ({ isAmoledProtectionMode: !state.isAmoledProtectionMode }))
-  }
+    set(state => ({ isAmoledProtectionMode: !state.isAmoledProtectionMode }));
+  },
+  addTime: seconds => {
+    set(state => ({ timeLeft: state.timeLeft + seconds }));
+  },
 }));
