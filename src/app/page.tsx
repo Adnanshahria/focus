@@ -22,7 +22,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
-      <main className="flex-1 flex flex-col items-center justify-center p-4">
+      <main className="flex-1 flex flex-col items-center justify-center p-4 pt-20 md:pt-24">
         {isUserLoading ? (
           <div className="flex flex-col items-center justify-center gap-8">
             <Skeleton className="w-[340px] h-[500px] md:w-[420px] md:h-[540px] rounded-3xl" />

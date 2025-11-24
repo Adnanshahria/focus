@@ -1,14 +1,14 @@
 'use client';
 
-import { Cog, User, Palette, Timer as TimerIcon, Code } from "lucide-react";
+import { Cog, User, Palette, Timer as TimerIcon, Code, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetDescription,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { UserProfile } from "./auth/user-profile";
 import { VisualSettings } from "./settings/visual-settings";
@@ -53,16 +53,20 @@ const DeveloperInfo = () => (
                 <p className="text-sm text-muted-foreground">{devInfo.role}</p>
             </div>
         </div>
-        <div className="text-sm space-y-2">
-            <div className="flex justify-between">
-                <span className="text-muted-foreground">Version:</span>
+        <Separator />
+        <div className="text-sm space-y-3">
+            <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Version</span>
                 <span className="font-medium">{devInfo.version}</span>
             </div>
-            <div className="flex justify-between">
-                <span className="text-muted-foreground">Contact:</span>
-                <Link href={`mailto:${devInfo.contact}`} className="font-medium text-primary hover:underline">
-                    {devInfo.contact}
-                </Link>
+            <div className="flex justify-between items-center">
+                 <span className="text-muted-foreground">Contact</span>
+                <Button variant="ghost" size="sm" asChild className="h-auto p-0 font-medium text-primary hover:underline">
+                    <Link href={`mailto:${devInfo.contact}`}>
+                        <Mail className="w-3 h-3 mr-1.5" />
+                        Email
+                    </Link>
+                </Button>
             </div>
         </div>
     </div>
