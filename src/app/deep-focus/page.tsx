@@ -18,48 +18,39 @@ export default function DeepFocusPage() {
         }
     }, [user, isUserLoading, auth]);
 
-    useEffect(() => {
+    const enterFullScreen = () => {
         const elem = containerRef.current;
         if (elem) {
-            try {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen().catch(err => {
-                        // This error can happen if the user denies the request or if the API is not supported.
-                        // It is safe to ignore in most cases.
-                         if (err.name !== 'NotAllowedError') {
-                            console.error("Fullscreen request failed:", err);
-                        }
-                    });
-                } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
-                    (elem as any).webkitRequestFullscreen();
-                } else if ((elem as any).msRequestFullscreen) { /* IE11 */
-                    (elem as any).msRequestFullscreen();
-                }
-            } catch (e) {
-                console.error("An unexpected error occurred when trying to enter fullscreen:", e);
-            }
-        }
-
-        return () => {
-            // Check if exitFullscreen exists on the document object before calling it
-            if (document.exitFullscreen) {
-                try {
-                    if (document.fullscreenElement) {
-                        document.exitFullscreen().catch(err => console.error("Error exiting fullscreen:", err));
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(err => {
+                    if (err.name !== 'NotAllowedError') {
+                        console.error("Fullscreen request failed:", err);
                     }
-                } catch (e) {
-                    console.error("An unexpected error occurred when trying to exit fullscreen:", e);
-                }
+                });
+            } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
+                (elem as any).webkitRequestFullscreen();
+            } else if ((elem as any).msRequestFullscreen) { /* IE11 */
+                (elem as any).msRequestFullscreen();
             }
         }
+    };
+    
+    // Exit fullscreen when the component unmounts
+    useEffect(() => {
+        return () => {
+            if (document.fullscreenElement && document.exitFullscreen) {
+                 document.exitFullscreen().catch(err => console.error("Error exiting fullscreen:", err));
+            }
+        };
     }, []);
+
 
     if (isUserLoading || !user) {
         return <div className="fixed inset-0 bg-black flex items-center justify-center"><Skeleton className="w-full h-full" /></div>
     }
 
     return (
-        <div ref={containerRef} className="fixed inset-0 bg-black flex flex-col items-center justify-center cursor-pointer">
+        <div ref={containerRef} className="fixed inset-0 bg-black flex flex-col items-center justify-center cursor-pointer" onClick={enterFullScreen}>
             <FloatingTimer />
         </div>
     );
