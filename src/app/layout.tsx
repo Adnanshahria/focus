@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: `%s | ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
-  manifest: "/manifest.json",
+  manifest: "/focus/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
