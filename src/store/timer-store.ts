@@ -35,6 +35,7 @@ type TimerState = {
   isActive: boolean;
   pomodorosCompleted: number;
   sessionStartTime: number | null;
+  sessionDuration: number; // The total duration for the current session including added time
   totalFocusMinutes: number;
   totalPomos: number;
   isAmoledProtectionMode: boolean;
@@ -67,25 +68,32 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   isActive: false,
   pomodorosCompleted: 0,
   sessionStartTime: null,
+  sessionDuration: POMODORO_DUR,
   totalFocusMinutes: 0,
   totalPomos: 0,
   antiBurnIn: true, // Enabled by default for better UX on OLED
   isAmoledProtectionMode: false,
 
   setMode: mode => {
+    const initialTime = getInitialTime(mode, get());
     set({
       mode,
       isActive: false,
-      timeLeft: getInitialTime(mode, get()),
+      timeLeft: initialTime,
+      sessionDuration: initialTime,
     });
   },
   start: startTime => set({ isActive: true, sessionStartTime: startTime }),
   pause: () => set({ isActive: false }),
   reset: () =>
-    set(state => ({
-      isActive: false,
-      timeLeft: getInitialTime(state.mode, state),
-    })),
+    set(state => {
+        const initialTime = getInitialTime(state.mode, state);
+        return {
+            isActive: false,
+            timeLeft: initialTime,
+            sessionDuration: initialTime,
+        }
+    }),
   tick: decrement => {
     set(state => {
       const newTimeLeft = Math.max(0, state.timeLeft - decrement);
@@ -120,7 +128,11 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
     set(newDurations);
 
     if (!get().isActive) {
-      set(state => ({ timeLeft: getInitialTime(state.mode, newDurations) }));
+        const initialTime = getInitialTime(get().mode, newDurations);
+        set({ 
+            timeLeft: initialTime,
+            sessionDuration: initialTime,
+        });
     }
   },
   setFocusHistory: data => {
@@ -133,6 +145,9 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
     set(state => ({ isAmoledProtectionMode: !state.isAmoledProtectionMode }));
   },
   addTime: seconds => {
-    set(state => ({ timeLeft: state.timeLeft + seconds }));
+    set(state => ({
+      timeLeft: state.timeLeft + seconds,
+      sessionDuration: state.sessionDuration + seconds,
+    }));
   },
 }));

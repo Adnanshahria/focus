@@ -28,11 +28,8 @@ export function FloatingTimer() {
     isActive,
     start,
     pause,
-    pomodoroDuration,
-    shortBreakDuration,
-    longBreakDuration,
-    mode,
     addTime,
+    sessionDuration,
   } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
@@ -45,27 +42,8 @@ export function FloatingTimer() {
   const { isSupported, request, release } = useWakeLock();
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const getInitialDuration = useCallback(() => {
-    switch (mode) {
-      case 'pomodoro':
-        return pomodoroDuration;
-      case 'shortBreak':
-        return shortBreakDuration;
-      case 'longBreak':
-        return longBreakDuration;
-      default:
-        return pomodoroDuration;
-    }
-  }, [mode, pomodoroDuration, shortBreakDuration, longBreakDuration]);
-  
-  const [duration, setDuration] = useState(getInitialDuration());
   const [pathLength, setPathLength] = useState(0);
   const pathRef = useRef<SVGPathElement>(null);
-
-
-  useEffect(() => {
-    setDuration(getInitialDuration());
-  }, [mode, getInitialDuration]);
 
 
   useEffect(() => {
@@ -75,7 +53,7 @@ export function FloatingTimer() {
     }
   }, []);
 
-  const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
+  const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
   const strokeDashoffset = pathLength * (1 - progress);
 
   const showControls = useCallback(() => {
@@ -102,8 +80,7 @@ export function FloatingTimer() {
   const handleAddTime = (e: React.MouseEvent) => {
     e.stopPropagation();
     const timeToAdd = 3 * 60;
-    addTime(timeToAdd); // Add 3 minutes
-    setDuration(prev => prev + timeToAdd);
+    addTime(timeToAdd);
   }
 
   useEffect(() => {
@@ -167,33 +144,24 @@ export function FloatingTimer() {
         )}
       >
         <div className="relative w-[320px] h-[180px] md:w-[480px] md:h-[270px] flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/30 backdrop-blur-xl rounded-2xl"
-            style={{
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-          />
           <svg
             className="absolute inset-0 w-full h-full"
             viewBox="0 0 480 270"
+            fill="none"
           >
             <path
               d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-              fill="none"
-              stroke="rgba(255,255,255,0.2)"
+              stroke="rgba(255, 255, 255, 0.1)"
               strokeWidth="3"
             />
             <motion.path
                 ref={pathRef}
                 d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-                fill="none"
                 stroke="white"
                 strokeWidth="3"
                 strokeDasharray={pathLength}
                 strokeDashoffset={strokeDashoffset}
                 initial={false}
-                animate={{ strokeDashoffset }}
-                transition={{ duration: 1, ease: 'linear' }}
             />
           </svg>
 
