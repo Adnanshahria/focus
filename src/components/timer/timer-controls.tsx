@@ -2,15 +2,24 @@
 
 import { useTimer } from "@/hooks/use-timer";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export function TimerControls() {
-  const { isActive, start, pause, reset } = useTimer();
+  const { isActive, start, pause, reset, addTime } = useTimer();
+
+  const handleAddTime = () => {
+    addTime(3 * 60); // Add 3 minutes
+  };
 
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center justify-center w-full gap-4">
+      <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
+        <Button onClick={reset} size="icon" variant="ghost" className="rounded-full w-14 h-14 text-muted-foreground hover:text-foreground">
+          <RotateCcw />
+        </Button>
+      </motion.div>
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Button
           onClick={isActive ? pause : start}
@@ -28,8 +37,8 @@ export function TimerControls() {
         </Button>
       </motion.div>
       <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-        <Button onClick={reset} size="icon" variant="ghost" className="rounded-full w-14 h-14 text-muted-foreground hover:text-foreground">
-          <RotateCcw />
+        <Button onClick={handleAddTime} size="icon" variant="ghost" className="rounded-full w-14 h-14 text-muted-foreground hover:text-foreground">
+          <Plus />
         </Button>
       </motion.div>
     </div>

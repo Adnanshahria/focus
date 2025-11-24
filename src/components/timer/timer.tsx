@@ -56,8 +56,8 @@ export function Timer() {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
       className={cn(
-        "relative w-full max-w-[340px] h-[480px] md:max-w-[420px] md:h-[520px] rounded-3xl",
-        "flex flex-col items-center justify-around p-4",
+        "relative w-full max-w-[340px] h-[500px] md:max-w-[420px] md:h-[540px] rounded-3xl",
+        "flex flex-col items-center justify-between p-6",
         "bg-card/80 backdrop-blur-md border shadow-2xl shadow-black/20"
       )}
     >

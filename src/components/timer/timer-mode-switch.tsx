@@ -2,7 +2,7 @@
 
 import { useTimerStore, TimerMode } from '@/store/timer-store';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const modes: { id: TimerMode; label: string }[] = [
   { id: 'pomodoro', label: 'Pomodoro' },
@@ -13,25 +13,26 @@ const modes: { id: TimerMode; label: string }[] = [
 export function TimerModeSwitch() {
   const { mode, setMode, isActive } = useTimerStore();
 
+  const handleModeChange = (newMode: string) => {
+    if (!isActive) {
+      setMode(newMode as TimerMode);
+    }
+  };
+
   return (
-    <div className="flex items-center justify-center p-1 rounded-full bg-muted w-full">
-      {modes.map(modeItem => (
-        <Button
-          key={modeItem.id}
-          onClick={() => !isActive && setMode(modeItem.id)}
-          disabled={isActive}
-          variant="ghost"
-          size="sm"
-          className={cn(
-            'rounded-full px-4 py-1 text-sm font-medium transition-colors w-full',
-            mode === modeItem.id
-              ? 'bg-background text-foreground shadow-sm'
-              : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
-          )}
-        >
-          {modeItem.label}
-        </Button>
-      ))}
-    </div>
+    <Tabs value={mode} onValueChange={handleModeChange} className="w-full">
+      <TabsList className="grid w-full grid-cols-3">
+        {modes.map(modeItem => (
+          <TabsTrigger
+            key={modeItem.id}
+            value={modeItem.id}
+            disabled={isActive}
+            className="text-xs"
+          >
+            {modeItem.label}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
   );
 }
