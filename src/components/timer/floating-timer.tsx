@@ -32,7 +32,7 @@ export function FloatingTimer() {
   const pixelShiftControls = useAnimation();
   const { isSupported, request, release } = useWakeLock();
   const containerRef = useRef<HTMLDivElement>(null);
-  const svgBoxRef = useRef<SVGSVGElement>(null);
+  const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(0);
 
   const getDuration = () => {
@@ -45,17 +45,15 @@ export function FloatingTimer() {
   }
 
   const duration = getDuration();
-  const progress = duration > 0 ? (timeLeft / duration) : 0;
+  const progress = duration > 0 ? (duration - timeLeft) / duration : 0;
   const strokeDashoffset = pathLength * (1 - progress);
-
+  
   useEffect(() => {
-    if (svgBoxRef.current) {
-        const rect = svgBoxRef.current.querySelector('rect');
-        if (rect) {
-            setPathLength(rect.getTotalLength());
-        }
+    if (pathRef.current) {
+      setPathLength(pathRef.current.getTotalLength());
     }
   }, []);
+
 
   const showControls = useCallback(() => {
     setIsDimmed(false);
@@ -137,33 +135,23 @@ export function FloatingTimer() {
                         border: '1px solid rgba(255, 255, 255, 0.1)'
                     }}
                  />
-                <svg ref={svgBoxRef} className="absolute inset-0 w-full h-full" viewBox="0 0 480 270">
-                    <rect
-                        x="1"
-                        y="1"
-                        width="478"
-                        height="268"
-                        rx="15"
-                        ry="15"
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 480 270">
+                    <path
+                        d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
                         fill="none"
                         stroke="rgba(255,255,255,0.2)"
-                        strokeWidth="2"
+                        strokeWidth="3"
                     />
-                    <motion.rect
-                        x="1"
-                        y="1"
-                        width="478"
-                        height="268"
-                        rx="15"
-                        ry="15"
+                    <motion.path
+                        ref={pathRef}
+                        d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
                         fill="none"
                         stroke="white"
-                        strokeWidth="2"
+                        strokeWidth="3"
                         strokeDasharray={pathLength}
                         initial={false}
                         animate={{ strokeDashoffset }}
                         transition={{ duration: 1, ease: 'linear' }}
-                        transform="rotate(-90 240 135)"
                     />
                 </svg>
 
