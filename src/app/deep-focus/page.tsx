@@ -12,20 +12,13 @@ export default function DeepFocusPage() {
     const auth = useAuth();
     const containerRef = useRef<HTMLDivElement>(null);
 
+    // Automatically enter fullscreen when the component mounts
     useEffect(() => {
-        if (!isUserLoading && !user) {
-            initiateAnonymousSignIn(auth);
-        }
-    }, [user, isUserLoading, auth]);
-
-    const enterFullScreen = () => {
         const elem = containerRef.current;
         if (elem && !document.fullscreenElement) {
             if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(err => {
-                    // It's better to catch and log specific errors if needed,
-                    // but often, user denial doesn't need to be an error.
-                    // This can be left silent or logged for analytics.
+                elem.requestFullscreen().catch(() => {
+                    // Fail silently if the user denies the request
                 });
             } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
                 (elem as any).webkitRequestFullscreen();
@@ -33,7 +26,14 @@ export default function DeepFocusPage() {
                 (elem as any).msRequestFullscreen();
             }
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        if (!isUserLoading && !user) {
+            initiateAnonymousSignIn(auth);
+        }
+    }, [user, isUserLoading, auth]);
+
     
     // Exit fullscreen when the component unmounts
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function DeepFocusPage() {
     }
 
     return (
-        <div ref={containerRef} className="fixed inset-0 bg-black flex flex-col items-center justify-center cursor-pointer" onClick={enterFullScreen}>
+        <div ref={containerRef} className="fixed inset-0 bg-black flex flex-col items-center justify-center">
             <FloatingTimer />
         </div>
     );
