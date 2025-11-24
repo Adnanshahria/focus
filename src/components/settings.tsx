@@ -65,14 +65,6 @@ const DeveloperInfo = () => (
                 </Link>
             </div>
         </div>
-        <div className="flex gap-2 pt-2">
-            <Button variant="outline" size="sm" asChild className="flex-1">
-                <Link href="https://github.com/AdnanShahria" target="_blank">
-                    <Github className="mr-2 h-4 w-4" />
-                    GitHub
-                </Link>
-            </Button>
-        </div>
     </div>
 );
 

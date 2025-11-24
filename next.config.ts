@@ -1,13 +1,14 @@
 import type { NextConfig } from "next";
 
-// আমরা চেক করছি কোডটি GitHub Actions-এ রান হচ্ছে কিনা
+// We're checking if the code is running in GitHub Actions
 const isGithub = process.env.GITHUB_ACTIONS === "true";
 
 const nextConfig: NextConfig = {
   output: "export",
   
-  // 👇 স্মার্ট লজিক: গিটহাবে হলে '/focus', অন্যথায় খালি (root)
+  // Logic: '/focus' on GitHub, empty (root) otherwise
   basePath: isGithub ? "/focus" : "",
+  assetPrefix: isGithub ? "/focus/" : "",
   
   images: {
     unoptimized: true,
