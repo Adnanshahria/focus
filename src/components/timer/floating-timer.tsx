@@ -73,7 +73,7 @@ export function FloatingTimer() {
   }, [controlsAnimation]);
 
   const handleExit = useCallback(() => {
-    if (document.fullscreenElement) {
+    if (document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(err => console.error(err));
     }
     router.push('/');
@@ -151,13 +151,13 @@ export function FloatingTimer() {
             <path
               d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
               stroke="rgba(255, 255, 255, 0.1)"
-              strokeWidth="3"
+              strokeWidth="4"
             />
             <motion.path
                 ref={pathRef}
                 d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
                 stroke="white"
-                strokeWidth="3"
+                strokeWidth="4"
                 strokeDasharray={pathLength}
                 strokeDashoffset={strokeDashoffset}
                 initial={false}
@@ -175,16 +175,16 @@ export function FloatingTimer() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={controlsAnimation}
-        className="absolute bottom-10 flex items-center gap-4"
+        className="absolute bottom-8 sm:bottom-10 flex items-center gap-4"
         style={{ pointerEvents: controlsVisible ? 'auto' : 'none' }}
       >
         <Button
           variant="ghost"
           size="icon"
           onClick={handleExit}
-          className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+          className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
         >
-          <ArrowLeft className="w-8 h-8" />
+          <ArrowLeft className="w-7 h-7 sm:w-8 sm:h-8" />
         </Button>
         <Button
           onClick={e => {
@@ -193,21 +193,21 @@ export function FloatingTimer() {
           }}
           variant="ghost"
           size="icon"
-          className="w-20 h-20 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
+          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
         >
           {isActive ? (
-            <Pause className="w-10 h-10" />
+            <Pause className="w-9 h-9 sm:w-10 sm:h-10" />
           ) : (
-            <Play className="w-10 h-10 ml-1" />
+            <Play className="w-9 h-9 sm:w-10 sm:h-10 ml-1" />
           )}
         </Button>
         <Button
             variant="ghost"
             size="icon"
             onClick={handleAddTime}
-            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
         >
-          <Plus className="w-8 h-8" />
+          <Plus className="w-7 h-7 sm:w-8 sm:h-8" />
         </Button>
       </motion.div>
     </div>
