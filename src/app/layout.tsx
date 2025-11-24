@@ -8,7 +8,6 @@ const APP_NAME = "FocusFlow";
 const APP_DESCRIPTION = "A modern, minimalist Pomodoro & countdown timer designed for deep work and focus.";
 
 export const metadata: Metadata = {
-  applicationName: APP_NAME,
   title: {
     default: APP_NAME,
     template: `%s | ${APP_NAME}`,
