@@ -14,6 +14,7 @@ import {
   initiateEmailSignUp, 
   initiateEmailSignIn,
 } from '@/firebase/non-blocking-login';
+import { ForgotPasswordDialog } from './forgot-password-dialog';
 
 const signUpSchema = z
   .object({
@@ -36,6 +37,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function AuthForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isForgotPasswordOpen, setForgotPasswordOpen] = useState(false);
   const { toast } = useToast();
   const auth = useAuth();
 
@@ -63,14 +65,13 @@ export function AuthForm() {
         title: 'Account Created!',
         description: 'Welcome to FocusFlow.',
       });
-      // No need to set isSubmitting to false here as the component will unmount/change
     } catch (error: any) {
       toast({
           variant: 'destructive',
           title: 'Sign Up Failed',
           description: error.message || 'An unexpected error occurred.',
       });
-      setIsSubmitting(false); // Only set to false on error
+      setIsSubmitting(false);
     }
   };
 
@@ -78,18 +79,19 @@ export function AuthForm() {
     setIsSubmitting(true);
     try {
       await initiateEmailSignIn(auth, data.email, data.password);
-       // On success, the useUser hook will trigger a re-render, no need to set isSubmitting
     } catch(error: any) {
        toast({
         variant: 'destructive',
         title: 'Login Failed',
         description: 'Invalid credentials. Please try again.',
       });
-      setIsSubmitting(false); // Only set to false on error
+      setIsSubmitting(false);
     }
   };
 
   return (
+    <>
+    <ForgotPasswordDialog open={isForgotPasswordOpen} onOpenChange={setForgotPasswordOpen} />
     <Tabs defaultValue="login" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="login">Login</TabsTrigger>
@@ -106,6 +108,16 @@ export function AuthForm() {
             <Label htmlFor="login-password">Password</Label>
             <Input id="login-password" type="password" {...registerLogin('password')} />
             {loginErrors.password && <p className="text-destructive text-xs">{loginErrors.password.message}</p>}
+          </div>
+          <div className="text-right">
+            <Button
+              type="button"
+              variant="link"
+              className="p-0 h-auto text-xs text-muted-foreground"
+              onClick={() => setForgotPasswordOpen(true)}
+            >
+              Forgot Password?
+            </Button>
           </div>
           <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? 'Signing In...' : 'Sign In'}
@@ -135,5 +147,6 @@ export function AuthForm() {
         </form>
       </TabsContent>
     </Tabs>
+    </>
   );
 }

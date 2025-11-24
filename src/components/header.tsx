@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Timer } from "lucide-react";
 import { Settings } from "@/components/settings";
 import { Button } from "@/components/ui/button";
-import { useUser, useTimerStore } from "@/firebase";
+import { useUser } from "@/firebase";
 import { cn } from "@/lib/utils";
 
 const Logo = () => (
@@ -20,22 +20,23 @@ const Logo = () => (
 export function Header() {
   const { user } = useUser();
   const isRegisteredUser = user && !user.isAnonymous;
-  const toggleAmoledProtectionMode = useTimerStore(state => state.toggleAmoledProtectionMode);
-
-  const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg";
+  
+  const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-4 bg-background/80 backdrop-blur-sm border-b">
+    <header className="fixed top-0 left-0 right-0 z-10 flex items-center justify-between p-2 md:p-4 bg-background/80 backdrop-blur-sm border-b">
       <Logo />
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <Button 
             variant="ghost" 
             size="sm"
-            onClick={toggleAmoledProtectionMode}
+            asChild
             className={cn(glassButtonClasses)}
             aria-label="Deep Focus"
         >
-          Deep Focus
+          <Link href="/deep-focus">
+            Deep Focus
+          </Link>
         </Button>
         <Button 
             variant="ghost" 
