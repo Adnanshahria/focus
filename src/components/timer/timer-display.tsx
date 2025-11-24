@@ -49,7 +49,7 @@ export function TimerDisplay() {
           strokeDasharray={circumference}
           initial={false}
           animate={{ strokeDashoffset }}
-          transition={{ duration: 0.35, ease: "linear" }}
+          transition={{ duration: 1, ease: "easeInOut" }}
         />
         <defs>
             <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
