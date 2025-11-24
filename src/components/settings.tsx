@@ -1,6 +1,6 @@
 'use client';
 
-import { Cog, Github, User, Palette, Timer as TimerIcon, Code } from "lucide-react";
+import { Cog, User, Palette, Timer as TimerIcon, Code } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -79,13 +79,13 @@ export function Settings() {
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full max-w-sm flex flex-col">
-        <SheetHeader>
+        <SheetHeader className="pr-6">
           <SheetTitle>Settings</SheetTitle>
           <SheetDescription>
             Manage your profile, preferences, and timer settings.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto py-6 space-y-8 pr-4">
+        <div className="flex-1 overflow-y-auto py-6 space-y-8 pr-6">
             <Section icon={User} title="User Profile">
                 <UserProfile />
             </Section>

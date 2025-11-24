@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -21,8 +21,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore, setDocumentNonBlocking, addDocumentNonBlocking } from '@/firebase';
-import { doc, collection, getDoc, runTransaction } from 'firebase/firestore';
+import { useUser, useFirestore } from '@/firebase';
+import { doc, collection, runTransaction } from 'firebase/firestore';
 
 const addRecordSchema = z.object({
   date: z.date({
@@ -50,7 +50,6 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
   const {
     register,
     handleSubmit,
-    control,
     watch,
     setValue,
     formState: { errors },
@@ -81,16 +80,22 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
       const sessionsCollectionRef = collection(focusRecordRef, 'sessions');
 
       await runTransaction(firestore, async (transaction) => {
-        // 1. Get the current focus record
         const recordSnap = await transaction.get(focusRecordRef);
-        const currentData = recordSnap.data() || { totalFocusMinutes: 0, totalPomos: 0 };
         
-        // 2. Calculate new totals
-        const newTotalFocusMinutes = (currentData.totalFocusMinutes || 0) + data.duration;
+        // Use existing data or initialize if it doesn't exist
+        const currentData = recordSnap.data() || { 
+            totalFocusMinutes: 0, 
+            totalPomos: 0,
+            userId: user.uid,
+            date: dateString,
+            id: dateString
+        };
+        
+        const newTotalFocusMinutes = currentData.totalFocusMinutes + data.duration;
 
-        // 3. Create the new session document
-        const newSessionRef = doc(sessionsCollectionRef); // Create a new ref for the session
+        const newSessionRef = doc(sessionsCollectionRef);
         transaction.set(newSessionRef, {
+          id: newSessionRef.id,
           focusRecordId: focusRecordRef.id,
           startTime: data.date.toISOString(),
           endTime: new Date(data.date.getTime() + data.duration * 60000).toISOString(),
@@ -98,14 +103,11 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
           type: 'manual',
         });
         
-        // 4. Upsert the focus record with updated totals
         const recordUpdateData = {
-          id: dateString,
-          date: dateString,
-          userId: user.uid,
+          ...currentData, // Carry over existing fields
           totalFocusMinutes: newTotalFocusMinutes,
-          totalPomos: currentData.totalPomos, // Manual entries don't count as pomos
         };
+        
         transaction.set(focusRecordRef, recordUpdateData, { merge: true });
       });
 

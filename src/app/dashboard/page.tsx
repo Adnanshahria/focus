@@ -14,7 +14,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { collection, query, orderBy, limit, where, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, limit, where } from 'firebase/firestore';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, eachDayOfInterval, formatDistanceToNow } from 'date-fns';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -90,6 +90,7 @@ const renderChart = (data: ChartData[], loading: boolean, timeRange: 'day' | 'we
             tickLine={false}
             axisLine={false}
             tickMargin={8}
+            interval="preserveStartEnd"
           />
           <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
           <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
@@ -163,7 +164,7 @@ export default function DashboardPage() {
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
   
   useEffect(() => {
-    if (!isUserLoading && (!user)) {
+    if (!isUserLoading && (!user || user.isAnonymous)) {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
@@ -179,10 +180,9 @@ export default function DashboardPage() {
   
   const focusRecordsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
-    let q = collection(firestore, `users/${user.uid}/focusRecords`);
     const { start, end } = dateRanges[timeRange];
     
-    return query(q, 
+    return query(collection(firestore, `users/${user.uid}/focusRecords`), 
         where('date', '>=', format(start, 'yyyy-MM-dd')),
         where('date', '<=', format(end, 'yyyy-MM-dd')),
         orderBy('date', 'desc')
@@ -221,7 +221,7 @@ export default function DashboardPage() {
     return focusRecords.map(r => ({ date: r.id, totalFocusMinutes: r.totalFocusMinutes }));
   }, [focusRecords]);
 
-  if (isUserLoading || !user) {
+  if (isUserLoading || !user || user.isAnonymous) {
     return (
       <div className="flex flex-col min-h-screen bg-background">
         <Header />

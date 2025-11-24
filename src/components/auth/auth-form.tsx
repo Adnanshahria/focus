@@ -65,13 +65,14 @@ export function AuthForm() {
         title: 'Account Created!',
         description: 'Welcome to FocusFlow.',
       });
+      // Submission successful, no need to set isSubmitting to false, as the component will unmount/change
     } catch (error: any) {
       toast({
           variant: 'destructive',
           title: 'Sign Up Failed',
           description: error.message || 'An unexpected error occurred.',
       });
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Re-enable button on error
     }
   };
 
@@ -79,13 +80,14 @@ export function AuthForm() {
     setIsSubmitting(true);
     try {
       await initiateEmailSignIn(auth, data.email, data.password);
+      // Submission successful, no need to set isSubmitting to false, as the component will unmount/change
     } catch(error: any) {
        toast({
         variant: 'destructive',
         title: 'Login Failed',
         description: 'Invalid credentials. Please try again.',
       });
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Re-enable button on error
     }
   };
 

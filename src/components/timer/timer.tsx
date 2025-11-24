@@ -22,7 +22,6 @@ const MemoizedTimerControls = React.memo(TimerControls);
 const MemoizedTimerModeSwitch = React.memo(TimerModeSwitch);
 
 export function Timer() {
-  const mode = useTimerStore(state => state.mode);
   const { setDurations } = useTimerStore(state => ({
     setDurations: state.setDurations,
   }));
@@ -57,7 +56,7 @@ export function Timer() {
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5 }}
       className={cn(
-        "relative w-[340px] h-[480px] md:w-[420px] md:h-[520px] rounded-3xl",
+        "relative w-full max-w-[340px] h-[480px] md:max-w-[420px] md:h-[520px] rounded-3xl",
         "flex flex-col items-center justify-around p-4",
         "bg-card/60 border shadow-2xl shadow-black/10 dark:shadow-black/20"
       )}
