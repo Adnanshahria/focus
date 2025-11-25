@@ -76,7 +76,7 @@ export function TimerSettings() {
         }
         reset(defaultDurations);
     }
-  }, [preferences, reset]);
+  }, [preferences, reset, setDurations]);
 
   const onSubmit = (data: TimerSettingsFormValues) => {
     if (!userPreferencesRef) {
@@ -121,25 +121,27 @@ export function TimerSettings() {
       );
   }
 
+  const isAnon = !user || user.isAnonymous;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="pomodoroDuration">Pomodoro (minutes)</Label>
-        <Input id="pomodoroDuration" type="number" {...register('pomodoroDuration')} disabled={!user || user.isAnonymous}/>
+        <Input id="pomodoroDuration" type="number" {...register('pomodoroDuration')} disabled={isAnon}/>
         {errors.pomodoroDuration && <p className="text-destructive text-xs">{errors.pomodoroDuration.message}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="shortBreakDuration">Short Break (minutes)</Label>
-        <Input id="shortBreakDuration" type="number" {...register('shortBreakDuration')} disabled={!user || user.isAnonymous}/>
+        <Input id="shortBreakDuration" type="number" {...register('shortBreakDuration')} disabled={isAnon}/>
         {errors.shortBreakDuration && <p className="text-destructive text-xs">{errors.shortBreakDuration.message}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="longBreakDuration">Long Break (minutes)</Label>
-        <Input id="longBreakDuration" type="number" {...register('longBreakDuration')} disabled={!user || user.isAnonymous}/>
+        <Input id="longBreakDuration" type="number" {...register('longBreakDuration')} disabled={isAnon}/>
         {errors.longBreakDuration && <p className="text-destructive text-xs">{errors.longBreakDuration.message}</p>}
       </div>
-      <Button type="submit" disabled={isSubmitting || !isDirty || !user || user.isAnonymous} className="w-full">
-        {isSubmitting ? 'Saving...' : 'Save Changes'}
+      <Button type="submit" disabled={isSubmitting || !isDirty || isAnon} className="w-full">
+        {isSubmitting ? 'Saving...' : isAnon ? 'Log in to Save' : 'Save Changes'}
       </Button>
     </form>
   );

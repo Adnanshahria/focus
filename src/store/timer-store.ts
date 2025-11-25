@@ -36,8 +36,6 @@ type TimerState = {
   pomodorosCompleted: number;
   sessionStartTime: number | null;
   sessionDuration: number; // The total duration for the current session including added time
-  totalFocusMinutes: number;
-  totalPomos: number;
 } & TimerDurations &
   VisualSettings;
 
@@ -49,10 +47,6 @@ type TimerActions = {
   tick: (decrement: number) => void;
   completeCycle: () => void;
   setDurations: (durations: Partial<TimerDurations>) => void;
-  setFocusHistory: (data: {
-    totalFocusMinutes: number;
-    totalPomos: number;
-  }) => void;
   setVisuals: (visuals: Partial<VisualSettings>) => void;
   addTime: (seconds: number) => void;
   subtractTime: (seconds: number) => void;
@@ -69,8 +63,6 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   pomodorosCompleted: 0,
   sessionStartTime: null,
   sessionDuration: POMODORO_DUR,
-  totalFocusMinutes: 0,
-  totalPomos: 0,
   antiBurnIn: true, // Enabled by default for better UX on OLED
 
   setMode: mode => {
@@ -141,16 +133,14 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
     const newDurations = { ...currentDurations, ...durations };
     set(newDurations);
 
+    // If the timer is not active, update the displayed time immediately
     if (!get().isActive) {
-        const initialTime = getInitialTime(get().mode, newDurations);
+        const newInitialTime = getInitialTime(get().mode, newDurations);
         set({ 
-            timeLeft: initialTime,
-            sessionDuration: initialTime,
+            timeLeft: newInitialTime,
+            sessionDuration: newInitialTime,
         });
     }
-  },
-  setFocusHistory: data => {
-    set(data);
   },
   setVisuals: visuals => {
     set(visuals);

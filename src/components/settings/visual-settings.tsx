@@ -63,6 +63,8 @@ export function VisualSettings() {
   });
 
   const watchedValues = watch();
+  const isAnon = !user || user.isAnonymous;
+
 
   useEffect(() => {
     if (preferences) {
@@ -94,10 +96,10 @@ export function VisualSettings() {
       setStoreVisuals({ antiBurnIn: data.antiBurnIn });
     }
     
-    if (!userPreferencesRef) return;
+    if (isAnon) return;
     
     const dataToSave = { id: 'main', ...data };
-    setDocumentNonBlocking(userPreferencesRef, dataToSave, { merge: true });
+    setDocumentNonBlocking(userPreferencesRef!, dataToSave, { merge: true });
     
     toast({
       title: 'Settings Updated',
@@ -118,7 +120,7 @@ export function VisualSettings() {
     }
   };
   
-  if (isLoading && user && !user.isAnonymous) {
+  if (isLoading && !isAnon) {
     return (
       <div className="space-y-6">
         <div className="space-y-2">
@@ -140,18 +142,21 @@ export function VisualSettings() {
         <RadioGroup
           value={watchedValues.theme}
           className="grid grid-cols-2 gap-2"
+          disabled={isAnon}
         >
           <Label 
-            onClick={() => handleThemeChange('light')}
-            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary"
+            onClick={() => !isAnon && handleThemeChange('light')}
+            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+            data-disabled={isAnon}
           >
             <Sun className="h-5 w-5"/>
             <RadioGroupItem value="light" id="theme-light" className="sr-only"/>
             <span>Light</span>
           </Label>
           <Label 
-            onClick={() => handleThemeChange('dark')}
-            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary"
+            onClick={() => !isAnon && handleThemeChange('dark')}
+            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
+            data-disabled={isAnon}
           >
             <Moon className="h-5 w-5"/>
             <RadioGroupItem value="dark" id="theme-dark" className="sr-only"/>
@@ -171,6 +176,7 @@ export function VisualSettings() {
           id="antiBurnIn"
           checked={watchedValues.antiBurnIn}
           onCheckedChange={handleAntiBurnInChange}
+          disabled={isAnon}
         />
       </div>
     </div>
