@@ -1,31 +1,8 @@
 "use client"
 
-export {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInput,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSkeleton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarRail,
-  SidebarSeparator,
-  SidebarTrigger,
-} from "./sidebar-components"
-
-export {
-  SidebarProvider,
-  useSidebar,
-} from "./sidebar-provider";
+export * from "./sidebar/sidebar-layout"
+export * from "./sidebar/sidebar-triggers"
+export * from "./sidebar/sidebar-structure"
+export * from "./sidebar/sidebar-groups"
+export * from "./sidebar/sidebar-menu"
+export * from "./sidebar/sidebar-provider"

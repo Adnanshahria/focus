@@ -24,7 +24,10 @@ export const useUser = (): UserAuthState => {
       return;
     };
     
-    setUserAuthState({ user: null, isUserLoading: true, userError: null });
+    // Set loading to true only if it's not already true
+    if (!userAuthState.isUserLoading) {
+      setUserAuthState(prevState => ({ ...prevState, isUserLoading: true }));
+    }
 
     const unsubscribe = onAuthStateChanged(
       auth,
@@ -37,6 +40,7 @@ export const useUser = (): UserAuthState => {
       }
     );
     return () => unsubscribe();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
   return userAuthState;
