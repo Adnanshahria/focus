@@ -13,7 +13,7 @@ export interface UserAuthState {
 export const useUser = (): UserAuthState => {
   const auth = useAuth();
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
-    user: null,
+    user: auth?.currentUser || null,
     isUserLoading: true,
     userError: null,
   });
@@ -24,10 +24,9 @@ export const useUser = (): UserAuthState => {
       return;
     };
     
-    // Set loading to true only if it's not already true
-    if (!userAuthState.isUserLoading) {
-      setUserAuthState(prevState => ({ ...prevState, isUserLoading: true }));
-    }
+    // Set loading to true whenever the auth instance changes.
+    // This ensures we always fetch the latest user state.
+    setUserAuthState(prevState => ({ ...prevState, isUserLoading: true }));
 
     const unsubscribe = onAuthStateChanged(
       auth,
@@ -40,7 +39,8 @@ export const useUser = (): UserAuthState => {
       }
     );
     return () => unsubscribe();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // The dependency on `auth` is crucial.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
   return userAuthState;
