@@ -269,7 +269,7 @@ export function FloatingTimer() {
           )}
         </Button>
 
-        {isActive && (
+        {isActive ? (
             <Button
                 variant="ghost"
                 size="icon"
@@ -278,8 +278,10 @@ export function FloatingTimer() {
             >
             <Plus className="w-7 h-7" />
             </Button>
+        ) : (
+          // Placeholder to keep layout consistent
+          <div className="w-14 h-14" />
         )}
-        {!isActive && <div className="w-14 h-14" />}
       </motion.div>
     </div>
   );

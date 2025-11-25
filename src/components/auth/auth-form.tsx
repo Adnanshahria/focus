@@ -80,16 +80,17 @@ export function AuthForm() {
     setIsSubmitting(true);
     try {
       await initiateEmailSignIn(auth, data.email, data.password);
-      // Submission successful, no need to set isSubmitting to false, as the component will unmount/change
-    } catch(error: any) {
-       toast({
+      // On success, the onAuthStateChanged listener will handle the UI update.
+    } catch (error: any) {
+      toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: 'Invalid credentials. Please try again.',
+        description: error.message || 'Invalid credentials. Please try again.',
       });
       setIsSubmitting(false); // Re-enable button on error
     }
   };
+
 
   return (
     <>

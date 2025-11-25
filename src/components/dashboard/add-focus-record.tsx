@@ -62,6 +62,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     control,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<AddRecordFormValues>({
     resolver: zodResolver(addRecordSchema),
@@ -108,14 +109,13 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
         const currentData = recordSnap.data() || { 
             totalFocusMinutes: 0, 
             totalPomos: 0,
-            userId: user.uid,
-            date: dateString,
-            id: dateString
         };
         
         const newTotalFocusMinutes = currentData.totalFocusMinutes + data.duration;
+        const isPomodoro = data.duration >= 25; // Simple check if it can be considered a pomo
+        const newTotalPomos = currentData.totalPomos + (isPomodoro ? 1 : 0);
 
-        const newSessionRef = doc(sessionsCollectionRef);
+        const newSessionRef = doc(sessionsCollectionRef); // Create a reference for the new session
         transaction.set(newSessionRef, {
           id: newSessionRef.id,
           focusRecordId: focusRecordRef.id,
@@ -123,21 +123,28 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
           endTime: new Date(dateWithTime.getTime() + data.duration * 60000).toISOString(),
           duration: data.duration,
           type: 'manual',
+          completed: true, // Manual entries are always 'completed'
         });
         
+        // Prepare data for the main focus record
         const recordUpdateData = {
-          ...currentData,
+          id: dateString,
+          date: dateString,
+          userId: user.uid,
           totalFocusMinutes: newTotalFocusMinutes,
+          totalPomos: newTotalPomos
         };
         
+        // Use set with merge to create or update the daily record
         transaction.set(focusRecordRef, recordUpdateData, { merge: true });
       });
 
       toast({
         title: 'Record Added',
-        description: `Successfully logged ${data.duration} minutes for ${dateString}.`,
+        description: `Successfully logged ${data.duration} minutes for ${format(data.date, 'PPP')}.`,
       });
       onOpenChange(false);
+      reset(); // Reset form to default values after successful submission
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -161,31 +168,37 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
            <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={'outline'}
-                  className={cn(
-                    'w-full justify-start text-left font-normal',
-                    !selectedDate && 'text-muted-foreground'
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, 'PPP') : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => date && setValue('date', date)}
-                  initialFocus
-                  disabled={(date) =>
-                    date > new Date() || date < new Date('1900-01-01')
-                  }
-                />
-              </PopoverContent>
-            </Popover>
+            <Controller
+                control={control}
+                name="date"
+                render={({ field }) => (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={'outline'}
+                      className={cn(
+                        'w-full justify-start text-left font-normal',
+                        !field.value && 'text-muted-foreground'
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={(date) => field.onChange(date)}
+                      initialFocus
+                      disabled={(date) =>
+                        date > new Date() || date < new Date('1900-01-01')
+                      }
+                    />
+                  </PopoverContent>
+                </Popover>
+              )}
+            />
             {errors.date && <p className="text-destructive text-xs">{errors.date.message}</p>}
           </div>
           
@@ -208,7 +221,22 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
                       </Select>
                     )}
                   />
-                <Input id="minute" type="number" placeholder="Min" {...register('minute')} />
+                <Controller
+                    control={control}
+                    name="minute"
+                    render={({ field }) => (
+                        <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Min" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from({ length: 60 }, (_, i) => i).map(m => (
+                                    <SelectItem key={m} value={String(m)}>{String(m).padStart(2, '0')}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
+                />
                  <Controller
                     control={control}
                     name="ampm"
