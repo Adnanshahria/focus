@@ -66,3 +66,29 @@ const FirebaseUserProvider: React.FC<{children: ReactNode}> = ({ children }) => 
         </FirebaseContext.Provider>
     )
 }
+
+// Custom hooks to easily access parts of the context
+export const useFirebaseApp = () => {
+    const context = useContext(FirebaseContext);
+    if (context === undefined) throw new Error("useFirebaseApp must be used within a FirebaseProvider");
+    return context.firebaseApp;
+}
+
+export const useFirestore = () => {
+    const context = useContext(FirebaseContext);
+    if (context === undefined) throw new Error("useFirestore must be used within a FirebaseProvider");
+    return context.firestore;
+}
+
+export const useAuth = () => {
+    const context = useContext(FirebaseContext);
+    if (context === undefined) throw new Error("useAuth must be used within a FirebaseProvider");
+    return context.auth;
+}
+
+export const useUser = (): UserAuthState => {
+    const context = useContext(FirebaseContext);
+    if (context === undefined) throw new Error("useUser must be used within a FirebaseProvider");
+    const { user, isUserLoading, userError } = context;
+    return { user, isUserLoading, userError };
+}
