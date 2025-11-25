@@ -27,10 +27,10 @@ export function Header() {
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
-  const handleNavigationClick = (e: React.MouseEvent<HTMLAnchorElement>, destination: 'deep-focus' | 'dashboard') => {
+  const handleNavigationClick = (e: React.MouseEvent<HTMLAnchorElement>, destination: 'dashboard') => {
     if (!isRegisteredUser) {
         e.preventDefault();
-        setAuthFeatureName(destination === 'deep-focus' ? 'enter deep focus mode' : 'view your progress');
+        setAuthFeatureName('view your progress');
         setAuthDialogOpen(true);
     } else {
         setLoading(destination);
@@ -50,7 +50,7 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-2">
           <Link 
             href="/deep-focus"
-            onClick={(e) => handleNavigationClick(e, 'deep-focus')}
+            onClick={() => setLoading('deep-focus')}
             passHref
           >
              <Button 

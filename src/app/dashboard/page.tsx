@@ -60,8 +60,16 @@ export default function DashboardPage() {
       <AddFocusRecordDialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
-          <div className="flex items-center justify-start gap-4 mb-6 w-full">
+        <main className="flex-1 flex flex-col pt-28 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+          <div className="fixed top-14 left-0 right-0 bg-background/95 backdrop-blur-sm z-40 lg:hidden">
+              <div className="flex items-center justify-start gap-4 p-4 max-w-6xl mx-auto">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
+            </div>
+          </div>
+          <div className="hidden lg:flex items-center justify-start gap-4 mb-6 w-full">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
