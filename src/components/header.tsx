@@ -28,18 +28,14 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
 
   useEffect(() => {
     // Reset loading state when navigation completes
-    if (!isDashboard) {
+    if (loading === 'dashboard' && pathname !== '/dashboard') {
         setLoading(false);
     }
-  }, [isDashboard, pathname]);
+  }, [pathname, loading]);
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   const handleRecordClick = (e: React.MouseEvent) => {
-    if (isDashboard) {
-        router.back();
-        return;
-    }
     if (!isRegisteredUser) {
         e.preventDefault();
         setAuthFeatureName('view your record');
@@ -57,7 +53,7 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
         onOpenChange={setAuthDialogOpen}
         featureName={authFeatureName}
       />
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-transparent h-16 border-b border-transparent">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-transparent h-16">
         <div className="flex items-center gap-2">
             {isDashboard && (
                 <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => router.back()}>
@@ -71,7 +67,7 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-1 sm:gap-2">
-            <div className={cn("hidden md:flex items-center gap-1 sm:gap-2", isDashboard && "md:hidden")}>
+            <div className={cn("flex items-center gap-1 sm:gap-2", isDashboard && "hidden md:flex")}>
                 <Button
                 onClick={onDeepFocusClick}
                 variant="ghost" 
