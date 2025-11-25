@@ -14,23 +14,10 @@ export default function DeepFocusPage() {
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
     
-    // Default to dark mode and enter fullscreen when the page loads.
+    // Default to dark mode and handle exiting fullscreen.
     useEffect(() => {
         setTheme('dark');
-        const elem = containerRef.current;
-
-        const enterFullScreen = () => {
-             if (elem && !document.fullscreenElement) {
-                if (elem.requestFullscreen) {
-                    elem.requestFullscreen().catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
-                } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
-                    (elem as any).webkitRequestFullscreen();
-                }
-            }
-        };
-
-        enterFullScreen();
-
+        
         const handleFullscreenChange = () => {
             if (!document.fullscreenElement) {
                 router.push('/');
@@ -43,6 +30,7 @@ export default function DeepFocusPage() {
         return () => {
             document.removeEventListener('fullscreenchange', handleFullscreenChange);
             document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+            // Ensure we exit fullscreen if the component unmounts for any reason.
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             }
