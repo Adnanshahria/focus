@@ -1,7 +1,7 @@
 'use client';
 
 import { useDoc, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { doc, collection, query, where } from "firebase/firestore";
@@ -18,8 +18,7 @@ function formatDuration(minutes: number) {
 
 export const TodayStats = ({ userId }: { userId: string }) => {
   const firestore = useFirestore();
-  const [weekStartsOn] = useState<0 | 1>(1); // Default to Monday for homepage widget
-  const { today, dateRanges } = useDateRanges(weekStartsOn);
+  const { today, dateRanges } = useDateRanges();
 
   const todayDateString = format(today, 'yyyy-MM-dd');
   
