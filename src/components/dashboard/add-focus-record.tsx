@@ -81,7 +81,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     setIsSubmitting(true);
 
     try {
-      const dateWithTime = setMinutes(setHours(data.date, data.hour), data.minute);
+      const dateWithTime = set(data.date, { hours: data.hour, minutes: data.minute, seconds: 0, milliseconds: 0 });
       const dateString = format(dateWithTime, 'yyyy-MM-dd');
       
       const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, dateString);

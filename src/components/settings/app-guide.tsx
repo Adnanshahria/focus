@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 
 const guideContent = {
   en: {
@@ -25,10 +23,9 @@ const guideContent = {
     settings: {
       title: "Settings Explained",
       profile: "**User Profile:** Sign up to save your preferences and track your progress across devices. Anonymous users' data is local to the browser and temporary.",
-      appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Pixel Shifting' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
+      appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Anti-Burn' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
       timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your personal workflow. Changes are saved automatically for registered users.",
     },
-    language: "Language"
   },
   bn: {
     title: "অ্যাপ গাইড এবং বৈশিষ্ট্য",
@@ -49,10 +46,9 @@ const guideContent = {
     settings: {
       title: "সেটিংস পরিচিতি",
       profile: "**ব্যবহারকারী প্রোফাইল:** আপনার পছন্দগুলি সংরক্ষণ করতে এবং ডিভাইস জুড়ে আপনার অগ্রগতি ট্র্যাক করতে সাইন আপ করুন। বেনামী ব্যবহারকারীদের ডেটা ব্রাউজারে স্থানীয় এবং অস্থায়ী থাকে।",
-      appearance: "**অ্যাপিয়ারেন্স:** লাইট মোড এবং ডার্ক মোডের মধ্যে স্যুইচ করুন। 'Pixel Shifting' সক্ষম করে ডিপ ফোকাস মোডে টাইমারটিকে সূক্ষ্মভাবে সরিয়ে OLED স্ক্রিন রক্ষা করুন।",
+      appearance: "**অ্যাপিয়ারেন্স:** লাইট মোড এবং ডার্ক মোডের মধ্যে স্যুইচ করুন। 'Anti-Burn' সক্ষম করে ডিপ ফোকাস মোডে টাইমারটিকে সূক্ষ্মভাবে সরিয়ে OLED স্ক্রিন রক্ষা করুন।",
       timer: "**টাইমার সময়কাল:** আপনার ব্যক্তিগত ওয়ার্কফ্লো অনুসারে আপনার পোমোডোরো, ছোট বিরতি এবং দীর্ঘ বিরতির সেশনের দৈর্ঘ্য কাস্টমাইজ করুন। নিবন্ধিত ব্যবহারকারীদের জন্য পরিবর্তনগুলি স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।",
     },
-    language: "ভাষা"
   }
 };
 
@@ -62,6 +58,14 @@ const FormattedContent = ({ text }: { text: string }) => {
             {text.split('\n').map((line, index) => {
                 if (line.trim() === '') {
                     return <div key={index} className="h-2" />; // Represents a line gap
+                }
+                if (line.includes('**How to use:**')) {
+                     return (
+                        <p key={index} className="flex flex-col">
+                           <span className='h-2'></span>
+                           <strong className="font-semibold text-foreground">{line.replace(/\*\*/g, '')}</strong>
+                        </p>
+                    )
                 }
                 const parts = line.split(/(\*\*.*?\*\*)|(\*.*?\*)/g).filter(Boolean);
                 return (
@@ -88,28 +92,11 @@ export function AppGuide() {
 
   return (
     <div className="space-y-4">
-        <div className="flex justify-between items-center">
-            <Label className="text-sm font-medium">{content.language}</Label>
-            <RadioGroup
-                defaultValue="en"
-                onValueChange={(value: 'en' | 'bn') => setLanguage(value)}
-                className="flex items-center space-x-2"
-                >
-                <div className="flex items-center space-x-1">
-                    <RadioGroupItem value="en" id="lang-en" />
-                    <Label htmlFor="lang-en" className="text-sm cursor-pointer">English</Label>
-                </div>
-                <div className="flex items-center space-x-1">
-                    <RadioGroupItem value="bn" id="lang-bn" />
-                    <Label htmlFor="lang-bn" className="text-sm cursor-pointer">বাংলা</Label>
-                </div>
-            </RadioGroup>
-        </div>
       <Accordion type="single" collapsible="true" className="w-full">
         <AccordionItem value="features">
           <AccordionTrigger>{content.features.title}</AccordionTrigger>
           <AccordionContent className="space-y-3 pl-4 border-l">
-            <Accordion type="multiple" collapsible="true" className="w-full">
+            <Accordion type="multiple" className="w-full">
                 <AccordionItem value="pomodoro-timer">
                     <AccordionTrigger className="py-2 text-sm">Pomodoro Timer</AccordionTrigger>
                     <AccordionContent className="pt-2">

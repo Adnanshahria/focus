@@ -52,7 +52,7 @@ export function FloatingTimer() {
         const length = pathRef.current.getTotalLength();
         setPathLength(length);
     }
-  }, []);
+  }, [isActive]); // Rerun when timer resets to get fresh path length
 
   const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
   const strokeDashoffset = pathLength * (1 - progress);
@@ -98,17 +98,13 @@ export function FloatingTimer() {
 
   useEffect(() => {
     if (isSupported) request();
-    showControls(); // Show controls on mount
+    showControls(); 
     
-    // Handle Android hardware back button by pushing a state to history
-    // and listening for the popstate event.
     const handlePopState = (event: PopStateEvent) => {
-        // When the user navigates back, popstate is triggered.
-        event.preventDefault(); // Prevent default browser action
+        event.preventDefault(); 
         handleExit();
     };
 
-    // Push a new state to the history stack when entering deep focus
     window.history.pushState({ deepFocus: true }, '');
     window.addEventListener('popstate', handlePopState);
 
@@ -118,8 +114,7 @@ export function FloatingTimer() {
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
       window.removeEventListener('popstate', handlePopState);
-      // If the user is still in deep focus when the component unmounts,
-      // it means they didn't use the back button, so we can go back in history.
+      
       if (window.history.state?.deepFocus) {
           window.history.back();
       }
