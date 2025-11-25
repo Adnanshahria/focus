@@ -1,7 +1,7 @@
 'use client';
 
 import { FloatingTimer } from '@/components/timer/floating-timer';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 export default function DeepFocusPage() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -18,6 +18,11 @@ export default function DeepFocusPage() {
             }
         }
     };
+
+    useEffect(() => {
+        enterFullScreen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     
     return (
         <div ref={containerRef} className="fixed inset-0 bg-background flex flex-col items-center justify-center" onClick={enterFullScreen}>
