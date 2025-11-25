@@ -63,7 +63,7 @@ export function Settings() {
                 <Section icon={TimerIcon} title="Timer">
                     <TimerSettings />
                 </Section>
-                 <Section icon={Code2} title="(&lt;&gt;) Development">
+                 <Section icon={Code2} title="Development">
                     <BuildLog />
                 </Section>
             </Accordion>

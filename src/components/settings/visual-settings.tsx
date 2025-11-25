@@ -138,9 +138,9 @@ export function VisualSettings() {
       
       <div className="flex items-center justify-between rounded-lg border p-3">
         <div className="space-y-0.5">
-          <Label htmlFor="antiBurnIn">Pixel Shifting</Label>
+          <Label htmlFor="antiBurnIn">Anti-Burn</Label>
           <p className="text-xs text-muted-foreground">
-            Protects OLED screens in Deep Focus mode.
+            Moves the Timer to save Amoled/Oled/Poled screen pixels in the deepfocus mode.
           </p>
         </div>
         <Switch 
