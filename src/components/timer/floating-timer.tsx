@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
@@ -7,7 +8,7 @@ import { useTimerStore } from '@/store/timer-store';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus, RotateCcw, Moon, Sun } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const formatTime = (seconds: number) => {
@@ -22,7 +23,12 @@ const formatTime = (seconds: number) => {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 };
 
-export function FloatingTimer() {
+interface FloatingTimerProps {
+    theme: 'dark' | 'light';
+    toggleTheme: () => void;
+}
+
+export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   const router = useRouter();
   const {
     timeLeft,
@@ -105,7 +111,12 @@ export function FloatingTimer() {
     isActive ? pause() : start();
     showControls();
   }
-
+  
+  const handleToggleTheme = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleTheme();
+    showControls();
+  }
 
   useEffect(() => {
     if (isSupported) request();
@@ -177,6 +188,9 @@ export function FloatingTimer() {
   const handleContainerClick = () => {
     showControls();
   };
+  
+  const uiColor = theme === 'dark' ? 'white' : 'hsl(var(--primary))';
+  const bgColorClass = theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-primary/10 hover:bg-primary/20';
 
   return (
     <div
@@ -198,13 +212,14 @@ export function FloatingTimer() {
           >
             <path
               d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-              stroke="rgba(255, 255, 255, 0.1)"
+              stroke={uiColor}
+              strokeOpacity="0.1"
               strokeWidth="6"
             />
             <motion.path
                 ref={pathRef}
                 d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-                stroke="white"
+                stroke={uiColor}
                 strokeWidth="6"
                 strokeDasharray={pathLength}
                 strokeDashoffset={strokeDashoffset}
@@ -214,7 +229,10 @@ export function FloatingTimer() {
           </svg>
 
           <div className="relative z-10 flex flex-col items-center justify-center">
-            <div className="text-white text-7xl md:text-8xl font-thin tracking-tighter tabular-nums">
+            <div 
+              className="text-7xl md:text-8xl font-thin tracking-tighter tabular-nums"
+              style={{ color: uiColor }}
+            >
               {formatTime(timeLeft)}
             </div>
           </div>
@@ -231,7 +249,8 @@ export function FloatingTimer() {
           variant="ghost"
           size="icon"
           onClick={handleExit}
-          className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+          className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+          style={{ color: uiColor }}
         >
           <ArrowLeft className="w-7 h-7" />
         </Button>
@@ -241,7 +260,8 @@ export function FloatingTimer() {
             variant="ghost"
             size="icon"
             onClick={handleSubtractTime}
-            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+            style={{ color: uiColor }}
           >
             <Minus className="w-7 h-7" />
           </Button>
@@ -250,7 +270,8 @@ export function FloatingTimer() {
             variant="ghost"
             size="icon"
             onClick={handleEndAndSave}
-            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+            style={{ color: uiColor }}
           >
             <RotateCcw className="w-6 h-6" />
           </Button>
@@ -260,7 +281,8 @@ export function FloatingTimer() {
           onClick={handleTogglePlay}
           variant="ghost"
           size="icon"
-          className="w-16 h-16 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
+          className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')}
+          style={{ color: uiColor }}
         >
           {isActive ? (
             <Pause className="w-9 h-9" />
@@ -274,15 +296,26 @@ export function FloatingTimer() {
                 variant="ghost"
                 size="icon"
                 onClick={handleAddTime}
-                className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+                className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+                style={{ color: uiColor }}
             >
             <Plus className="w-7 h-7" />
             </Button>
         ) : (
-          // Placeholder to keep layout consistent
-          <div className="w-14 h-14" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleToggleTheme}
+            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+            style={{ color: uiColor }}
+          >
+            {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+          </Button>
         )}
+
+        <div className="w-14 h-14" />
       </motion.div>
     </div>
   );
 }
+

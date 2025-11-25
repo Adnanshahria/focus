@@ -1,10 +1,17 @@
+
 'use client';
 
 import { FloatingTimer } from '@/components/timer/floating-timer';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export default function DeepFocusPage() {
     const containerRef = useRef<HTMLDivElement>(null);
+    const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+    const toggleTheme = () => {
+        setTheme(current => current === 'dark' ? 'light' : 'dark');
+    };
 
     const enterFullScreen = () => {
         const elem = containerRef.current;
@@ -25,8 +32,15 @@ export default function DeepFocusPage() {
     }, []);
     
     return (
-        <div ref={containerRef} className="fixed inset-0 bg-background flex flex-col items-center justify-center" onClick={enterFullScreen}>
-            <FloatingTimer />
+        <div 
+            ref={containerRef} 
+            className={cn(
+                "fixed inset-0 flex flex-col items-center justify-center",
+                theme === 'dark' ? 'bg-black' : 'bg-white'
+            )}
+            onClick={enterFullScreen}
+        >
+            <FloatingTimer theme={theme} toggleTheme={toggleTheme} />
         </div>
     );
 }
