@@ -4,13 +4,7 @@ import { HistoricalFocusChart } from './historical-focus-chart';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
-import { useDateRanges } from '@/hooks/use-date-ranges';
-import { useUser } from '@/firebase';
-import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
-import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, query, where, orderBy } from 'firebase/firestore';
-import { format } from 'date-fns';
-import { useUserPreferences, WeekStartDay } from '@/hooks/use-user-preferences';
+import { useUserPreferences, WeekStartDay } from '@/hooks/use-user-preferences.tsx';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -19,31 +13,18 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-export const WeekChart = () => {
-    const { user } = useUser();
-    const firestore = useFirestore();
+interface WeekChartProps {
+    weeklyRecords: any[] | undefined | null;
+}
+
+export const WeekChart = ({ weeklyRecords }: WeekChartProps) => {
     const { preferences, updatePreferences } = useUserPreferences();
     const weekStartsOn = preferences?.weekStartsOn ?? 1;
-    
-    const { dateRanges } = useDateRanges(weekStartsOn as WeekStartDay);
-    const { start, end } = dateRanges.week;
-
-    const weeklyQuery = useMemoFirebase(() => {
-        if (!user) return null;
-        return query(
-            collection(firestore, `users/${user.uid}/focusRecords`),
-            where('date', '>=', format(start, 'yyyy-MM-dd')),
-            where('date', '<=', format(end, 'yyyy-MM-dd')),
-            orderBy('date', 'asc')
-        );
-    }, [user, firestore, start, end]);
-
-    const { data, isLoading: loading } = useCollection(weeklyQuery);
 
     const weeklyTotal = useMemo(() => {
-        if (!data) return 0;
-        return data.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
-    }, [data]);
+        if (!weeklyRecords) return 0;
+        return weeklyRecords.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
+    }, [weeklyRecords]);
 
     return (
         <Card>
@@ -76,8 +57,8 @@ export const WeekChart = () => {
             </CardHeader>
             <CardContent>
                 <HistoricalFocusChart 
-                    data={data || []} 
-                    loading={loading} 
+                    data={weeklyRecords || []} 
+                    loading={!weeklyRecords} 
                     timeRange='week'
                     weekStartsOn={weekStartsOn as WeekStartDay}
                 />

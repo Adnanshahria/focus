@@ -29,7 +29,7 @@ export function Header() {
   const handleNavigationClick = (e: React.MouseEvent, destination: 'dashboard' | 'deep-focus') => {
     if (destination === 'dashboard' && !isRegisteredUser) {
         e.preventDefault();
-        setAuthFeatureName('view your progress');
+        setAuthFeatureName('view your record');
         setAuthDialogOpen(true);
     } else {
         setLoading(destination);
@@ -48,7 +48,7 @@ export function Header() {
         <Logo />
         <div className="flex items-center gap-1 sm:gap-2">
             <Button
-              onClick={(e) => handleNavigationClick(e, 'deep-focus')}
+              onClick={() => router.push('/deep-focus')}
               variant="ghost" 
               size="sm"
               className={cn(glassButtonClasses)}
@@ -62,10 +62,10 @@ export function Header() {
               variant="ghost" 
               size="sm"
               className={cn(glassButtonClasses)}
-              aria-label="Progress"
+              aria-label="Record"
               disabled={loading === 'dashboard'}
             >
-              {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
+              {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Record'}
             </Button>
           <Settings />
         </div>

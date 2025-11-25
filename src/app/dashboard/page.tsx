@@ -2,7 +2,7 @@
 
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Header } from '@/components/header';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,11 +14,43 @@ import { OverallChart } from '@/components/dashboard/overall-chart';
 import { RecentActivityCard } from '@/components/dashboard/recent-activity-card';
 import { Card } from '@/components/ui/card';
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
+import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { collection, query, orderBy, where, doc } from 'firebase/firestore';
+import { format, startOfDay, isWithinInterval } from 'date-fns';
+import { useDateRanges } from '@/hooks/use-date-ranges';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const firestore = useFirestore();
   const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
+  const { today, dateRanges } = useDateRanges();
+  const todayDateString = format(today, 'yyyy-MM-dd');
+
+  // Unified query for all records
+  const allRecordsQuery = useMemoFirebase(() => {
+    if (!user || user.isAnonymous) return null;
+    return query(collection(firestore, `users/${user.uid}/focusRecords`), orderBy('date', 'asc'));
+  }, [user, firestore]);
+
+  const { data: allRecords, isLoading: areRecordsLoading } = useCollection(allRecordsQuery);
+
+  // Unified query for today's sessions
+  const sessionsQuery = useMemoFirebase(() => {
+    if (!user || user.isAnonymous) return null;
+    return query(
+      collection(firestore, `users/${user.uid}/focusRecords/${todayDateString}/sessions`),
+      orderBy('startTime', 'desc'),
+    );
+  }, [user, firestore, todayDateString]);
+  
+  const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
+
+  // Memoized derived data for charts
+  const todayRecord = useMemo(() => allRecords?.find(r => r.id === todayDateString), [allRecords, todayDateString]);
+  const weeklyRecords = useMemo(() => allRecords?.filter(r => isWithinInterval(new Date(r.date), dateRanges.week)), [allRecords, dateRanges.week]);
+  const monthlyRecords = useMemo(() => allRecords?.filter(r => isWithinInterval(new Date(r.date), dateRanges.month)), [allRecords, dateRanges.month]);
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
@@ -26,10 +58,12 @@ export default function DashboardPage() {
     }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading || !user || user.isAnonymous) {
+  const isLoading = isUserLoading || areRecordsLoading || areSessionsLoading;
+
+  if (isLoading) {
     return <DashboardSkeleton />;
   }
-
+  
   return (
     <>
       <AddFocusRecordDialog open={isAuthDialogOpen} onOpenChange={setAuthDialogOpen} />
@@ -41,7 +75,7 @@ export default function DashboardPage() {
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Record</h1>
           </div>
         </div>
 
@@ -52,21 +86,21 @@ export default function DashboardPage() {
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Record</h1>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className='space-y-6'>
-              <RecentActivityCard onLogClick={() => setAuthDialogOpen(true)} />
-              <TodayChart />
+              <RecentActivityCard sessions={todaySessions} onLogClick={() => setAuthDialogOpen(true)} />
+              <TodayChart todayRecord={todayRecord} sessions={todaySessions} />
             </div>
             <div className="space-y-6">
-              <WeekChart />
-              <MonthChart />
+              <WeekChart weeklyRecords={weeklyRecords} />
+              <MonthChart monthlyRecords={monthlyRecords} />
             </div>
           </div>
           <Card className="col-span-1 md:col-span-2">
-            <OverallChart />
+            <OverallChart allRecords={allRecords} />
           </Card>
         </main>
       </div>

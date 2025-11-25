@@ -3,10 +3,12 @@
 import { FloatingTimer } from '@/components/timer/floating-timer';
 import { useRef, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useRouter } from 'next/navigation';
 
 export default function DeepFocusPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const { theme, setTheme } = useTheme();
+    const router = useRouter();
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -29,6 +31,22 @@ export default function DeepFocusPage() {
     useEffect(() => {
         setTheme('dark');
         enterFullScreen();
+
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement) {
+                router.push('/');
+            }
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+        };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     

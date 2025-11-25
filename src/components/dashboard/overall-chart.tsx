@@ -1,9 +1,5 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { useUser } from '@/firebase';
-import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
-import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, query, orderBy } from 'firebase/firestore';
 import { DateRange } from 'react-day-picker';
 import { subMonths, isWithinInterval } from 'date-fns';
 import { Card } from '../ui/card';
@@ -11,24 +7,16 @@ import { OverallChartHeader } from './overall-chart-header';
 import { OverallChartContent } from './overall-chart-content';
 import { ChartData } from './overall-chart-utils';
 
-export const OverallChart = () => {
-    const { user } = useUser();
-    const firestore = useFirestore();
+interface OverallChartProps {
+    allRecords: ChartData[] | undefined | null;
+}
+
+export const OverallChart = ({ allRecords }: OverallChartProps) => {
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
       from: subMonths(new Date(), 1),
       to: new Date(),
     });
     
-    const allRecordsQuery = useMemoFirebase(() => {
-        if (!user) return null;
-        return query(
-            collection(firestore, `users/${user.uid}/focusRecords`),
-            orderBy('date', 'asc')
-        );
-    }, [user, firestore]);
-
-    const { data: allRecords, isLoading: loading } = useCollection<ChartData>(allRecordsQuery);
-
     const { chartData, totalMinutesInRange, totalPomosInRange } = useMemo(() => {
         if (!allRecords) return { chartData: [], totalMinutesInRange: 0, totalPomosInRange: 0 };
         
@@ -65,7 +53,7 @@ export const OverallChart = () => {
                 totalPomosInRange={totalPomosInRange}
             />
             <OverallChartContent
-                loading={loading}
+                loading={!allRecords}
                 chartData={chartData}
             />
         </Card>

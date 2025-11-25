@@ -1,13 +1,7 @@
 'use client';
 
-import { useUser } from '@/firebase';
-import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import { useCollection } from '@/firebase/firestore/use-collection';
 import { useMemo } from 'react';
-import { collection, query, orderBy, doc } from 'firebase/firestore';
-import { format, parseISO } from 'date-fns';
-import { Skeleton } from '@/components/ui/skeleton';
+import { parseISO } from 'date-fns';
 import { CardDescription, Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { DailyFocusChart } from './daily-focus-chart';
 
@@ -18,29 +12,12 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-export const TodayChart = () => {
-    const { user } = useUser();
-    const firestore = useFirestore();
-    const today = useMemo(() => new Date(), []);
-    const todayDateString = useMemo(() => format(today, 'yyyy-MM-dd'), [today]);
+interface TodayChartProps {
+    todayRecord: any;
+    sessions: any[] | null;
+}
 
-    const focusRecordRef = useMemoFirebase(() => {
-        if (!user || !firestore) return null;
-        return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
-    }, [user, firestore, todayDateString]);
-    
-    const { data: todayRecord, isLoading: recordLoading } = useDoc(focusRecordRef);
-
-    const sessionsQuery = useMemoFirebase(() => {
-        if (!user || user.isAnonymous) return null;
-        return query(
-            collection(firestore, `users/${user.uid}/focusRecords/${todayDateString}/sessions`),
-            orderBy('startTime', 'asc')
-        );
-    }, [user, firestore, todayDateString]);
-
-    const { data: sessions, isLoading: sessionsLoading } = useCollection(sessionsQuery);
-
+export const TodayChart = ({ todayRecord, sessions }: TodayChartProps) => {
     const hourlyChartData = useMemo(() => {
         const hourlyFocus = Array.from({ length: 24 }, (_, i) => ({
             time: `${String(i).padStart(2, '0')}:00`,
@@ -58,10 +35,6 @@ export const TodayChart = () => {
         }
         return hourlyFocus;
     }, [sessions]);
-
-    const isLoading = recordLoading || sessionsLoading;
-
-    if (isLoading && user && !user.isAnonymous) return <Skeleton className="h-[300px] w-full" />;
     
     const totalMinutes = todayRecord?.totalFocusMinutes || 0;
     const totalPomos = todayRecord?.totalPomos || 0;

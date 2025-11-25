@@ -1,39 +1,17 @@
 'use client';
 
-import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useUser } from '@/firebase';
-import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
-import { useCollection } from '@/firebase/firestore/use-collection';
-import { collection, query, orderBy, limit, doc } from 'firebase/firestore';
-import { format } from 'date-fns';
-
 
 interface RecentActivityCardProps {
   onLogClick: () => void;
+  sessions: any[] | null;
 }
 
-export const RecentActivityCard = ({ onLogClick }: RecentActivityCardProps) => {
-  const { user } = useUser();
-  const firestore = useFirestore();
-  const today = useMemo(() => new Date(), []);
-
-  const sessionsQuery = useMemoFirebase(() => {
-    if (!user || user.isAnonymous) return null;
-    const todayDateString = format(today, 'yyyy-MM-dd');
-    // This query now fetches sessions from today's record.
-    return query(
-      collection(firestore, `users/${user.uid}/focusRecords/${todayDateString}/sessions`),
-      orderBy('startTime', 'desc'),
-      limit(5)
-    );
-  }, [user, firestore, today]);
-
-  const { data: sessions, isLoading: sessionsLoading } = useCollection(sessionsQuery);
+export const RecentActivityCard = ({ onLogClick, sessions }: RecentActivityCardProps) => {
 
   return (
     <Card className="lg:col-span-1">
@@ -50,15 +28,15 @@ export const RecentActivityCard = ({ onLogClick }: RecentActivityCardProps) => {
         </div>
       </CardHeader>
       <CardContent>
-        {sessionsLoading ? (
+        {!sessions ? (
           <div className="space-y-4 pt-2">
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-4/5" />
           </div>
-        ) : sessions && sessions.length > 0 ? (
+        ) : sessions.length > 0 ? (
           <ul className="space-y-4 pt-2">
-            {sessions.map(session => (
+            {sessions.slice(0, 5).map(session => (
               <li key={session.id} className="flex justify-between items-center text-sm">
                 <div>
                   <span className='capitalize font-medium'>{session.type === 'manual' ? 'Manual Entry' : session.type.replace('B', ' B')}</span>
