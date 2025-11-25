@@ -7,10 +7,8 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export function TimerControls() {
-  const { isActive, start, pause, addTime, subtractTime, endAndSaveSession, resetSession, timeLeft, sessionDuration } = useTimer();
+  const { isActive, start, pause, endAndSaveSession, resetSession, timeLeft, sessionDuration } = useTimer();
 
-  const handleAddTime = () => addTime(3 * 60);
-  const handleSubtractTime = () => subtractTime(3 * 60);
   const handleEndAndSave = () => endAndSaveSession();
   const handleCancel = () => resetSession();
   const handleTogglePlay = () => isActive ? pause() : start();

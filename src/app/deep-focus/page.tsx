@@ -3,14 +3,24 @@
 import { FloatingTimer } from '@/components/timer/floating-timer';
 import { useRef, useEffect } from 'react';
 import { useTheme } from 'next-themes';
+import { useUser } from '@/firebase';
+import { useRouter } from 'next/navigation';
 
 export default function DeepFocusPage() {
     const containerRef = useRef<HTMLDivElement>(null);
     const { theme, setTheme } = useTheme();
+    const { user, isUserLoading } = useUser();
+    const router = useRouter();
 
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
+
+    useEffect(() => {
+        if (!isUserLoading && (!user || user.isAnonymous)) {
+            router.push('/');
+        }
+    }, [user, isUserLoading, router]);
 
     const enterFullScreen = () => {
         const elem = containerRef.current;
@@ -31,6 +41,14 @@ export default function DeepFocusPage() {
         enterFullScreen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    if (isUserLoading || !user || user.isAnonymous) {
+        return (
+            <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
+                {/* You can add a loader here if you want */}
+            </div>
+        );
+    }
     
     return (
         <div 
