@@ -2,16 +2,11 @@
 
 import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from '@/firebase';
 import { useMemo } from 'react';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CardDescription, Card, CardHeader, CardTitle, CardContent } from '../ui/card';
+import { DailyFocusChart } from './daily-focus-chart';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -67,7 +62,6 @@ export const TodayChart = () => {
     
     const totalMinutes = todayRecord?.totalFocusMinutes || 0;
     const totalPomos = todayRecord?.totalPomos || 0;
-    const hasData = hourlyChartData.some(d => d.minutes > 0);
 
     return (
         <Card>
@@ -80,23 +74,7 @@ export const TodayChart = () => {
                 </CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="h-[200px] w-full">
-                    {hasData ? (
-                        <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
-                            <BarChart data={hourlyChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
-                                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
-                                <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-                                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
-                                <Bar dataKey="minutes" fill="hsl(var(--primary))" radius={4} />
-                            </BarChart>
-                        </ChartContainer>
-                    ) : (
-                        <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                            No focus sessions recorded today.
-                        </div>
-                    )}
-                </div>
+                <DailyFocusChart data={hourlyChartData} />
             </CardContent>
         </Card>
     );
