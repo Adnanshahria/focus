@@ -26,14 +26,26 @@ export function Header() {
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
-  const handleNavigationClick = (e: React.MouseEvent, destination: 'dashboard' | 'deep-focus') => {
-    if (destination === 'dashboard' && !isRegisteredUser) {
+  const handleDeepFocusClick = async () => {
+    setLoading('deep-focus');
+    try {
+        await document.documentElement.requestFullscreen();
+        router.push('/deep-focus');
+    } catch (error) {
+        console.error("Could not enter fullscreen:", error);
+        // Fallback for browsers that don't support it or if user denies it.
+        router.push('/deep-focus');
+    }
+  };
+
+  const handleRecordClick = (e: React.MouseEvent) => {
+    if (!isRegisteredUser) {
         e.preventDefault();
         setAuthFeatureName('view your record');
         setAuthDialogOpen(true);
     } else {
-        setLoading(destination);
-        router.push(`/${destination}`);
+        setLoading('dashboard');
+        router.push(`/dashboard`);
     }
   }
 
@@ -48,7 +60,7 @@ export function Header() {
         <Logo />
         <div className="flex items-center gap-1 sm:gap-2">
             <Button
-              onClick={() => router.push('/deep-focus')}
+              onClick={handleDeepFocusClick}
               variant="ghost" 
               size="sm"
               className={cn(glassButtonClasses)}
@@ -58,7 +70,7 @@ export function Header() {
               {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
             </Button>
             <Button
-              onClick={(e) => handleNavigationClick(e, 'dashboard')}
+              onClick={handleRecordClick}
               variant="ghost" 
               size="sm"
               className={cn(glassButtonClasses)}
