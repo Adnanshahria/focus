@@ -44,7 +44,7 @@ export default function DeepFocusPage() {
 
     if (isUserLoading || !user || user.isAnonymous) {
         return (
-            <div className="fixed inset-0 flex flex-col items-center justify-center bg-background">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-background">
                 {/* You can add a loader here if you want */}
             </div>
         );
@@ -53,7 +53,7 @@ export default function DeepFocusPage() {
     return (
         <div 
             ref={containerRef} 
-            className="fixed inset-0 flex flex-col items-center justify-center bg-background"
+            className="flex flex-col items-center justify-center min-h-screen bg-background"
             onClick={enterFullScreen}
         >
             <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />

@@ -3,7 +3,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 import { ThemeProvider } from '@/components/theme-provider';
-import { FirestoreInit } from '@/firebase/firestore-init';
 
 const APP_NAME = "FocusFlow";
 const APP_DESCRIPTION = "A modern, minimalist Pomodoro & countdown timer designed for deep work and focus.";
@@ -41,7 +40,6 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background">
         <FirebaseClientProvider>
-          <FirestoreInit />
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             {children}
           </ThemeProvider>
