@@ -72,7 +72,7 @@ export const TodayStats = ({ userId }: { userId: string }) => {
           </div>
           <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2">
             <Clock className="w-4 h-4 mr-3" />
-            <span>This Week:</span>
+            <span>Weekly Focus:</span>
             <span className="font-semibold text-foreground ml-auto">{formatDuration(weeklyFocusMinutes)}</span>
           </div>
         </>
