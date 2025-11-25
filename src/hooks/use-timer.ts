@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/timer-store';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase/provider';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 
 export const useTimer = () => {
@@ -22,24 +22,25 @@ export const useTimer = () => {
     endAndSaveSession: endAndSaveAction,
   } = store;
 
-  const { user } = useUser();
-  const firestore = useFirestore();
-
   const lastTickTimeRef = useRef<number | null>(null);
   const frameIdRef = useRef<number | null>(null);
 
   const recordSession = useCallback(
     async (isCompletion: boolean) => {
+      // Hooks are called inside, just-in-time.
+      const { user } = useUser();
+      const firestore = useFirestore();
+
       if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
       if (mode !== 'pomodoro') return false;
 
       const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
-      if (durationInMinutes < 0.1) return false; // Ignore very short sessions
+      if (durationInMinutes < 0.1) return false;
 
       const today = new Date().toISOString().split('T')[0];
       const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
       const sessionsCollection = collection(focusRecordRef, 'sessions');
-      const newSessionRef = doc(sessionsCollection); // Create a ref for the new session
+      const newSessionRef = doc(sessionsCollection);
 
       try {
         await runTransaction(firestore, async (transaction) => {
@@ -75,7 +76,7 @@ export const useTimer = () => {
         return false;
       }
     },
-    [sessionStartTime, mode, user, firestore]
+    [sessionStartTime, mode] // user and firestore are stable from context
   );
 
   const start = useCallback(() => {
@@ -92,10 +93,10 @@ export const useTimer = () => {
 
   const endAndSaveSession = useCallback(async () => {
     if (isActive && sessionStartTime) {
-      pause(); // Pause first to stop the timer
+      pause();
       await recordSession(false);
     }
-    endAndSaveAction(); // This will reset the UI state
+    endAndSaveAction();
   }, [isActive, sessionStartTime, pause, recordSession, endAndSaveAction]);
 
 
