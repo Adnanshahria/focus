@@ -2,7 +2,7 @@
 import { useMemo, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ComposedChart, Line } from 'recharts';
+import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
 import { format, parseISO, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
@@ -116,7 +116,7 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
                         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
                         <ChartLegend content={<ChartLegendContent />} />
                         <Bar yAxisId="left" dataKey="totalFocusMinutes" fill="var(--color-totalFocusMinutes)" radius={4} />
-                        <Line yAxisId="right" dataKey="totalPomos" type="monotone" stroke="var(--color-totalPomos)" strokeWidth={2} dot={false} />
+                        <Scatter yAxisId="right" dataKey="totalPomos" fill="var(--color-totalPomos)" />
                     </ComposedChart>
                 </ChartContainer>
             )}
