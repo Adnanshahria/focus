@@ -17,7 +17,7 @@ import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
 import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query, orderBy, where, doc } from 'firebase/firestore';
-import { format, startOfDay, isWithinInterval } from 'date-fns';
+import { format, startOfDay, isWithinInterval, startOfMonth } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 
 export default function DashboardPage() {
@@ -28,13 +28,18 @@ export default function DashboardPage() {
   const { today, dateRanges } = useDateRanges();
   const todayDateString = format(today, 'yyyy-MM-dd');
 
-  // Unified query for all records
-  const allRecordsQuery = useMemoFirebase(() => {
+  // Unified query for current month's records to optimize initial load
+  const monthlyRecordsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
-    return query(collection(firestore, `users/${user.uid}/focusRecords`), orderBy('date', 'asc'));
-  }, [user, firestore]);
+    const monthStart = format(startOfMonth(today), 'yyyy-MM-dd');
+    return query(
+        collection(firestore, `users/${user.uid}/focusRecords`),
+        where('date', '>=', monthStart),
+        orderBy('date', 'asc')
+    );
+  }, [user, firestore, today]);
 
-  const { data: allRecords, isLoading: areRecordsLoading } = useCollection(allRecordsQuery);
+  const { data: currentMonthRecords, isLoading: areRecordsLoading } = useCollection(monthlyRecordsQuery);
 
   // Unified query for today's sessions
   const sessionsQuery = useMemoFirebase(() => {
@@ -48,9 +53,9 @@ export default function DashboardPage() {
   const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
 
   // Memoized derived data for charts
-  const todayRecord = useMemo(() => allRecords?.find(r => r.id === todayDateString), [allRecords, todayDateString]);
-  const weeklyRecords = useMemo(() => allRecords?.filter(r => isWithinInterval(new Date(r.date), dateRanges.week)), [allRecords, dateRanges.week]);
-  const monthlyRecords = useMemo(() => allRecords?.filter(r => isWithinInterval(new Date(r.date), dateRanges.month)), [allRecords, dateRanges.month]);
+  const todayRecord = useMemo(() => currentMonthRecords?.find(r => r.id === todayDateString), [currentMonthRecords, todayDateString]);
+  const weeklyRecords = useMemo(() => currentMonthRecords?.filter(r => isWithinInterval(new Date(r.date), dateRanges.week)), [currentMonthRecords, dateRanges.week]);
+  const monthlyRecords = useMemo(() => currentMonthRecords, [currentMonthRecords]);
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
@@ -100,7 +105,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <Card className="col-span-1 md:col-span-2">
-            <OverallChart allRecords={allRecords} />
+            <OverallChart allRecords={currentMonthRecords} />
           </Card>
         </main>
       </div>
