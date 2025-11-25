@@ -1,12 +1,13 @@
 'use client';
 
 import { useDoc, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format, startOfDay, startOfWeek, endOfWeek } from "date-fns";
-import { doc, collection, query, where } from "firebase/firestore";
+import { format, startOfDay } from "date-fns";
+import { doc } from "firebase/firestore";
 import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
+import { useDateRanges } from "@/hooks/use-date-ranges";
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -17,8 +18,10 @@ function formatDuration(minutes: number) {
 
 export const TodayStats = ({ userId }: { userId: string }) => {
   const firestore = useFirestore();
-  const today = useMemo(() => new Date(), []);
-  const todayDateString = useMemo(() => format(startOfDay(today), 'yyyy-MM-dd'), [today]);
+  const [weekStartsOn] = useState<0 | 1>(1); // Default to Monday for homepage widget
+  const { today, dateRanges } = useDateRanges(weekStartsOn);
+
+  const todayDateString = format(today, 'yyyy-MM-dd');
   
   const focusRecordRef = useMemoFirebase(() => {
     if (!firestore || !userId) return null;
@@ -29,14 +32,13 @@ export const TodayStats = ({ userId }: { userId: string }) => {
 
   const weeklyFocusQuery = useMemoFirebase(() => {
     if (!firestore || !userId) return null;
-    const start = startOfWeek(today, { weekStartsOn: 1 });
-    const end = endOfWeek(today, { weekStartsOn: 1 });
+    const { start, end } = dateRanges.week;
     return query(
       collection(firestore, `users/${userId}/focusRecords`),
       where('date', '>=', format(start, 'yyyy-MM-dd')),
       where('date', '<=', format(end, 'yyyy-MM-dd'))
     );
-  }, [firestore, userId, today]);
+  }, [firestore, userId, dateRanges.week]);
 
   const { data: weeklyRecords, isLoading: isWeekLoading } = useCollection(weeklyFocusQuery);
 
@@ -47,31 +49,34 @@ export const TodayStats = ({ userId }: { userId: string }) => {
     return weeklyRecords.reduce((acc, record) => acc + (record.totalFocusMinutes || 0), 0);
   }, [weeklyRecords]);
 
-  if (isTodayLoading || isWeekLoading) {
-    return (
-        <div className="mt-6 flex flex-col gap-2">
-            <Skeleton className="w-64 h-10" />
-        </div>
-    );
-  }
+  const isLoading = isTodayLoading || isWeekLoading;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="mt-6 flex flex-col gap-2"
+      className="mt-6 flex flex-col gap-2 w-64"
     >
-      <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 w-64">
-        <Clock className="w-4 h-4 mr-3" />
-        <span>Today:</span>
-        <span className="font-semibold text-foreground ml-auto">{formatDuration(focusMinutes)}</span>
-      </div>
-       <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 w-64">
-        <Clock className="w-4 h-4 mr-3" />
-        <span>This Week:</span>
-        <span className="font-semibold text-foreground ml-auto">{formatDuration(weeklyFocusMinutes)}</span>
-      </div>
+      {isLoading ? (
+        <>
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </>
+      ) : (
+        <>
+          <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2">
+            <Clock className="w-4 h-4 mr-3" />
+            <span>Today's Focus:</span>
+            <span className="font-semibold text-foreground ml-auto">{formatDuration(focusMinutes)}</span>
+          </div>
+          <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2">
+            <Clock className="w-4 h-4 mr-3" />
+            <span>This Week:</span>
+            <span className="font-semibold text-foreground ml-auto">{formatDuration(weeklyFocusMinutes)}</span>
+          </div>
+        </>
+      )}
     </motion.div>
   );
 }

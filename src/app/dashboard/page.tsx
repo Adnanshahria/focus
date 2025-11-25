@@ -17,6 +17,8 @@ import { StatCard } from '@/components/dashboard/stat-card';
 import { DailyFocusChart } from '@/components/dashboard/daily-focus-chart';
 import { HistoricalFocusChart } from '@/components/dashboard/historical-focus-chart';
 import { useDateRanges } from '@/hooks/use-date-ranges';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -25,14 +27,17 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
+type WeekStartDay = 0 | 1;
+
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
+  const [weekStartsOn, setWeekStartsOn] = useState<WeekStartDay>(1); // 1 for Monday
   
-  const { today, dateRanges } = useDateRanges();
+  const { today, dateRanges } = useDateRanges(weekStartsOn);
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
@@ -106,13 +111,27 @@ export default function DashboardPage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
       <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
-        <div className="flex items-center gap-2 mb-6">
-            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div className='flex items-center gap-2'>
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <Link href="/">
+                  <ArrowLeft className="h-4 w-4" />
+                </Link>
+              </Button>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
+            </div>
+            <div className="flex items-center gap-2">
+                <Label htmlFor='week-start' className='text-xs text-muted-foreground'>Week starts on</Label>
+                <Select value={String(weekStartsOn)} onValueChange={(val) => setWeekStartsOn(Number(val) as WeekStartDay)}>
+                    <SelectTrigger id='week-start' className='w-[120px] h-8 text-xs'>
+                        <SelectValue placeholder="Select day" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="1">Monday</SelectItem>
+                        <SelectItem value="0">Sunday</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
@@ -148,6 +167,7 @@ export default function DashboardPage() {
                               data={chartSourceData} 
                               loading={focusRecordsLoading} 
                               timeRange='week'
+                              weekStartsOn={weekStartsOn}
                             />
                         </TabsContent>
                         <TabsContent value="month">
@@ -155,6 +175,7 @@ export default function DashboardPage() {
                               data={chartSourceData} 
                               loading={focusRecordsLoading} 
                               timeRange='month'
+                              weekStartsOn={weekStartsOn}
                             />
                         </TabsContent>
                     </Tabs>

@@ -11,8 +11,8 @@ type ChartData = {
   totalFocusMinutes: number;
 }
 
-export const HistoricalFocusChart = ({ data, loading, timeRange }: { data: ChartData[], loading: boolean, timeRange: 'week' | 'month' }) => {
-    const { dateRanges } = useDateRanges();
+export const HistoricalFocusChart = ({ data, loading, timeRange, weekStartsOn }: { data: ChartData[], loading: boolean, timeRange: 'week' | 'month', weekStartsOn: 0 | 1 }) => {
+    const { dateRanges } = useDateRanges(weekStartsOn);
 
     const chartData = useMemo(() => {
         const { start, end } = dateRanges[timeRange];
