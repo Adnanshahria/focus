@@ -5,7 +5,7 @@ import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth, User } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
-import { useUser, UserAuthState } from './hooks/use-user';
+import { useUser as useUserHook, UserAuthState } from './hooks/use-user';
 
 // Combined state for the Firebase context
 export interface FirebaseContextState {
@@ -28,34 +28,54 @@ interface FirebaseProviderProps {
   auth: Auth;
 }
 
+// We need a separate component to use the useUser hook, as it requires the context.
+const AuthStateInitializer: React.FC = () => {
+  return null; // This component doesn't render anything.
+};
+
+
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
   firebaseApp,
   firestore,
   auth,
 }) => {
-  const userAuthState: UserAuthState = useUser(auth);
 
-  const contextValue = useMemo((): FirebaseContextState => {
-    const servicesAvailable = !!(firebaseApp && firestore && auth);
-    return {
+  const servicesAvailable = !!(firebaseApp && firestore && auth);
+  const baseContextValue = useMemo(() => ({
       areServicesAvailable: servicesAvailable,
       firebaseApp: servicesAvailable ? firebaseApp : null,
       firestore: servicesAvailable ? firestore : null,
       auth: servicesAvailable ? auth : null,
-      user: userAuthState.user,
-      isUserLoading: userAuthState.isUserLoading,
-      userError: userAuthState.userError,
-    };
-  }, [firebaseApp, firestore, auth, userAuthState]);
+  }), [firebaseApp, firestore, auth, servicesAvailable]);
 
   return (
-    <FirebaseContext.Provider value={contextValue}>
-      <FirebaseErrorListener />
-      {children}
+    <FirebaseContext.Provider value={baseContextValue as FirebaseContextState}>
+        <FirebaseUserProvider>
+            {children}
+        </FirebaseUserProvider>
     </FirebaseContext.Provider>
   );
 };
+
+const FirebaseUserProvider: React.FC<{children: ReactNode}> = ({ children }) => {
+    const baseContext = useContext(FirebaseContext);
+    const userAuthState = useUserHook();
+
+    const fullContextValue = useMemo(() => ({
+        ...baseContext,
+        user: userAuthState.user,
+        isUserLoading: userAuthState.isUserLoading,
+        userError: userAuthState.userError,
+    }), [baseContext, userAuthState]);
+
+    return (
+        <FirebaseContext.Provider value={fullContextValue as FirebaseContextState}>
+            <FirebaseErrorListener />
+            {children}
+        </FirebaseContext.Provider>
+    )
+}
 
 export const useFirebase = (): FirebaseContextState => {
   const context = useContext(FirebaseContext);

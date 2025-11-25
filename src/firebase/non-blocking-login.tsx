@@ -28,7 +28,7 @@ export async function initiateEmailSignUp(authInstance: Auth, email: string, pas
     // Re-throw a more user-friendly error for the form to catch.
     const message = error.code === 'auth/email-already-in-use'
       ? 'This email address is already in use.'
-      : error.message;
+      : 'An unexpected error occurred. Please try again.';
     throw new Error(message);
   }
 }
@@ -45,7 +45,7 @@ export async function initiateEmailSignIn(authInstance: Auth, email: string, pas
      // Re-throw a more user-friendly error.
     const message = (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password')
       ? 'Invalid email or password.'
-      : error.message;
+      : 'An unexpected error occurred. Please try again.';
     throw new Error(message);
   }
 }
