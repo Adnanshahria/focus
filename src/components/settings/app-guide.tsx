@@ -10,17 +10,17 @@ const guideContent = {
     title: "App Guide & Features",
     features: {
       title: "Features",
-      pomodoro: "**Pomodoro Timer:** A classic 25-minute timer to boost your focus. After each session, take a short break. After four Pomodoros, take a longer break.\n\n**How to use:** Select 'Pomodoro' on the main screen and press 'Start'. You can add or subtract 3 minutes by clicking the '+' or '-' buttons, or change the default duration in the 'Timer' settings below.",
-      breaks: "**Short & Long Breaks:** 5-minute short breaks and 15-minute long breaks are built-in to help you recharge effectively.\n\n**How to use:** The app automatically suggests the correct break type. Just press 'Start'.",
-      addTime: "**Add/Subtract Time:** Need a few more minutes to wrap things up, or want to shorten a break? Quickly add or subtract 3 minutes from any active timer session.\n\n**How to use:** While the timer is running on the main screen or in Deep Focus mode, click the '+' or '-' button.",
-      deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions, perfect for when you need to eliminate interruptions. This mode helps you commit to your task by removing all UI elements except for a minimalist timer.\n\n**How to use:** Click 'Deep Focus' in the header to enter. The timer will float in the center of a black screen. The device's back button will exit this mode.",
+      pomodoro: "**Pomodoro Timer:** A classic 25-minute timer to boost your focus. After each session, take a short break. After four Pomodoros, take a longer break.\n\n**How to use:**\nSelect 'Pomodoro' on the main screen and press 'Start'. You can add or subtract 3 minutes by clicking the '+' or '-' buttons, or change the default duration in the 'Timer' settings below.",
+      breaks: "**Short & Long Breaks:** 5-minute short breaks and 15-minute long breaks are built-in to help you recharge effectively.\n\n**How to use:**\nThe app automatically suggests the correct break type. Just press 'Start'.",
+      addTime: "**Add/Subtract Time:** Need a few more minutes to wrap things up, or want to shorten a break? Quickly add or subtract 3 minutes from any active timer session.\n\n**How to use:**\nWhile the timer is running on the main screen or in Deep Focus mode, click the '+' or '-' button.",
+      deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions, perfect for when you need to eliminate interruptions. This mode helps you commit to your task by removing all UI elements except for a minimalist timer.\n\n**How to use:**\nClick 'Deep Focus' in the header to enter. The timer will float in the center of a black screen. The device's back button will exit this mode.",
       progress: `**Progress Tracking:** (Registered users only) This powerful section helps you visualize your commitment and celebrate your progress, which is a key motivator for building a consistent focus habit. It includes:
       - **Today's Focus & Pomos Cards:** Get an instant overview of your daily achievement with a clear display of total focus minutes and Pomodoros completed today.
       - **Focus Activity Chart:** A dynamic bar chart that shows your focus minutes over different periods. Use the 'Day', 'Week', and 'Month' tabs to see your focus patterns and track your consistency over time. The 'Day' view even breaks down your focus by the hour.
       - **Recent Activity Log:** A list of your most recent sessions from today, showing when they happened and how long they were.
       \n**How to use:**
       Sign up for an account, and your completed Pomodoro sessions will be logged automatically. Visit the 'Progress' page anytime to see your updated stats.`,
-      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate.\n\n**How to use:** Go to the 'Progress' page and click the 'Log' button. You can specify the date, start time, and duration.",
+      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate.\n\n**How to use:**\nGo to the 'Progress' page and click the 'Log' button. You can specify the date, start time, and duration.",
     },
     settings: {
       title: "Settings Explained",
@@ -34,17 +34,17 @@ const guideContent = {
     title: "অ্যাপ গাইড এবং বৈশিষ্ট্য",
     features: {
       title: "বৈশিষ্ট্য",
-      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন।\n\n**কিভাবে ব্যবহার করবেন:** প্রধান স্ক্রিনে 'Pomodoro' নির্বাচন করুন এবং 'Start' চাপুন। আপনি '+' বা '-' বোতামে ক্লিক করে ৩ মিনিট যোগ বা বিয়োগ করতে পারেন, অথবা নীচের 'টাইমার' সেটিংসে ডিফল্ট সময়কাল পরিবর্তন করতে পারেন।",
-      breaks: "**ছোট এবং দীর্ঘ বিরতি:** আপনাকে কার্যকরভাবে রিচার্জ করতে সাহায্য করার জন্য ৫-মিনিটের ছোট বিরতি এবং ১৫-মিনিটের দীর্ঘ বিরতি রয়েছে।\n\n**কিভাবে ব্যবহার করবেন:** অ্যাপটি স্বয়ংক্রিয়ভাবে সঠিক বিরতির ধরন নির্বাচন করে। শুধু 'Start' চাপুন।",
-      addTime: "**সময় যোগ/বিয়োগ করুন:** কাজ শেষ করতে আরও কয়েক মিনিট প্রয়োজন, বা বিরতি ছোট করতে চান? যেকোনো সক্রিয় টাইমার সেশনে দ্রুত ৩ মিনিট যোগ বা বিয়োগ করুন।\n\n**কিভাবে ব্যবহার করবেন:** টাইমার চলাকালীন প্রধান স্ক্রিনে বা ডিপ ফোকাস মোডে '+' বা '-' বোতামে ক্লিক করুন।",
-      deepFocus: "**ডিপ ফোকাস মোড:** একটি সম্পূর্ণ স্ক্রিন মোড যা সমস্ত বিভ্রান্তি লুকিয়ে রাখে, যখন আপনাকে বাধা দূর করতে হবে তার জন্য উপযুক্ত। এই মোডটি আপনাকে একটি মিনিমালিস্ট টাইমার ছাড়া সমস্ত UI উপাদানগুলি সরিয়ে দিয়ে আপনার কাজে প্রতিশ্রুতিবদ্ধ হতে সাহায্য করে।\n\n**কিভাবে ব্যবহার করবেন:** প্রবেশ করতে হেডারে 'Deep Focus'-এ ক্লিক করুন। টাইমারটি একটি কালো পর্দার কেন্দ্রে ভাসবে। ডিভাইসের ব্যাক বোতাম টিপলে এই মোড থেকে বেরিয়ে আসা যাবে।",
+      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন।\n\n**কিভাবে ব্যবহার করবেন:**\nপ্রধান স্ক্রিনে 'Pomodoro' নির্বাচন করুন এবং 'Start' চাপুন। আপনি '+' বা '-' বোতামে ক্লিক করে ৩ মিনিট যোগ বা বিয়োগ করতে পারেন, অথবা নীচের 'টাইমার' সেটিংসে ডিফল্ট সময়কাল পরিবর্তন করতে পারেন।",
+      breaks: "**ছোট এবং দীর্ঘ বিরতি:** আপনাকে কার্যকরভাবে রিচার্জ করতে সাহায্য করার জন্য ৫-মিনিটের ছোট বিরতি এবং ১৫-মিনিটের দীর্ঘ বিরতি রয়েছে।\n\n**কিভাবে ব্যবহার করবেন:**\nঅ্যাপটি স্বয়ংক্রিয়ভাবে সঠিক বিরতির ধরন নির্বাচন করে। শুধু 'Start' চাপুন।",
+      addTime: "**সময় যোগ/বিয়োগ করুন:** কাজ শেষ করতে আরও কয়েক মিনিট প্রয়োজন, বা বিরতি ছোট করতে চান? যেকোনো সক্রিয় টাইমার সেশনে দ্রুত ৩ মিনিট যোগ বা বিয়োগ করুন।\n\n**কিভাবে ব্যবহার করবেন:**\nটাইমার চলাকালীন প্রধান স্ক্রিনে বা ডিপ ফোকাস মোডে '+' বা '-' বোতামে ক্লিক করুন।",
+      deepFocus: "**ডিপ ফোকাস মোড:** একটি সম্পূর্ণ স্ক্রিন মোড যা সমস্ত বিভ্রান্তি লুকিয়ে রাখে, যখন আপনাকে বাধা দূর করতে হবে তার জন্য উপযুক্ত। এই মোডটি আপনাকে একটি মিনিমালিস্ট টাইমার ছাড়া সমস্ত UI উপাদানগুলি সরিয়ে দিয়ে আপনার কাজে প্রতিশ্রুতিবদ্ধ হতে সাহায্য করে।\n\n**কিভাবে ব্যবহার করবেন:**\nপ্রবেশ করতে হেডারে 'Deep Focus'-এ ক্লিক করুন। টাইমারটি একটি কালো পর্দার কেন্দ্রে ভাসবে। ডিভাইসের ব্যাক বোতাম টিপলে এই মোড থেকে বেরিয়ে আসা যাবে।",
       progress: `**অগ্রগতি ট্র্যাকিং:** (শুধুমাত্র নিবন্ধিত ব্যবহারকারী) এই শক্তিশালী বিভাগটি আপনাকে আপনার প্রতিশ্রুতি কল্পনা করতে এবং আপনার অগ্রগতি উদযাপন করতে সাহায্য করে, যা একটি সামঞ্জস্যপূর্ণ ফোকাস অভ্যাস তৈরির জন্য একটি মূল প্রেরণা। এর মধ্যে রয়েছে:
       - **আজকের ফোকাস এবং পোমোস কার্ড:** আজকের মোট ফোকাস মিনিট এবং সম্পন্ন পোমোডোরোগুলির একটি স্পষ্ট প্রদর্শনের মাধ্যমে আপনার দৈনিক অর্জনের একটি তাত্ক্ষণিক ওভারভিউ পান।
       - **ফোকাস অ্যাক্টিভিটি চার্ট:** একটি ডাইনামিক বার চার্ট যা বিভিন্ন সময়কালে আপনার ফোকাস মিনিটগুলি দেখায়। আপনার ফোকাস প্যাটার্নগুলি দেখতে এবং সময়ের সাথে আপনার ধারাবাহিকতা ট্র্যাক করতে 'দিন', 'সপ্তাহ', এবং 'মাস' ট্যাবগুলি ব্যবহার করুন। 'দিন' ভিউ এমনকি আপনার ফোকাসকে ঘন্টা অনুসারে বিভক্ত করে দেখায়।
       - **সাম্প্রতিক কার্যকলাপ লগ:** আজকের আপনার সবচেয়ে সাম্প্রতিক সেশনগুলির একটি তালিকা, যা দেখায় কখন সেগুলি ঘটেছে এবং সেগুলি কতক্ষণ স্থায়ী ছিল।
       \n**কিভাবে ব্যবহার করবেন:**
       একটি অ্যাকাউন্টের জন্য সাইন আপ করুন, এবং আপনার সম্পন্ন পোমোডোরো সেশনগুলি স্বয়ংক্রিয়ভাবে লগ করা হবে। আপনার আপডেট হওয়া পরিসংখ্যান দেখতে যেকোনো সময় 'Progress' পৃষ্ঠায় যান।`,
-      manualLog: "**ম্যানুয়াল লগিং:** টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন, যাতে আপনার অগ্রগতি চার্ট সর্বদা সঠিক থাকে।\n\n**কিভাবে ব্যবহার করবেন:** 'Progress' পৃষ্ঠায় যান এবং 'Log' বোতামে ক্লিক করুন। আপনি তারিখ, শুরুর সময় এবং সময়কাল নির্দিষ্ট করতে পারেন।",
+      manualLog: "**ম্যানুয়াল লগিং:** টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন, যাতে আপনার অগ্রগতি চার্ট সর্বদা সঠিক থাকে।\n\n**কিভাবে ব্যবহার করবেন:**\n'Progress' পৃষ্ঠায় যান এবং 'Log' বোতামে ক্লিক করুন। আপনি তারিখ, শুরুর সময় এবং সময়কাল নির্দিষ্ট করতে পারেন।",
     },
     settings: {
       title: "সেটিংস পরিচিতি",
@@ -105,11 +105,11 @@ export function AppGuide() {
                 </div>
             </RadioGroup>
         </div>
-      <Accordion type="single" collapsible className="w-full">
+      <Accordion type="single" collapsible="true" className="w-full">
         <AccordionItem value="features">
           <AccordionTrigger>{content.features.title}</AccordionTrigger>
           <AccordionContent className="space-y-3 pl-4 border-l">
-            <Accordion type="multiple" collapsible className="w-full">
+            <Accordion type="multiple" collapsible="true" className="w-full">
                 <AccordionItem value="pomodoro-timer">
                     <AccordionTrigger className="py-2 text-sm">Pomodoro Timer</AccordionTrigger>
                     <AccordionContent className="pt-2">

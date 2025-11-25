@@ -94,13 +94,16 @@ export function FloatingTimer() {
     if (isSupported) request();
     showControls(); // Show controls on mount
     
-    // Handle Android hardware back button
+    // Handle Android hardware back button by pushing a state to history
+    // and listening for the popstate event.
     const handlePopState = (event: PopStateEvent) => {
-        event.preventDefault();
+        // When the user navigates back, popstate is triggered.
+        event.preventDefault(); // Prevent default browser action
         handleExit();
     };
 
-    window.history.pushState(null, '', window.location.href);
+    // Push a new state to the history stack when entering deep focus
+    window.history.pushState({ deepFocus: true }, '');
     window.addEventListener('popstate', handlePopState);
 
 
@@ -109,8 +112,14 @@ export function FloatingTimer() {
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
       window.removeEventListener('popstate', handlePopState);
+      // If the user is still in deep focus when the component unmounts,
+      // it means they didn't use the back button, so we can go back in history.
+      if (window.history.state?.deepFocus) {
+          window.history.back();
+      }
     };
   }, [isSupported, request, release, showControls, handleExit]);
+
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
