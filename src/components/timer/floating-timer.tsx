@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useRef, useCallback, useState } from 'react';
@@ -7,21 +6,9 @@ import { useTimer } from '@/hooks/use-timer';
 import { useTimerStore } from '@/store/timer-store';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
-import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-const formatTime = (seconds: number) => {
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
-  if (hours > 0) {
-    return `${String(hours)}:${String(mins).padStart(2, '0')}:${String(
-      secs
-    ).padStart(2, '0')}`;
-  }
-  return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-};
+import { FloatingTimerDisplay } from './floating-timer-display';
+import { FloatingTimerControls } from './floating-timer-controls';
 
 interface FloatingTimerProps {
     theme: 'dark' | 'light';
@@ -30,18 +17,7 @@ interface FloatingTimerProps {
 
 export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   const router = useRouter();
-  const {
-    timeLeft,
-    isActive,
-    start,
-    pause,
-    addTime,
-    subtractTime,
-    sessionDuration,
-    endAndSaveSession,
-    resetSession,
-    isSaving,
-  } = useTimer();
+  const { timeLeft, isActive, start, pause, addTime, subtractTime, sessionDuration, endAndSaveSession, resetSession, isSaving } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
   const [controlsVisible, setControlsVisible] = useState(false);
@@ -51,35 +27,16 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   const controlsAnimation = useAnimation();
   const pixelShiftControls = useAnimation();
   const { isSupported, request, release } = useWakeLock();
-  
-  const [pathLength, setPathLength] = useState(0);
-  const pathRef = useRef<SVGPathElement>(null);
-
-
-  useEffect(() => {
-    if (pathRef.current) {
-        const length = pathRef.current.getTotalLength();
-        setPathLength(length);
-    }
-  }, [isActive, sessionDuration]); // Rerun when timer resets to get fresh path length
-
-  const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
-  const strokeDashoffset = pathLength * (1 - progress);
 
   const showControls = useCallback(() => {
     setIsDimmed(false);
     setControlsVisible(true);
     controlsAnimation.start({ opacity: 1, y: 0 });
-
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
-
     controlsTimeoutRef.current = setTimeout(() => {
-      controlsAnimation
-        .start({ opacity: 0, y: 10 })
-        .then(() => setControlsVisible(false));
+      controlsAnimation.start({ opacity: 0, y: 10 }).then(() => setControlsVisible(false));
     }, 3000);
-
     dimTimeoutRef.current = setTimeout(() => setIsDimmed(true), 20000);
   }, [controlsAnimation]);
 
@@ -89,84 +46,41 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     }
     router.push('/');
   }, [router]);
-
-  const handleAddTime = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    addTime(3 * 60);
-    showControls();
-  }
-
-  const handleSubtractTime = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    subtractTime(3 * 60);
-    showControls();
-  }
-
-  const handleEndAndSave = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    endAndSaveSession();
-    showControls();
-  }
-
-  const handleCancel = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    resetSession();
-    showControls();
-  }
   
-  const handleTogglePlay = (e: React.MouseEvent) => {
+  const handleEventAndShowControls = (e: React.MouseEvent, action?: () => void) => {
     e.stopPropagation();
-    isActive ? pause() : start();
+    action?.();
     showControls();
-  }
-  
-  const handleToggleTheme = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleTheme();
-    showControls();
-  }
+  };
 
   useEffect(() => {
     if (isSupported) request();
-    showControls(); 
-    
+    showControls();
     const handlePopState = (event: PopStateEvent) => {
         event.preventDefault(); 
         handleExit();
     };
-
     if (window.history.state?.page !== 'deepFocus') {
         window.history.pushState({ page: 'deepFocus' }, '');
     }
     window.addEventListener('popstate', handlePopState);
-
     return () => {
       if (isSupported) release();
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
-      
       window.removeEventListener('popstate', handlePopState);
-      
       if (window.history.state?.page === 'deepFocus') {
-          try {
-            window.history.back();
-          } catch(e) {}
+          try { window.history.back(); } catch(e) {}
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === ' ') {
-        e.preventDefault();
-        showControls();
-        isActive ? pause() : start();
-      }
-      if(e.key === 'Escape') {
-        handleExit();
-      }
+      showControls();
+      if (e.key === ' ') { e.preventDefault(); isActive ? pause() : start(); }
+      if(e.key === 'Escape') { handleExit(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -175,168 +89,36 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   useEffect(() => {
     if (!antiBurnIn) return;
     const shiftPixel = () => {
-      const maxJitterX = window.innerWidth > 480 ? 20 : 10;
-      const maxJitterY = window.innerHeight > 270 ? 20 : 10;
-      const x = Math.floor(Math.random() * (maxJitterX * 2 + 1)) - maxJitterX;
-      const y = Math.floor(Math.random() * (maxJitterY * 2 + 1)) - maxJitterY;
-      pixelShiftControls.start({
-        x,
-        y,
-        transition: { duration: 1, ease: 'easeOut' },
-      });
+      const maxJitter = window.innerWidth > 480 ? 20 : 10;
+      const x = Math.floor(Math.random() * (maxJitter * 2 + 1)) - maxJitter;
+      const y = Math.floor(Math.random() * (maxJitter * 2 + 1)) - maxJitter;
+      pixelShiftControls.start({ x, y, transition: { duration: 1, ease: 'easeOut' } });
     };
     pixelShiftControls.set({ x: 0, y: 0 });
     const intervalId = setInterval(shiftPixel, 60000);
     return () => clearInterval(intervalId);
   }, [pixelShiftControls, antiBurnIn]);
-
-  const handleContainerClick = () => {
-    showControls();
-  };
   
-  const uiColor = theme === 'dark' ? 'white' : 'hsl(var(--primary))';
-  const bgColorClass = theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-primary/10 hover:bg-primary/20';
-
-  const isPristine = timeLeft === sessionDuration && !isActive;
-
   return (
-    <div
-      className="w-full h-full flex flex-col items-center justify-center cursor-pointer"
-      onClick={handleContainerClick}
-    >
-      <motion.div
-        animate={pixelShiftControls}
-        className={cn(
-          'relative flex flex-col items-center justify-center gap-8 transition-opacity duration-1000',
-          isDimmed ? 'opacity-30' : 'opacity-100'
-        )}
-      >
-        <div className="relative w-[320px] h-[180px] md:w-[480px] md:h-[270px] flex items-center justify-center">
-          <svg
-            className="absolute inset-0 w-full h-full"
-            viewBox="0 0 480 270"
-            fill="none"
-          >
-            <path
-              d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-              stroke={uiColor}
-              strokeOpacity="0.1"
-              strokeWidth="6"
-            />
-            <motion.path
-                ref={pathRef}
-                d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
-                stroke={uiColor}
-                strokeWidth="6"
-                strokeDasharray={pathLength}
-                strokeDashoffset={strokeDashoffset}
-                initial={false}
-                transition={{ duration: 1, ease: 'linear' }}
-            />
-          </svg>
-
-          <div className="relative z-10 flex flex-col items-center justify-center">
-            <div 
-              className="text-7xl md:text-8xl font-thin tracking-tighter tabular-nums"
-              style={{ color: uiColor }}
-            >
-              {formatTime(timeLeft)}
-            </div>
-          </div>
-        </div>
+    <div className="w-full h-full flex flex-col items-center justify-center cursor-pointer" onClick={showControls}>
+      <motion.div animate={pixelShiftControls} className={cn('relative flex flex-col items-center justify-center gap-8 transition-opacity duration-1000', isDimmed ? 'opacity-30' : 'opacity-100')}>
+        <FloatingTimerDisplay theme={theme} timeLeft={timeLeft} sessionDuration={sessionDuration} isActive={isActive} />
       </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={controlsAnimation}
-        className="absolute bottom-8 sm:bottom-10 flex items-center gap-2"
-        style={{ pointerEvents: controlsVisible ? 'auto' : 'none' }}
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleExit}
-          className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
-          style={{ color: uiColor }}
-        >
-          <ArrowLeft className="w-6 h-6" />
-        </Button>
-        
-        {isActive ? (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleSubtractTime}
-              className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
-              style={{ color: uiColor }}
-            >
-              <Minus className="w-7 h-7" />
-            </Button>
-            <Button
-              onClick={handleTogglePlay}
-              variant="ghost"
-              size="icon"
-              className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')}
-              style={{ color: uiColor }}
-            >
-              <Pause className="w-9 h-9" />
-            </Button>
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleAddTime}
-                className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
-                style={{ color: uiColor }}
-            >
-              <Plus className="w-7 h-7" />
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCancel}
-              disabled={isPristine}
-              className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
-              style={{ color: uiColor }}
-            >
-              <XCircle className="w-6 h-6" />
-            </Button>
-             <Button
-              onClick={handleTogglePlay}
-              variant="ghost"
-              size="icon"
-              className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')}
-              style={{ color: uiColor }}
-            >
-              <Play className="w-9 h-9 ml-1" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleEndAndSave}
-              disabled={isPristine || isSaving}
-              className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
-              style={{ color: uiColor }}
-            >
-              {isSaving ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}><Loader className="w-6 h-6" /></motion.div> : <CheckCircle className="w-6 h-6" />}
-            </Button>
-          </>
-        )}
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleToggleTheme}
-          className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
-          style={{ color: uiColor }}
-        >
-          {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-        </Button>
-
-      </motion.div>
+      <FloatingTimerControls
+        theme={theme}
+        controlsAnimation={controlsAnimation}
+        controlsVisible={controlsVisible}
+        isActive={isActive}
+        isPristine={timeLeft === sessionDuration && !isActive}
+        isSaving={isSaving}
+        handleExit={(e) => handleEventAndShowControls(e, handleExit)}
+        handleSubtractTime={(e) => handleEventAndShowControls(e, () => subtractTime(3 * 60))}
+        handleTogglePlay={(e) => handleEventAndShowControls(e, isActive ? pause : start)}
+        handleAddTime={(e) => handleEventAndShowControls(e, () => addTime(3 * 60))}
+        handleCancel={(e) => handleEventAndShowControls(e, resetSession)}
+        handleEndAndSave={(e) => handleEventAndShowControls(e, endAndSaveSession)}
+        handleToggleTheme={(e) => handleEventAndShowControls(e, toggleTheme)}
+      />
     </div>
   );
 }
