@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, set, setHours, setMinutes } from 'date-fns';
+import { format, set } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
   Dialog,
   DialogContent,
@@ -28,12 +30,13 @@ const addRecordSchema = z.object({
   date: z.date({
     required_error: 'A date is required.',
   }),
-  hour: z.coerce.number().min(0).max(23),
+  hour: z.coerce.number().min(1).max(12),
   minute: z.coerce.number().min(0).max(59),
+  ampm: z.enum(['am', 'pm']),
   duration: z.coerce
     .number()
     .min(1, 'Duration must be at least 1 minute.')
-    .max(1440, 'Duration cannot exceed 1440 minutes (24 hours).'),
+    .max(1440, 'Duration cannot exceed 24 hours.'),
 });
 
 type AddRecordFormValues = z.infer<typeof addRecordSchema>;
@@ -50,10 +53,13 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
   const firestore = useFirestore();
 
   const now = new Date();
+  const currentHour = now.getHours();
+  const formattedHour = currentHour % 12 === 0 ? 12 : currentHour % 12;
 
   const {
     register,
     handleSubmit,
+    control,
     watch,
     setValue,
     formState: { errors },
@@ -61,8 +67,9 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     resolver: zodResolver(addRecordSchema),
     defaultValues: {
       date: now,
-      hour: now.getHours(),
+      hour: formattedHour,
       minute: now.getMinutes(),
+      ampm: currentHour >= 12 ? 'pm' : 'am',
       duration: 25,
     },
   });
@@ -81,7 +88,15 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     setIsSubmitting(true);
 
     try {
-      const dateWithTime = set(data.date, { hours: data.hour, minutes: data.minute, seconds: 0, milliseconds: 0 });
+      let hour24 = data.hour;
+      if (data.ampm === 'pm' && data.hour < 12) {
+        hour24 += 12;
+      }
+      if (data.ampm === 'am' && data.hour === 12) {
+        hour24 = 0;
+      }
+      
+      const dateWithTime = set(data.date, { hours: hour24, minutes: data.minute, seconds: 0, milliseconds: 0 });
       const dateString = format(dateWithTime, 'yyyy-MM-dd');
       
       const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, dateString);
@@ -90,7 +105,6 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
       await runTransaction(firestore, async (transaction) => {
         const recordSnap = await transaction.get(focusRecordRef);
         
-        // Use existing data or initialize if it doesn't exist
         const currentData = recordSnap.data() || { 
             totalFocusMinutes: 0, 
             totalPomos: 0,
@@ -112,7 +126,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
         });
         
         const recordUpdateData = {
-          ...currentData, // Carry over existing fields
+          ...currentData,
           totalFocusMinutes: newTotalFocusMinutes,
         };
         
@@ -137,7 +151,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Manual Focus Record</DialogTitle>
           <DialogDescription>
@@ -174,18 +188,46 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
             </Popover>
             {errors.date && <p className="text-destructive text-xs">{errors.date.message}</p>}
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="hour">Hour</Label>
-              <Input id="hour" type="number" {...register('hour')} />
-              {errors.hour && <p className="text-destructive text-xs">{errors.hour.message}</p>}
+          
+          <div>
+            <Label>Start Time</Label>
+            <div className="grid grid-cols-3 gap-2 items-center mt-2">
+                 <Controller
+                    control={control}
+                    name="hour"
+                    render={({ field }) => (
+                      <Select onValueChange={(value) => field.onChange(Number(value))} value={String(field.value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Hour" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+                            <SelectItem key={h} value={String(h)}>{String(h).padStart(2, '0')}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                <Input id="minute" type="number" placeholder="Min" {...register('minute')} />
+                 <Controller
+                    control={control}
+                    name="ampm"
+                    render={({ field }) => (
+                        <RadioGroup 
+                            onValueChange={field.onChange} 
+                            value={field.value} 
+                            className="flex items-center space-x-1 bg-secondary text-secondary-foreground p-1 rounded-md"
+                        >
+                            <RadioGroupItem value="am" id="am" className="sr-only" />
+                            <Label htmlFor="am" className="flex-1 text-center py-1.5 text-xs rounded-sm cursor-pointer data-[state=checked]:bg-background data-[state=checked]:text-foreground">AM</Label>
+                            <RadioGroupItem value="pm" id="pm" className="sr-only" />
+                            <Label htmlFor="pm" className="flex-1 text-center py-1.5 text-xs rounded-sm cursor-pointer data-[state=checked]:bg-background data-[state=checked]:text-foreground">PM</Label>
+                        </RadioGroup>
+                    )}
+                 />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="minute">Minute</Label>
-              <Input id="minute" type="number" {...register('minute')} />
-              {errors.minute && <p className="text-destructive text-xs">{errors.minute.message}</p>}
-            </div>
+            {errors.hour && <p className="text-destructive text-xs mt-1">{errors.hour.message}</p>}
+            {errors.minute && <p className="text-destructive text-xs mt-1">{errors.minute.message}</p>}
           </div>
 
           <div className="space-y-2">

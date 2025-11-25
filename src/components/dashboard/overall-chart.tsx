@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { format, parseISO, eachDayOfInterval, subMonths, isWithinInterval } from 'date-fns';
+import { format, parseISO, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
 import { CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
@@ -64,14 +64,15 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
     return (
         <>
         <CardHeader>
-            <CardTitle>Overall Activity</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <CardDescription>Filter your focus history by date range.</CardDescription>
+                <div>
+                    <CardTitle>Overall Activity</CardTitle>
+                    <CardDescription>Filter your focus history by date range.</CardDescription>
+                </div>
                 <DatePickerWithRange date={dateRange} setDate={setDateRange} />
             </div>
-
+        </CardHeader>
+        <CardContent className="space-y-4">
              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                 <div className="rounded-lg border bg-card p-3">
                     <p className="text-xs text-muted-foreground">Focus in Range</p>

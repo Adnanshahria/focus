@@ -50,7 +50,7 @@ export default function DashboardPage() {
   return (
     <>
       <AddFocusRecordDialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen} />
-      <div className="flex flex-col min-h-screen bg-card text-foreground">
+      <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
         <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

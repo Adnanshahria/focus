@@ -30,11 +30,11 @@ export const useTimer = () => {
 
   const recordSession = useCallback(
     async (isCompletion: boolean) => {
-      if (!user || user.isAnonymous || !firestore || !sessionStartTime) return;
-      if (mode !== 'pomodoro') return;
+      if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
+      if (mode !== 'pomodoro') return false;
 
       const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
-      if (durationInMinutes < 0.1) return; // Ignore very short sessions
+      if (durationInMinutes < 0.1) return false; // Ignore very short sessions
 
       const today = new Date().toISOString().split('T')[0];
       const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
@@ -69,11 +69,9 @@ export const useTimer = () => {
             completed: isCompletion,
           });
         });
-        // After successful transaction, then reset state
         return true;
       } catch (error) {
         console.error("Transaction to record session failed: ", error);
-        // Optionally, emit a global error here to notify the user
         return false;
       }
     },
@@ -97,8 +95,7 @@ export const useTimer = () => {
       pause(); // Pause first to stop the timer
       await recordSession(false);
     }
-    // This will reset the UI state regardless of whether the session was active
-    endAndSaveAction(); 
+    endAndSaveAction(); // This will reset the UI state
   }, [isActive, sessionStartTime, pause, recordSession, endAndSaveAction]);
 
 
@@ -145,12 +142,15 @@ export const useTimer = () => {
   }, [isActive, timeLeft, tick]);
 
   useEffect(() => {
-    if (timeLeft <= 0 && isActive) {
-      recordSession(true).then(() => {
-        completeCycle();
-      });
+    const handleTimerEnd = async () => {
+        if (timeLeft <= 0 && isActive) {
+            await recordSession(true);
+            completeCycle();
+        }
     }
-  }, [timeLeft, isActive, completeCycle, recordSession]);
+    handleTimerEnd();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, isActive]);
 
   return { ...store, start, pause, reset, addTime, subtractTime, endAndSaveSession };
 };

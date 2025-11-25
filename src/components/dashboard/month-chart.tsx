@@ -26,11 +26,11 @@ export const MonthChart = ({ data, loading }: { data: any[], loading: boolean })
         <Card>
             <CardHeader>
                 <CardTitle>Monthly Activity</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
                 <CardDescription>
-                    Total this month: <span className="font-semibold text-foreground">{formatDuration(monthlyTotal)}</span>
+                    Total: <span className="font-semibold text-foreground">{formatDuration(monthlyTotal)}</span>
                 </CardDescription>
+            </CardHeader>
+            <CardContent>
                 <HistoricalFocusChart 
                     data={data} 
                     loading={loading} 

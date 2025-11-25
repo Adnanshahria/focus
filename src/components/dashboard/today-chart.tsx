@@ -75,6 +75,7 @@ export const TodayChart = () => {
         <Card>
             <CardHeader>
                 <CardTitle>Today's Activity</CardTitle>
+                <CardDescription>Hourly Breakdown</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
                  <div className="grid grid-cols-2 gap-4">
@@ -93,8 +94,6 @@ export const TodayChart = () => {
                         </div>
                     </div>
                 </div>
-
-                <CardDescription>Hourly Breakdown</CardDescription>
                 
                 <div className="h-[200px] w-full">
                     {hasData ? (
