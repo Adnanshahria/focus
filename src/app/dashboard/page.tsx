@@ -16,8 +16,8 @@ import { Card } from '@/components/ui/card';
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
 import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
 import { useCollection, useDoc } from '@/firebase';
-import { collection, query, orderBy, where, doc } from 'firebase/firestore';
-import { format, startOfMonth } from 'date-fns';
+import { collection, query, orderBy, doc } from 'firebase/firestore';
+import { format } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 
 export default function DashboardPage() {
@@ -30,7 +30,7 @@ export default function DashboardPage() {
 
   // --- Start of Optimized Data Fetching ---
 
-  // 1. Prioritize Today's Data for instant load
+  // 1. Memoize reference for Today's Data for instant load
   const todayRecordRef = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   
   const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
 
-  // 2. Fetch historical data for charts in the background
+  // 2. Memoize query for historical data for charts in the background
   const historicalRecordsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return query(
@@ -67,10 +67,9 @@ export default function DashboardPage() {
     }
   }, [user, isUserLoading, router]);
   
-  // The main page skeleton only waits for the user and today's essential data
-  const isEssentialDataLoading = isUserLoading || isTodayRecordLoading || areSessionsLoading;
-
-  if (isEssentialDataLoading) {
+  // The main page skeleton only waits for the user auth check.
+  // Individual components will handle their own loading states.
+  if (isUserLoading) {
     return <DashboardSkeleton />;
   }
   
@@ -101,8 +100,8 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className='space-y-6'>
-              <RecentActivityCard sessions={todaySessions} onLogClick={() => setAuthDialogOpen(true)} />
-              <TodayChart todayRecord={todayRecord} sessions={todaySessions} />
+              <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
+              <TodayChart todayRecord={todayRecord} isLoading={isTodayRecordLoading} sessions={todaySessions} />
             </div>
             <div className="space-y-6">
               {/* These components now handle their own loading state internally */}

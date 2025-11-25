@@ -8,10 +8,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface RecentActivityCardProps {
   onLogClick: () => void;
-  sessions: any[] | null;
+  sessions: any[] | null | undefined;
+  isLoading: boolean;
 }
 
-export const RecentActivityCard = ({ onLogClick, sessions }: RecentActivityCardProps) => {
+export const RecentActivityCard = ({ onLogClick, sessions, isLoading }: RecentActivityCardProps) => {
 
   return (
     <Card className="lg:col-span-1">
@@ -28,13 +29,13 @@ export const RecentActivityCard = ({ onLogClick, sessions }: RecentActivityCardP
         </div>
       </CardHeader>
       <CardContent>
-        {!sessions ? (
+        {isLoading ? (
           <div className="space-y-4 pt-2">
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-full" />
             <Skeleton className="h-8 w-4/5" />
           </div>
-        ) : sessions.length > 0 ? (
+        ) : sessions && sessions.length > 0 ? (
           <ul className="space-y-4 pt-2">
             {sessions.slice(0, 5).map(session => (
               <li key={session.id} className="flex justify-between items-center text-sm">

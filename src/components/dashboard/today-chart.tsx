@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { parseISO } from 'date-fns';
 import { CardDescription, Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { DailyFocusChart } from './daily-focus-chart';
+import { Skeleton } from '../ui/skeleton';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -14,10 +15,11 @@ function formatDuration(minutes: number) {
 
 interface TodayChartProps {
     todayRecord: any;
-    sessions: any[] | null;
+    sessions: any[] | null | undefined;
+    isLoading: boolean;
 }
 
-export const TodayChart = ({ todayRecord, sessions }: TodayChartProps) => {
+export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps) => {
     const hourlyChartData = useMemo(() => {
         const hourlyFocus = Array.from({ length: 24 }, (_, i) => ({
             time: `${String(i).padStart(2, '0')}:00`,
@@ -43,14 +45,18 @@ export const TodayChart = ({ todayRecord, sessions }: TodayChartProps) => {
         <Card>
             <CardHeader>
                 <CardTitle>Today's Activity</CardTitle>
-                <CardDescription>
-                    Focus: <span className="font-semibold text-foreground">{formatDuration(totalMinutes)}</span>
-                    <span className='mx-2'>|</span>
-                    Pomos: <span className="font-semibold text-foreground">{totalPomos}</span>
-                </CardDescription>
+                 {isLoading ? (
+                    <Skeleton className="h-5 w-32 mt-1" />
+                ) : (
+                    <CardDescription>
+                        Focus: <span className="font-semibold text-foreground">{formatDuration(totalMinutes)}</span>
+                        <span className='mx-2'>|</span>
+                        Pomos: <span className="font-semibold text-foreground">{totalPomos}</span>
+                    </CardDescription>
+                )}
             </CardHeader>
             <CardContent>
-                <DailyFocusChart data={hourlyChartData} />
+                {isLoading ? <Skeleton className='h-[200px] w-full' /> : <DailyFocusChart data={hourlyChartData} />}
             </CardContent>
         </Card>
     );
