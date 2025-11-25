@@ -14,7 +14,8 @@ import { MonthChart } from '@/components/dashboard/month-chart';
 import { OverallChart } from '@/components/dashboard/overall-chart';
 import { RecentActivityCard } from '@/components/dashboard/recent-activity-card';
 import { Card } from '@/components/ui/card';
-import { collection } from 'firebase/firestore';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import { format, subMonths } from 'date-fns';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -30,7 +31,13 @@ export default function DashboardPage() {
 
   const allRecordsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
-    return collection(firestore, `users/${user.uid}/focusRecords`);
+    // Fetch records from the last month by default for performance
+    const oneMonthAgo = format(subMonths(new Date(), 1), 'yyyy-MM-dd');
+    return query(
+        collection(firestore, `users/${user.uid}/focusRecords`),
+        where('date', '>=', oneMonthAgo),
+        orderBy('date', 'desc')
+    );
   }, [user, firestore]);
   
   const { data: focusRecords, isLoading: focusRecordsLoading } = useCollection(allRecordsQuery);

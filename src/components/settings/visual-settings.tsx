@@ -57,7 +57,6 @@ export function VisualSettings() {
   } = useForm<VisualSettingsFormValues>({
     resolver: zodResolver(visualSettingsSchema),
     defaultValues: {
-      ...defaultValues,
       antiBurnIn: storeAntiBurnIn,
       theme: (theme as 'light' | 'dark') || defaultValues.theme,
     },
@@ -81,11 +80,14 @@ export function VisualSettings() {
   }, [preferences, reset]);
   
   useEffect(() => {
-    setValue('theme', (theme as 'light' | 'dark') || defaultValues.theme);
+    // Sync form state with the theme from next-themes
+    if (theme) {
+      setValue('theme', theme as 'light' | 'dark');
+    }
   }, [theme, setValue]);
 
   const saveSettings = (data: Partial<VisualSettingsFormValues>) => {
-    if (data.theme) {
+    if (data.theme && data.theme !== theme) {
       setTheme(data.theme);
     }
     if (data.antiBurnIn !== undefined) {
