@@ -13,23 +13,22 @@ export default function DeepFocusPage() {
     const toggleTheme = () => {
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
-
-    const enterFullScreen = () => {
-        const elem = containerRef.current;
-        if (elem && !document.fullscreenElement) {
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(() => {});
-            } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
-                (elem as any).webkitRequestFullscreen();
-            } else if ((elem as any).msRequestFullscreen) { /* IE11 */
-                (elem as any).msRequestFullscreen();
-            }
-        }
-    };
     
-    // Default to dark mode when entering deep focus
+    // Default to dark mode and enter fullscreen when the page loads.
     useEffect(() => {
         setTheme('dark');
+        const elem = containerRef.current;
+
+        const enterFullScreen = () => {
+             if (elem && !document.fullscreenElement) {
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+                } else if ((elem as any).webkitRequestFullscreen) { /* Safari */
+                    (elem as any).webkitRequestFullscreen();
+                }
+            }
+        };
+
         enterFullScreen();
 
         const handleFullscreenChange = () => {
@@ -40,12 +39,13 @@ export default function DeepFocusPage() {
 
         document.addEventListener('fullscreenchange', handleFullscreenChange);
         document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-        document.addEventListener('msfullscreenchange', handleFullscreenChange);
 
         return () => {
             document.removeEventListener('fullscreenchange', handleFullscreenChange);
             document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-            document.removeEventListener('msfullscreenchange', handleFullscreenChange);
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -54,7 +54,6 @@ export default function DeepFocusPage() {
         <div 
             ref={containerRef} 
             className="flex flex-col items-center justify-center min-h-screen bg-background"
-            onClick={enterFullScreen}
         >
             <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
         </div>
