@@ -7,7 +7,6 @@ import { Header } from '@/components/header';
 import { Clock, Target, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { collection, query, orderBy, limit } from 'firebase/firestore';
 import { format, parseISO, formatDistanceToNow, startOfDay } from 'date-fns';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
@@ -84,7 +83,7 @@ export default function DashboardPage() {
       <AddFocusRecordDialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+        <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
@@ -96,41 +95,10 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               <StatCard title="Today's Focus" value={formatDuration(stats.todayFocus)} icon={Clock} />
               <StatCard title="Today's Pomos" value={String(stats.todayPomos)} icon={Target} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle>Focus Activity</CardTitle>
-                  <CardDescription>Your focus minutes over different periods.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Tabs defaultValue="week" className="w-full">
-                        <TabsList className="grid w-full grid-cols-4 mb-4">
-                            <TabsTrigger value="today">Today</TabsTrigger>
-                            <TabsTrigger value="week">Week</TabsTrigger>
-                            <TabsTrigger value="month">Month</TabsTrigger>
-                            <TabsTrigger value="overall">Overall</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="today">
-                           <TodayChart />
-                        </TabsContent>
-                        <TabsContent value="week">
-                            <WeekChart data={focusRecords || []} loading={focusRecordsLoading} />
-                        </TabsContent>
-                        <TabsContent value="month">
-                             <MonthChart data={focusRecords || []} loading={focusRecordsLoading} />
-                        </TabsContent>
-                        <TabsContent value="overall">
-                            <OverallChart allRecords={focusRecords || []} loading={focusRecordsLoading} />
-                        </TabsContent>
-                    </Tabs>
-                </CardContent>
-            </Card>
-            <Card>
+               <Card className="col-span-1 sm:col-span-2 lg:col-span-1">
                 <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
                     <div>
                         <CardTitle className='text-base font-medium'>Recent Activity</CardTitle>
@@ -165,6 +133,41 @@ export default function DashboardPage() {
                     ) : (
                     <div className="text-muted-foreground text-sm text-center pt-8">No records for today.</div>
                     )}
+                </CardContent>
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Today's Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <TodayChart />
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Weekly Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <WeekChart data={focusRecords || []} loading={focusRecordsLoading} />
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Monthly Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <MonthChart data={focusRecords || []} loading={focusRecordsLoading} />
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Overall History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <OverallChart allRecords={focusRecords || []} loading={focusRecordsLoading} />
                 </CardContent>
             </Card>
         </div>
