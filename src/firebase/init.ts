@@ -10,31 +10,27 @@ let firebaseApp: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
 
-// Initialize Firebase only once
 if (!getApps().length) {
   firebaseApp = initializeApp(firebaseConfig);
+  auth = getAuth(firebaseApp);
+  try {
+    firestore = initializeFirestore(firebaseApp, {
+      localCache: persistentLocalCache({}),
+    });
+  } catch (e) {
+    if ((e as { code?: string }).code === 'failed-precondition') {
+      console.warn(
+        "Firestore has already been initialized. This can happen with multiple tabs open. Getting existing instance."
+      );
+      firestore = getFirestore(firebaseApp);
+    } else {
+      throw e;
+    }
+  }
 } else {
   firebaseApp = getApp();
-}
-
-auth = getAuth(firebaseApp);
-
-// The `getFirestore` function with no arguments can be used to get the default
-// firestore instance, but it doesn't allow for specifying `localCache`.
-// To handle hot-reloading correctly, we must catch the error and then get the
-// existing instance.
-try {
-  firestore = initializeFirestore(firebaseApp, {
-    localCache: persistentLocalCache({}),
-  });
-} catch (e) {
-  if ((e as {code?: string}).code === 'failed-precondition') {
-    console.warn("Firestore has already been initialized. Getting existing instance.");
-    firestore = getFirestore(firebaseApp);
-  } else {
-    // Re-throw other errors
-    throw e;
-  }
+  auth = getAuth(firebaseApp);
+  firestore = getFirestore(firebaseApp);
 }
 
 export { firebaseApp, auth, firestore };
