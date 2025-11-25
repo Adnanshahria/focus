@@ -24,9 +24,10 @@ const guideContent = {
       timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your personal workflow. Changes are saved automatically for registered users.",
     },
     buildLog: {
-      title: "Build Information",
+      title: "Build Log",
       version: "Version: 21.7 (prime edition)",
       developer: "Developer: Mohammed Adnan Shahria",
+      email: "Email: contact.mashahria@gmail.com"
     },
     language: "Language"
   },
@@ -48,9 +49,10 @@ const guideContent = {
       timer: "**টাইমার সময়কাল:** আপনার ব্যক্তিগত ওয়ার্কফ্লো অনুসারে আপনার পোমোডোরো, ছোট বিরতি এবং দীর্ঘ বিরতির সেশনের দৈর্ঘ্য কাস্টমাইজ করুন। নিবন্ধিত ব্যবহারকারীদের জন্য পরিবর্তনগুলি স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।",
     },
     buildLog: {
-      title: "নির্মাণ তথ্য",
+      title: "নির্মাণ লগ",
       version: "সংস্করণ: ২১.৭ (প্রাইম সংস্করণ)",
       developer: "ডেভেলপার: মোহাম্মদ আদনান শাহরিয়া",
+      email: "ইমেইল: contact.mashahria@gmail.com"
     },
     language: "ভাষা"
   }
@@ -121,6 +123,7 @@ export function AppGuide() {
           <AccordionContent className="space-y-2">
              <FormattedContent text={content.buildLog.version} />
              <FormattedContent text={content.buildLog.developer} />
+             <FormattedContent text={content.buildLog.email} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>

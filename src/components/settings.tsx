@@ -1,6 +1,6 @@
 'use client';
 
-import { Cog, User, Palette, Timer as TimerIcon, Info, Code } from "lucide-react";
+import { Cog, User, Palette, Timer as TimerIcon, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -10,26 +10,26 @@ import {
   SheetDescription,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { UserProfile } from "./auth/user-profile";
 import { VisualSettings } from "./settings/visual-settings";
 import { TimerSettings } from "./settings/timer-settings";
-import { Separator } from "./ui/separator";
-import React from "react";
 import { AppGuide } from "./settings/app-guide";
 
-
-const Section = ({ icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) => (
-    <div className="space-y-4">
-        <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
-                {React.createElement(icon, { className: "h-5 w-5 text-secondary-foreground" })}
+const Section = ({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) => (
+    <AccordionItem value={title}>
+        <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center gap-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
+                    <Icon className="h-5 w-5 text-secondary-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold">{title}</h3>
             </div>
-            <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
-        <div className="pl-11">
+        </AccordionTrigger>
+        <AccordionContent className="pl-11 pt-4">
             {children}
-        </div>
-    </div>
+        </AccordionContent>
+    </AccordionItem>
 );
 
 export function Settings() {
@@ -48,22 +48,21 @@ export function Settings() {
             Manage your profile, preferences, and timer settings.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto py-6 space-y-8 pr-6">
-            <Section icon={User} title="User Profile">
-                <UserProfile />
-            </Section>
-            <Separator />
-            <Section icon={Info} title="App Guide">
-                <AppGuide />
-            </Section>
-            <Separator />
-            <Section icon={Palette} title="Appearance">
-                <VisualSettings />
-            </Section>
-             <Separator />
-            <Section icon={TimerIcon} title="Timer">
-                <TimerSettings />
-            </Section>
+        <div className="flex-1 overflow-y-auto py-6 pr-6">
+            <Accordion type="multiple" className="w-full space-y-4">
+                <Section icon={User} title="User Profile">
+                    <UserProfile />
+                </Section>
+                <Section icon={Info} title="App Guide">
+                    <AppGuide />
+                </Section>
+                <Section icon={Palette} title="Appearance">
+                    <VisualSettings />
+                </Section>
+                <Section icon={TimerIcon} title="Timer">
+                    <TimerSettings />
+                </Section>
+            </Accordion>
         </div>
       </SheetContent>
     </Sheet>
