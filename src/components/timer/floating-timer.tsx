@@ -31,7 +31,7 @@ export function FloatingTimer() {
     addTime,
     subtractTime,
     sessionDuration,
-    reset,
+    endAndSaveSession,
   } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
@@ -91,9 +91,9 @@ export function FloatingTimer() {
     subtractTime(3 * 60);
   }
 
-  const handleReset = (e: React.MouseEvent) => {
+  const handleEndAndSave = (e: React.MouseEvent) => {
     e.stopPropagation();
-    reset();
+    endAndSaveSession();
   }
 
   useEffect(() => {
@@ -216,22 +216,27 @@ export function FloatingTimer() {
         >
           <ArrowLeft className="w-7 h-7" />
         </Button>
-         <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSubtractTime}
-            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
-        >
-          <Minus className="w-7 h-7" />
-        </Button>
-         <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleReset}
-            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
-        >
-          <RotateCcw className="w-6 h-6" />
-        </Button>
+        {!isActive && (
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleEndAndSave}
+                className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            >
+              <RotateCcw className="w-6 h-6" />
+            </Button>
+        )}
+        {isActive && (
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleSubtractTime}
+                className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            >
+            <Minus className="w-7 h-7" />
+            </Button>
+        )}
+        
         <Button
           onClick={e => {
             e.stopPropagation();
@@ -247,14 +252,17 @@ export function FloatingTimer() {
             <Play className="w-9 h-9 ml-1" />
           )}
         </Button>
-        <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleAddTime}
-            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
-        >
-          <Plus className="w-7 h-7" />
-        </Button>
+
+        {isActive && (
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAddTime}
+                className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            >
+            <Plus className="w-7 h-7" />
+            </Button>
+        )}
       </motion.div>
     </div>
   );

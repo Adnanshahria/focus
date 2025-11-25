@@ -56,6 +56,7 @@ type TimerActions = {
   setVisuals: (visuals: Partial<VisualSettings>) => void;
   addTime: (seconds: number) => void;
   subtractTime: (seconds: number) => void;
+  endAndSaveSession: () => void;
 };
 
 export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
@@ -90,6 +91,17 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
             isActive: false,
             timeLeft: initialTime,
             sessionDuration: initialTime,
+            sessionStartTime: null
+        }
+    }),
+  endAndSaveSession: () =>
+    set(state => {
+        const initialTime = getInitialTime(state.mode, state);
+        return {
+            isActive: false,
+            timeLeft: initialTime,
+            sessionDuration: initialTime,
+            sessionStartTime: null
         }
     }),
   tick: decrement => {
