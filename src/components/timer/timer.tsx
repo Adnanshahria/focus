@@ -5,50 +5,14 @@ import { TimerDisplay } from "./timer-display";
 import { TimerControls } from "./timer-controls";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useTimerStore } from "@/store/timer-store";
-import { useDoc, useFirestore, useUser, useMemoFirebase } from "@/firebase";
-import { useEffect } from "react";
-import { doc, collection } from "firebase/firestore";
 import { TimerModeSwitch } from "./timer-mode-switch";
 
-type UserPreferences = {
-    pomodoroDuration?: number;
-    shortBreakDuration?: number;
-    longBreakDuration?: number;
-}
 
 const MemoizedTimerDisplay = React.memo(TimerDisplay);
 const MemoizedTimerControls = React.memo(TimerControls);
 const MemoizedTimerModeSwitch = React.memo(TimerModeSwitch);
 
 export function Timer() {
-  const { setDurations } = useTimerStore(state => ({
-    setDurations: state.setDurations,
-  }));
-
-  const { user } = useUser();
-  const firestore = useFirestore();
-
-  const userPreferencesRef = useMemoFirebase(() => {
-    if (!user || user.isAnonymous) return null;
-    const prefCollection = collection(firestore, `users/${user.uid}/userPreferences`);
-    return doc(prefCollection, 'main');
-  }, [user, firestore]);
-
-  const { data: preferences } = useDoc<UserPreferences>(userPreferencesRef);
-
-  useEffect(() => {
-    if (preferences) {
-      if (preferences.pomodoroDuration && preferences.shortBreakDuration && preferences.longBreakDuration) {
-          setDurations({
-            pomodoroDuration: preferences.pomodoroDuration,
-            shortBreakDuration: preferences.shortBreakDuration,
-            longBreakDuration: preferences.longBreakDuration,
-          });
-      }
-    }
-  }, [preferences, setDurations]);
-
   return (
     <motion.div
       key="timer-container"
