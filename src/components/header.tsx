@@ -17,7 +17,7 @@ interface HeaderProps {
 export function Header({ onDeepFocusClick }: HeaderProps) {
   const { user } = useUser();
   const isRegisteredUser = user && !user.isAnonymous;
-  const [loading, setLoading] = useState<false | 'dashboard'>(false);
+  const [loading, setLoading] = useState<false | 'dashboard' | 'deepfocus'>(false);
   const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
   const [authFeatureName, setAuthFeatureName] = useState('this feature');
   
@@ -27,11 +27,9 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
   const isDashboard = pathname.includes('/dashboard');
 
   useEffect(() => {
-    // Reset loading state when navigation completes
-    if (loading === 'dashboard' && pathname !== '/dashboard') {
-        setLoading(false);
-    }
-  }, [pathname, loading]);
+    // Reset loading state on navigation change
+    setLoading(false);
+  }, [pathname]);
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
@@ -45,6 +43,12 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
         setLoading('dashboard');
         router.push(`/dashboard`);
     }
+  }
+
+  const handleDeepFocusClick = (e: React.MouseEvent) => {
+    setLoading('deepfocus');
+    onDeepFocusClick?.();
+    // The loading state will be reset by the useEffect on pathname change or component unmount.
   }
 
   return (
@@ -61,8 +65,10 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
                     <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => router.back()}>
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
-                    <Logo />
-                    <h1 className="text-xl font-bold tracking-tight md:hidden">Record</h1>
+                    <div className="hidden md:flex"><Logo /></div>
+                    <div className="flex md:hidden">
+                      <h1 className="text-xl font-bold tracking-tight">Record</h1>
+                    </div>
                 </>
             ) : (
                 <Logo />
@@ -72,13 +78,14 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
         <div className="flex items-center gap-1 sm:gap-2">
             <div className={cn("flex items-center gap-1 sm:gap-2", isDashboard && "hidden md:flex")}>
                 <Button
-                    onClick={onDeepFocusClick}
+                    onClick={handleDeepFocusClick}
                     variant="ghost" 
                     size="sm"
                     className={glassButtonClasses}
                     aria-label="Deep Focus"
+                    disabled={loading === 'deepfocus'}
                 >
-                    Deep Focus
+                    {loading === 'deepfocus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
                 </Button>
                 <Button
                     onClick={handleRecordClick}
