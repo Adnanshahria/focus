@@ -31,7 +31,7 @@ export const FloatingTimerDisplay = ({ theme, timeLeft, sessionDuration, isActiv
         if (pathRef.current) {
             setPathLength(pathRef.current.getTotalLength());
         }
-    }, [isActive, sessionDuration]);
+    }, []);
 
     const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
     const strokeDashoffset = pathLength * (1 - progress);

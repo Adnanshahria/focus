@@ -165,88 +165,29 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profiles.  Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user.  Used to enforce ownership."
-            }
-          ]
-        }
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
       },
-      {
-        "path": "/users/{userId}/userPreferences/{userPreferenceId}",
-        "definition": {
-          "entityName": "UserPreferences",
-          "schema": {
-            "$ref": "#/backend/entities/UserPreferences"
-          },
-          "description": "Stores user preferences. Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user. Used to enforce ownership."
-            },
-            {
-              "name": "userPreferenceId",
-              "description": "The unique identifier for user preference. Used to identify user preference document."
-            }
-          ]
-        }
+      "description": "Stores user profiles. Access is restricted to the authenticated user."
+    },
+    "/users/{userId}/userPreferences/{userPreferenceId}": {
+      "schema": {
+        "$ref": "#/entities/UserPreferences"
       },
-      {
-        "path": "/users/{userId}/focusRecords/{focusRecordId}",
-        "definition": {
-          "entityName": "FocusRecord",
-          "schema": {
-            "$ref": "#/backend/entities/FocusRecord"
-          },
-          "description": "Stores daily focus records for each user. Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user. Used to enforce ownership."
-            },
-            {
-              "name": "focusRecordId",
-              "description": "The unique identifier for the focus record. Used to identify focus record document."
-            }
-          ]
-        }
+      "description": "Stores user preferences. Access is restricted to the authenticated user."
+    },
+    "/users/{userId}/focusRecords/{focusRecordId}": {
+      "schema": {
+        "$ref": "#/entities/FocusRecord"
       },
-      {
-        "path": "/users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}",
-        "definition": {
-          "entityName": "Session",
-          "schema": {
-            "$ref": "#/backend/entities/Session"
-          },
-          "description": "Stores individual sessions within a focus record. Access is restricted to the authenticated user. Includes userId as path parameter for secure access.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier for the user. Used to enforce ownership."
-            },
-            {
-              "name": "focusRecordId",
-              "description": "The unique identifier for the focus record. Used to identify focus record document."
-            },
-            {
-              "name": "sessionId",
-              "description": "The unique identifier for the session. Used to identify session document."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to ensure security, scalability, and ease of debugging, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC, and QAPs. User preferences and focus records are stored in separate collections to optimize querying and security rules.\n\n1.  **Authorization Independence**: The structure achieves authorization independence by avoiding `get()` calls in security rules. Since each user's data is under their respective user ID path, access control is based solely on `request.auth.uid`, making operations atomic and easy to debug.\n2.  **Clarity of Intent:** The paths clearly indicate the data's purpose and ownership.\n3.  **DBAC:** User roles are not stored; authorization is based solely on `request.auth.uid`.\n4.  **QAPs:** Secure `list` operations are supported by segregating data into user-specific collections. Listing focus records for a specific user is done via the `/users/{userId}/focusRecords` path, making it efficient and secure. The structure ensures that only the authenticated user can access their own data.\n\nSpecifically:\n\n*   `/users/{userId}/userPreferences/{userPreferenceId}`: Stores user preferences. Access is restricted to the authenticated user.\n*   `/users/{userId}/focusRecords/{focusRecordId}`: Stores daily focus records for each user. Access is restricted to the authenticated user.\n*   `/users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}`: Stores individual sessions within a focus record. Access is restricted to the authenticated user.\n\nThis design promotes clear, robust, and easily debuggable security rules while maintaining scalability and data integrity."
+      "description": "Stores daily focus records for each user. Access is restricted to the authenticated user."
+    },
+    "/users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}": {
+      "schema": {
+        "$ref": "#/entities/Session"
+      },
+      "description": "Stores individual sessions within a focus record. Access is restricted to the authenticated user."
+    }
   }
 }
