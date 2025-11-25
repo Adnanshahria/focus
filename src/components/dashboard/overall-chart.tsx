@@ -1,8 +1,8 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ComposedChart, Line } from 'recharts';
 import { format, parseISO, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
@@ -28,13 +28,14 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
       to: today,
     });
 
-    const { chartData, totalMinutesInRange } = useMemo(() => {
+    const { chartData, totalMinutesInRange, totalPomosInRange } = useMemo(() => {
         if (!allRecords) {
-            return { chartData: [], totalMinutesInRange: 0 };
+            return { chartData: [], totalMinutesInRange: 0, totalPomosInRange: 0 };
         }
         if (!dateRange || !dateRange.from || !dateRange.to) {
              const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
-             return { chartData: allRecords, totalMinutesInRange: totalMinutes };
+             const totalPomos = allRecords.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
+             return { chartData: allRecords, totalMinutesInRange: totalMinutes, totalPomosInRange: totalPomos };
         }
         
         const filteredData = allRecords.filter(record => 
@@ -42,8 +43,9 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
         );
 
         const totalMinutesInRange = filteredData.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
+        const totalPomosInRange = filteredData.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
         
-        return { chartData: filteredData, totalMinutesInRange };
+        return { chartData: filteredData, totalMinutesInRange, totalPomosInRange };
 
     }, [allRecords, dateRange]);
 
@@ -79,8 +81,10 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
                 </div>
                 <div className='space-y-2'>
                     <DatePickerWithRange date={dateRange} setDate={setDateRange} />
-                    <p className='text-xs text-muted-foreground text-right'>
+                     <p className='text-xs text-muted-foreground text-right'>
                         Focus in range: <span className='font-semibold text-foreground'>{formatDuration(totalMinutesInRange)}</span>
+                        <span className='mx-2'>|</span>
+                        Pomos: <span className='font-semibold text-foreground'>{totalPomosInRange}</span>
                     </p>
                 </div>
             </div>
@@ -90,8 +94,14 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
             {chartData.length === 0 ? (
                  <div className="text-center p-4 text-muted-foreground h-[250px] flex items-center justify-center">No data for this period.</div>
             ): (
-                 <ChartContainer config={{ totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-[250px]">
-                    <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
+                 <ChartContainer 
+                    config={{ 
+                        totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' },
+                        totalPomos: { label: 'Pomos', color: 'hsl(var(--secondary))' }
+                    }} 
+                    className="w-full h-[250px]"
+                 >
+                    <ComposedChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
                         <CartesianGrid vertical={false} stroke="hsl(var(--border) / 0.5)" strokeDasharray="3 3" />
                         <XAxis 
                             dataKey="date" 
@@ -101,10 +111,13 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
                             tickMargin={8}
                             interval="preserveStartEnd"
                         />
-                        <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                        <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                        <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
                         <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                        <Bar dataKey="totalFocusMinutes" fill="hsl(var(--primary))" radius={4} />
-                    </BarChart>
+                        <ChartLegend content={<ChartLegendContent />} />
+                        <Bar yAxisId="left" dataKey="totalFocusMinutes" fill="var(--color-totalFocusMinutes)" radius={4} />
+                        <Line yAxisId="right" dataKey="totalPomos" type="monotone" stroke="var(--color-totalPomos)" strokeWidth={2} dot={false} />
+                    </ComposedChart>
                 </ChartContainer>
             )}
         </CardContent>
