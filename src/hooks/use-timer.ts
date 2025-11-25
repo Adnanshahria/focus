@@ -82,9 +82,7 @@ export const useTimer = () => {
     startAction(Date.now());
   }, [startAction]);
 
-  const pause = useCallback(async () => {
-    // The session saving logic is now handled by endAndSaveSession or completion.
-    // Pause should only pause.
+  const pause = useCallback(() => {
     pauseAction();
   }, [pauseAction]);
 

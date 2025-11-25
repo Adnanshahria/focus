@@ -1,16 +1,17 @@
-
 'use client';
 
 import { FloatingTimer } from '@/components/timer/floating-timer';
-import { useRef, useEffect, useState } from 'react';
-import { cn } from '@/lib/utils';
+import { useRef, useEffect } from 'react';
+import { useTheme } from 'next-themes';
 
 export default function DeepFocusPage() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+    // Use the theme from the provider directly
+    const { theme, setTheme } = useTheme();
 
     const toggleTheme = () => {
-        setTheme(current => current === 'dark' ? 'light' : 'dark');
+        // Toggle between light and dark mode
+        setTheme(theme === 'dark' ? 'light' : 'dark');
     };
 
     const enterFullScreen = () => {
@@ -25,8 +26,10 @@ export default function DeepFocusPage() {
             }
         }
     };
-
+    
+    // Default to dark mode when entering deep focus
     useEffect(() => {
+        setTheme('dark');
         enterFullScreen();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -34,13 +37,10 @@ export default function DeepFocusPage() {
     return (
         <div 
             ref={containerRef} 
-            className={cn(
-                "fixed inset-0 flex flex-col items-center justify-center",
-                theme === 'dark' ? 'bg-black' : 'bg-white'
-            )}
+            className="fixed inset-0 flex flex-col items-center justify-center bg-background"
             onClick={enterFullScreen}
         >
-            <FloatingTimer theme={theme} toggleTheme={toggleTheme} />
+            <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
         </div>
     );
 }
