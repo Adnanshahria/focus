@@ -2,7 +2,8 @@
 
 import { Header } from "@/components/header";
 import { Timer } from "@/components/timer/timer";
-import { useUser, useAuth, initiateAnonymousSignIn } from "@/firebase";
+import { useUser, useAuth } from "@/firebase";
+import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TodayStats } from "@/components/dashboard/today-stats";
