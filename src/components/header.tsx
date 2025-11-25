@@ -21,16 +21,18 @@ export function Header() {
   const pathname = usePathname();
 
   useEffect(() => {
-    // Hide spinner whenever the path changes
     setLoading(false);
   }, [pathname]);
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   const handleNavigationClick = (e: React.MouseEvent<HTMLButtonElement>, destination: 'dashboard' | 'deep-focus') => {
+    e.preventDefault();
     if (destination === 'dashboard' && !isRegisteredUser) {
-        e.preventDefault();
         setAuthFeatureName('view your progress');
+        setAuthDialogOpen(true);
+    } else if (destination === 'deep-focus' && !isRegisteredUser) {
+        setAuthFeatureName('enter deep focus mode');
         setAuthDialogOpen(true);
     } else {
         setLoading(destination);
@@ -48,26 +50,32 @@ export function Header() {
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-transparent">
         <Logo />
         <div className="flex items-center gap-1 sm:gap-2">
-          <Button 
-            variant="ghost" 
-            size="sm"
-            className={cn(glassButtonClasses)}
-            aria-label="Deep Focus"
-            onClick={(e) => handleNavigationClick(e, 'deep-focus')}
-            disabled={loading === 'deep-focus'}
-          >
-            {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
-          </Button>
-          <Button
+            <Button
+              asChild
+              variant="ghost" 
+              size="sm"
+              className={cn(glassButtonClasses)}
+              aria-label="Deep Focus"
+              onClick={(e) => handleNavigationClick(e, 'deep-focus')}
+              disabled={loading === 'deep-focus'}
+            >
+              <Link href="/deep-focus">
+                {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
+              </Link>
+            </Button>
+            <Button
+              asChild
               variant="ghost" 
               size="sm"
               className={cn(glassButtonClasses)}
               aria-label="Progress"
               onClick={(e) => handleNavigationClick(e, 'dashboard')}
               disabled={loading === 'dashboard'}
-          >
-            {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
-          </Button>
+            >
+              <Link href="/dashboard">
+                {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
+              </Link>
+            </Button>
           <Settings />
         </div>
       </header>
