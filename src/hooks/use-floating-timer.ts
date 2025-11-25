@@ -40,27 +40,12 @@ export const useFloatingTimer = (controlsAnimation: AnimationControls) => {
         if (isWakeLockSupported) requestWakeLock();
         showControls();
 
-        const handlePopState = (event: PopStateEvent) => {
-            event.preventDefault();
-            handleExit();
-        };
-
-        if (window.history.state?.page !== 'deepFocus') {
-            window.history.pushState({ page: 'deepFocus' }, '');
-        }
-
-        window.addEventListener('popstate', handlePopState);
-
         return () => {
             if (isWakeLockSupported) releaseWakeLock();
             if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
             if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
-            window.removeEventListener('popstate', handlePopState);
-            if (window.history.state?.page === 'deepFocus') {
-                try { window.history.back(); } catch(e) {}
-            }
         };
-    }, [isWakeLockSupported, requestWakeLock, releaseWakeLock, showControls, handleExit]);
+    }, [isWakeLockSupported, requestWakeLock, releaseWakeLock, showControls]);
 
     return { controlsVisible, isDimmed, showControls, handleExit };
 };

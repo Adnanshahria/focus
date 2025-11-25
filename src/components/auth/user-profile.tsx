@@ -20,7 +20,9 @@ export function UserProfile() {
   const auth = useAuth();
 
   const handleSignOut = async () => {
-    await auth.signOut();
+    if (auth) {
+      await auth.signOut();
+    }
   };
 
   if (isUserLoading) {

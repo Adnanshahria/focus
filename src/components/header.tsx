@@ -1,5 +1,4 @@
 'use client';
-import Link from "next/link";
 import { Loader } from "lucide-react";
 import { Settings } from "@/components/settings";
 import { Button } from "@/components/ui/button";
@@ -21,26 +20,27 @@ export function Header() {
   const router = useRouter();
 
   useEffect(() => {
+    // Reset loading state when navigation completes
     setLoading(false);
   }, [pathname]);
-  
-  const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   const handleDeepFocusClick = async () => {
     setLoading('deep-focus');
     try {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
+        router.push('/');
       } else {
         await document.documentElement.requestFullscreen();
+        router.push('/deep-focus');
       }
     } catch (error) {
         console.error("Could not toggle fullscreen:", error);
-    } finally {
-      // The loading state will be reset by the useEffect that watches the pathname.
-      // The navigation itself is handled by a listener in the RootLayout.
+        setLoading(false); // Reset loading on error
     }
   };
+  
+  const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   const handleRecordClick = (e: React.MouseEvent) => {
     if (!isRegisteredUser) {
