@@ -61,13 +61,11 @@ export default function DashboardPage() {
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
         <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-            <div className='flex items-center gap-2'>
+          <div className="flex items-center justify-start gap-4 mb-6 w-full">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
-            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
