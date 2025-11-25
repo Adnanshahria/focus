@@ -13,12 +13,13 @@ const guideContent = {
       addTime: "**Add/Subtract Time:** Need a few more minutes to wrap things up, or want to shorten a break? Quickly add or subtract 3 minutes from any active timer session.\n\n**How to use:**\nWhile the timer is running on the main screen or in Deep Focus mode, click the '+' or '-' button.",
       deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions, perfect for when you need to eliminate interruptions. This mode helps you commit to your task by removing all UI elements except for a minimalist timer.\n\n**How to use:**\nClick 'Deep Focus' in the header to enter. The timer will float in the center of a black screen. The device's back button will exit this mode.",
       progress: `**Progress Tracking:** (Registered users only) This powerful section helps you visualize your commitment and celebrate your progress, which is a key motivator for building a consistent focus habit. It includes:
-      - **Redesigned Charts:** Your focus minutes are visualized over different periods. Use the 'Week', and 'Month' tabs to see your focus patterns. The 'Overall' chart now shows a combined view of focus minutes (bars) and Pomodoros completed (dots), giving a richer insight into your work patterns.
+      - **Optimized Charts:** Your focus minutes are visualized over different periods. The charts now load faster and more efficiently.
       - **Data-Rich Headers:** Each chart card now shows key stats like 'Total Focus' and 'Pomos' for the selected period, giving you an at-a-glance summary.
       - **Recent Activity Log:** A list of your most recent sessions from today, showing when they happened and how long they were.
       \n**How to use:**
       Sign up for an account, and your completed Pomodoro sessions will be logged automatically. Visit the 'Progress' page anytime to see your updated stats.`,
       manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate. The redesigned time picker allows you to easily select a time and specify AM/PM.\n\n**How to use:**\nGo to the 'Progress' page and click the 'Log' button. You can specify the date, start time, and duration.",
+      offline: "**Offline Support:** The app now works offline! Your focus data is saved on your device and will sync automatically when you reconnect to the internet. You can view your dashboard and track your progress even without a connection.\n\n**How to use:**\nIt works automatically. Just use the app as you normally would.",
     },
     settings: {
       title: "Settings Explained",
@@ -69,10 +70,16 @@ export function AppGuide() {
                         <FormattedContent text={content.features.progress} />
                     </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="manual-logging" className="border-b-0">
+                <AccordionItem value="manual-logging">
                     <AccordionTrigger className="py-2 text-sm">Manual Logging</AccordionTrigger>
-                    <AccordionContent className="pt-2 pb-0">
+                    <AccordionContent className="pt-2">
                         <FormattedContent text={content.features.manualLog} />
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="offline-support" className="border-b-0">
+                    <AccordionTrigger className="py-2 text-sm">Offline Support</AccordionTrigger>
+                    <AccordionContent className="pt-2 pb-0">
+                        <FormattedContent text={content.features.offline} />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
