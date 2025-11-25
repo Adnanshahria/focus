@@ -20,6 +20,8 @@ export const useTimer = () => {
     addTime,
     subtractTime,
     endAndSaveSession: endAndSaveAction,
+    isSaving,
+    setSaving,
   } = store;
 
   const { user } = useUser();
@@ -91,11 +93,16 @@ export const useTimer = () => {
   }, [resetAction]);
 
   const endAndSaveSession = useCallback(async () => {
-    if (sessionStartTime) {
+    if (isSaving || !sessionStartTime) return;
+
+    setSaving(true);
+    try {
       await recordSession(false); // Record partial session
+      endAndSaveAction(); // Then reset the state
+    } finally {
+        setSaving(false);
     }
-    endAndSaveAction(); // Then reset the state
-  }, [sessionStartTime, recordSession, endAndSaveAction]);
+  }, [isSaving, sessionStartTime, recordSession, endAndSaveAction, setSaving]);
 
 
   useEffect(() => {
@@ -143,8 +150,13 @@ export const useTimer = () => {
   useEffect(() => {
     const handleTimerEnd = async () => {
         if (timeLeft <= 0 && isActive) {
-            await recordSession(true);
-            completeCycle();
+            setSaving(true);
+            try {
+                await recordSession(true);
+                completeCycle();
+            } finally {
+                setSaving(false);
+            }
         }
     }
     handleTimerEnd();

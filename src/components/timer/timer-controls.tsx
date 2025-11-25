@@ -2,12 +2,12 @@
 
 import { useTimer } from "@/hooks/use-timer";
 import { Button } from "@/components/ui/button";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Loader } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export function TimerControls() {
-  const { isActive, start, pause, endAndSaveSession, resetSession, timeLeft, sessionDuration } = useTimer();
+  const { isActive, start, pause, endAndSaveSession, resetSession, timeLeft, sessionDuration, isSaving } = useTimer();
 
   const handleEndAndSave = () => endAndSaveSession();
   const handleCancel = () => resetSession();
@@ -48,8 +48,8 @@ export function TimerControls() {
               </Button>
           </motion.div>
            <div className="flex items-center justify-center w-full gap-2">
-                <Button onClick={handleEndAndSave} size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" disabled={isPristine}>
-                    End & Save
+                <Button onClick={handleEndAndSave} size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" disabled={isPristine || isSaving}>
+                    {isSaving ? <><Loader className="animate-spin mr-2" /> Saving...</> : 'End & Save'}
                 </Button>
                 <Button onClick={handleCancel} size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" disabled={isPristine}>
                     Cancel

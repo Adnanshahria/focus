@@ -36,6 +36,7 @@ type TimerState = {
   pomodorosCompleted: number;
   sessionStartTime: number | null;
   sessionDuration: number; // The total duration for the current session including added time
+  isSaving: boolean;
 } & TimerDurations &
   VisualSettings;
 
@@ -51,6 +52,7 @@ type TimerActions = {
   addTime: (seconds: number) => void;
   subtractTime: (seconds: number) => void;
   endAndSaveSession: () => void;
+  setSaving: (isSaving: boolean) => void;
 };
 
 export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
@@ -64,6 +66,7 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   sessionStartTime: null,
   sessionDuration: POMODORO_DUR,
   antiBurnIn: true, // Enabled by default for better UX on OLED
+  isSaving: false,
 
   setMode: mode => {
     const initialTime = getInitialTime(mode, get());
@@ -156,5 +159,6 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
       timeLeft: Math.max(0, state.timeLeft - seconds),
       sessionDuration: Math.max(0, state.sessionDuration - seconds)
     }));
-  }
+  },
+  setSaving: (isSaving: boolean) => set({ isSaving }),
 }));

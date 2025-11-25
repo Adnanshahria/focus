@@ -40,6 +40,7 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     sessionDuration,
     endAndSaveSession,
     resetSession,
+    isSaving,
   } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
@@ -316,11 +317,11 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
               variant="ghost"
               size="icon"
               onClick={handleEndAndSave}
-              disabled={isPristine}
+              disabled={isPristine || isSaving}
               className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
               style={{ color: uiColor }}
             >
-              <CheckCircle className="w-6 h-6" />
+              {isSaving ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}><Loader className="w-6 h-6" /></motion.div> : <CheckCircle className="w-6 h-6" />}
             </Button>
           </>
         )}
