@@ -216,25 +216,25 @@ export function FloatingTimer() {
         >
           <ArrowLeft className="w-7 h-7" />
         </Button>
-        {!isActive && (
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleEndAndSave}
-                className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
-            >
-              <RotateCcw className="w-6 h-6" />
-            </Button>
-        )}
-        {isActive && (
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleSubtractTime}
-                className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
-            >
+
+        {isActive ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSubtractTime}
+            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+          >
             <Minus className="w-7 h-7" />
-            </Button>
+          </Button>
+        ) : (
+           <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleEndAndSave}
+            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+          >
+            <RotateCcw className="w-6 h-6" />
+          </Button>
         )}
         
         <Button

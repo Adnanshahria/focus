@@ -37,9 +37,10 @@ export function TimerControls() {
                 )}
                 >
                 <Play className="mr-2" />
-                { "Resume" }
+                Resume
                 </Button>
             </motion.div>
+             <div className="w-14 h-14"></div>
          </>
        ) : (
         <>
@@ -59,7 +60,7 @@ export function TimerControls() {
                 )}
                 >
                 <Pause className="mr-2" />
-                { "Pause" }
+                Pause
                 </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
