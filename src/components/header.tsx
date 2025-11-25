@@ -9,10 +9,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { Logo } from "./logo";
 import { AuthRequiredDialog } from "./auth/auth-required-dialog";
 
-export function Header() {
+interface HeaderProps {
+  onDeepFocusClick?: () => void;
+}
+
+export function Header({ onDeepFocusClick }: HeaderProps) {
   const { user } = useUser();
   const isRegisteredUser = user && !user.isAnonymous;
-  const [loading, setLoading] = useState<false | 'deep-focus' | 'dashboard'>(false);
+  const [loading, setLoading] = useState<false | 'dashboard'>(false);
   const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
   const [authFeatureName, setAuthFeatureName] = useState('this feature');
   
@@ -21,13 +25,10 @@ export function Header() {
 
   useEffect(() => {
     // Reset loading state when navigation completes
-    setLoading(false);
+    if (pathname !== '/dashboard') {
+        setLoading(false);
+    }
   }, [pathname]);
-  
-  const handleDeepFocusClick = () => {
-    setLoading('deep-focus');
-    router.push('/deep-focus');
-  };
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
@@ -53,14 +54,13 @@ export function Header() {
         <Logo />
         <div className="flex items-center gap-1 sm:gap-2">
             <Button
-              onClick={handleDeepFocusClick}
+              onClick={onDeepFocusClick}
               variant="ghost" 
               size="sm"
               className={cn(glassButtonClasses)}
               aria-label="Deep Focus"
-              disabled={loading === 'deep-focus'}
             >
-              {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
+              Deep Focus
             </Button>
             <Button
               onClick={handleRecordClick}

@@ -5,25 +5,71 @@ import { Timer } from "@/components/timer/timer";
 import { useUser } from "@/firebase";
 import { useAuth } from '@/firebase/hooks/hooks';
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TodayStats } from "@/components/dashboard/today-stats";
+import { FloatingTimer } from "@/components/timer/floating-timer";
+import { motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 
 export default function Home() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const { theme, setTheme } = useTheme();
+  const [isDeepFocus, setDeepFocus] = useState(false);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
-    // Ensure auth is initialized before attempting to sign in.
     if (!isUserLoading && !user && auth) {
       initiateAnonymousSignIn(auth);
     }
   }, [user, isUserLoading, auth]);
 
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setDeepFocus(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const handleEnterDeepFocus = () => {
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+        element.requestFullscreen()
+            .then(() => {
+                setDeepFocus(true);
+            })
+            .catch(err => {
+                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+    }
+  };
+
+  if (isDeepFocus) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+          <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="w-full h-full"
+          >
+              <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
+          </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header />
+      <Header onDeepFocusClick={handleEnterDeepFocus} />
       <main className="flex-1 flex flex-col items-center justify-center p-4 pt-20 md:pt-24">
         {isUserLoading || !user ? (
           <div className="flex flex-col items-center justify-center gap-8">
