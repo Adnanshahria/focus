@@ -10,7 +10,6 @@ import { TimerModeSwitch } from "./timer-mode-switch";
 
 const MemoizedTimerDisplay = React.memo(TimerDisplay);
 const MemoizedTimerControls = React.memo(TimerControls);
-const MemoizedTimerModeSwitch = React.memo(TimerModeSwitch);
 
 export function Timer() {
   return (
@@ -25,7 +24,7 @@ export function Timer() {
         "bg-card/80 backdrop-blur-md border shadow-2xl shadow-black/20"
       )}
     >
-      <MemoizedTimerModeSwitch />
+      <TimerModeSwitch />
       <MemoizedTimerDisplay />
       <MemoizedTimerControls />
     </motion.div>

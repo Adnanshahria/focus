@@ -137,11 +137,6 @@ export const useFirebase = (): FirebaseServicesAndUser => {
   };
 };
 
-/** Hook to access Firebase Auth instance. */
-export const useAuth = (): Auth => {
-  const { auth } = useFirebase();
-  return auth;
-};
 
 /** Hook to access Firestore instance. */
 export const useFirestore = (): Firestore => {
@@ -181,6 +176,14 @@ export function useMemoFirebase<T>(
  * @returns {UserHookResult} Object with user, isUserLoading, userError.
  */
 export const useUser = (): UserHookResult => { // Renamed from useAuthUser
-  const { user, isUserLoading, userError } = useFirebase(); // Leverages the main hook
+  const { user, isUserLoading, userError, auth } = useFirebase(); // Leverages the main hook
   return { user, isUserLoading, userError };
 };
+
+export const useAuth = (): Auth => {
+    const { auth } = useFirebase();
+    if (!auth) {
+        throw new Error("Auth service is not available. Make sure you are using this hook within a FirebaseProvider.")
+    }
+    return auth;
+}
