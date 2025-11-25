@@ -189,7 +189,7 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   const uiColor = theme === 'dark' ? 'white' : 'hsl(var(--primary))';
   const bgColorClass = theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-primary/10 hover:bg-primary/20';
 
-  const isPristine = timeLeft === sessionDuration;
+  const isPristine = timeLeft === sessionDuration && !isActive;
 
   return (
     <div
@@ -253,19 +253,9 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
         >
           <ArrowLeft className="w-7 h-7" />
         </Button>
-
-        {isActive ? (
+        
+        {!isActive ? (
           <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSubtractTime}
-            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
-            style={{ color: uiColor }}
-          >
-            <Minus className="w-7 h-7" />
-          </Button>
-        ) : (
-           <Button
             variant="ghost"
             size="icon"
             onClick={handleEndAndSave}
@@ -274,6 +264,16 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
             style={{ color: uiColor }}
           >
             <RotateCcw className="w-6 h-6" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSubtractTime}
+            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+            style={{ color: uiColor }}
+          >
+            <Minus className="w-7 h-7" />
           </Button>
         )}
         
@@ -291,17 +291,7 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
           )}
         </Button>
 
-        {isActive ? (
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleAddTime}
-                className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
-                style={{ color: uiColor }}
-            >
-            <Plus className="w-7 h-7" />
-            </Button>
-        ) : (
+        {!isActive ? (
           <Button
             variant="ghost"
             size="icon"
@@ -310,6 +300,16 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
             style={{ color: uiColor }}
           >
             {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+          </Button>
+        ) : (
+          <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleAddTime}
+              className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+              style={{ color: uiColor }}
+          >
+            <Plus className="w-7 h-7" />
           </Button>
         )}
 
