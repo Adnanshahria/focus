@@ -34,8 +34,6 @@ const TodayStats = ({ userId }: { userId: string }) => {
 
   const focusMinutes = todayRecord?.totalFocusMinutes || 0;
 
-  if (focusMinutes < 1) return null; // Don't show if there's no focus time
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
