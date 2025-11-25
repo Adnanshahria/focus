@@ -1,6 +1,6 @@
 'use client';
 
-import { Cog, User, Palette, Timer as TimerIcon, Info, FileText } from "lucide-react";
+import { Cog, User, Palette, Timer as TimerIcon, Info, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -63,7 +63,7 @@ export function Settings() {
                 <Section icon={TimerIcon} title="Timer">
                     <TimerSettings />
                 </Section>
-                 <Section icon={FileText} title="Build Log">
+                 <Section icon={Code2} title="(&lt;&gt;) Development">
                     <BuildLog />
                 </Section>
             </Accordion>

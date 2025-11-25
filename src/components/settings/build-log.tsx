@@ -29,22 +29,20 @@ const FormattedContent = ({ text }: { text: string }) => {
 };
 
 const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-        <path d="M19.07 4.93A10 10 0 0 0 6.32 17.68 M14.93 19.07A10 10 0 0 0 17.68 6.32"></path>
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 12c0 1.78.46 3.45 1.29 4.9L2 22l5.25-1.38c1.41.78 3.02 1.23 4.79 1.23h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2M16.9 15.46c-.19-.1-.67-.33-1.12-.52-.45-.19-1.04-.49-1.2-.69s-.25-.39-.1-.78c.15-.39.78-1 .93-1.2.15-.2.05-.39-.05-.59-.1-.2-.49-.64-.69-.88-.2-.25-.39-.2-.54-.2-.15 0-.39.1-.54.2s-.59.69-.73.83c-.15.15-.29.15-.44.05-.15-.1-.64-.25-1.2-.73s-.93-1.12-1-1.32c-.05-.2.05-.39.15-.54s.34-.39.49-.59c.15-.2.2-.39.15-.54-.05-.15-.54-1.29-.73-1.78-.19-.49-.39-.44-.54-.44h-.1a.53.53 0 0 0-.54.2c-.15.15-.59.69-.73.83s-.29.29-.44.29-.29-.05-.44-.1S9.3 10 8.76 9.46c-.54-.54-1-1.2-1-1.3s-.2-.39-.34-.39h-.39c-.15 0-.34.15-.34.34 0 .19.1.49.25.69.15.2.29.39.39.54s.1.49.15.73c.05.25.25.78.78 1.48.54.7 1.2 1.3 2 1.8.8.5 1.5.8 2.3.9.8.1 1.5.1 2.1-.1.6-.2 1.1-.9 1.3-1.2.2-.3.2-.5.1-.7s-.1-.2-.2-.3z"/>
     </svg>
 );
 
 const TelegramIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22 2 11 13" />
-        <path d="M22 2 15 22 11 13 2 9l20-7z" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" {...props}>
+      <path d="m9.417 15.181-.397 5.584c.568 0 .814-.244 1.109-.537l2.663-2.545 5.518 4.041c1.012.564 1.725.267 1.998-.931l3.622-16.972.001-.001c.321-1.496-.541-2.081-1.527-1.714l-21.29 8.151c-1.453.564-1.431 1.374-.247 1.741l5.443 1.693L18.953 5.78c.595-.394 1.136-.176.691.218z"/>
     </svg>
 );
 
 
 export function BuildLog() {
-  const [language, setLanguage] = useState<'en' | 'bn'>('en');
+  const [language, setLanguage] = useState&lt;'en' | 'bn'&gt;('en');
   const content = contentData[language];
   const developerEmail = "adnanshahria2006@gmail.com";
   const whatsappLink = "https://wa.me/8801853452264";
