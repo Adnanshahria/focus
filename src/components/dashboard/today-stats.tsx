@@ -3,8 +3,8 @@
 import { useDoc, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
 import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { format, startOfDay } from "date-fns";
-import { doc } from "firebase/firestore";
+import { format } from "date-fns";
+import { doc, collection, query, where } from "firebase/firestore";
 import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
 import { useDateRanges } from "@/hooks/use-date-ranges";
