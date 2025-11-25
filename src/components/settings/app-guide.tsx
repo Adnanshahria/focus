@@ -13,17 +13,17 @@ const guideContent = {
       addTime: "**Add/Subtract Time:** Need a few more minutes to wrap things up, or want to shorten a break? Quickly add or subtract 3 minutes from any active timer session.\n\n**How to use:**\nWhile the timer is running on the main screen or in Deep Focus mode, click the '+' or '-' button.",
       deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions, perfect for when you need to eliminate interruptions. This mode helps you commit to your task by removing all UI elements except for a minimalist timer.\n\n**How to use:**\nClick 'Deep Focus' in the header to enter. The timer will float in the center of a black screen. The device's back button will exit this mode.",
       progress: `**Progress Tracking:** (Registered users only) This powerful section helps you visualize your commitment and celebrate your progress, which is a key motivator for building a consistent focus habit. It includes:
-      - **Today's Focus & Pomos Cards:** Get an instant overview of your daily achievement with a clear display of total focus minutes and Pomodoros completed today.
-      - **Focus Activity Chart:** A dynamic bar chart that shows your focus minutes over different periods. Use the 'Day', 'Week', and 'Month' tabs to see your focus patterns and track your consistency over time. The 'Day' view even breaks down your focus by the hour.
+      - **Redesigned Charts:** Your focus minutes are visualized over different periods. Use the 'Week', and 'Month' tabs to see your focus patterns. The 'Overall' chart now shows a combined view of focus minutes (bars) and Pomodoros completed (dots), giving a richer insight into your work patterns.
+      - **Data-Rich Headers:** Each chart card now shows key stats like 'Total Focus' and 'Pomos' for the selected period, giving you an at-a-glance summary.
       - **Recent Activity Log:** A list of your most recent sessions from today, showing when they happened and how long they were.
       \n**How to use:**
       Sign up for an account, and your completed Pomodoro sessions will be logged automatically. Visit the 'Progress' page anytime to see your updated stats.`,
-      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate.\n\n**How to use:**\nGo to the 'Progress' page and click the 'Log' button. You can specify the date, start time, and duration.",
+      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate. The redesigned time picker allows you to easily select a time and specify AM/PM.\n\n**How to use:**\nGo to the 'Progress' page and click the 'Log' button. You can specify the date, start time, and duration.",
     },
     settings: {
       title: "Settings Explained",
       profile: "**User Profile:** Sign up to save your preferences and track your progress across devices. Anonymous users' data is local to the browser and temporary.",
-      appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Anti-Burn' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
+      appearance: "**Appearance:** Switch between a sleek light mode (with white cards) and a cool, AMOLED-friendly dark mode. Enable 'Anti-Burn' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
       timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your personal workflow. Changes are saved automatically for registered users.",
     },
   }

@@ -8,7 +8,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { Skeleton } from '@/components/ui/skeleton';
-import Link from 'next/link';
 import { TodayChart } from '@/components/dashboard/today-chart';
 import { WeekChart } from '@/components/dashboard/week-chart';
 import { MonthChart } from '@/components/dashboard/month-chart';
@@ -55,10 +54,8 @@ export default function DashboardPage() {
         <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className='flex items-center gap-2'>
-              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                <Link href="/">
-                  <ArrowLeft className="h-4 w-4" />
-                </Link>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" />
               </Button>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
             </div>

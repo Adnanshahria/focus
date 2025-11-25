@@ -13,6 +13,7 @@ import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Sun, Moon } from 'lucide-react';
 import { useTimerStore } from '@/store/timer-store';
+import { Skeleton } from '../ui/skeleton';
 
 const visualSettingsSchema = z.object({
   theme: z.enum(['light', 'dark']),
@@ -114,7 +115,18 @@ export function VisualSettings() {
   };
   
   if (isLoading && user && !user.isAnonymous) {
-      return <div>Loading settings...</div>;
+    return (
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-12" />
+          <div className="grid grid-cols-2 gap-2">
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </div>
+        <Skeleton className="h-20 w-full" />
+      </div>
+    );
   }
 
   return (
