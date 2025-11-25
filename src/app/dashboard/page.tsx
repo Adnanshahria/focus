@@ -8,17 +8,17 @@ import { Clock, Target, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { collection, query, orderBy, limit, where } from 'firebase/firestore';
-import { format, parseISO, formatDistanceToNow } from 'date-fns';
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import { format, parseISO, formatDistanceToNow, startOfDay } from 'date-fns';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { StatCard } from '@/components/dashboard/stat-card';
-import { DailyFocusChart } from '@/components/dashboard/daily-focus-chart';
-import { HistoricalFocusChart } from '@/components/dashboard/historical-focus-chart';
+import { TodayChart } from '@/components/dashboard/today-chart';
+import { WeekChart } from '@/components/dashboard/week-chart';
+import { MonthChart } from '@/components/dashboard/month-chart';
+import { OverallChart } from '@/components/dashboard/overall-chart';
 import { useDateRanges } from '@/hooks/use-date-ranges';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -27,56 +27,36 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const router = useRouter();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
-  const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
-  const [weekStartsOn, setWeekStartsOn] = useState<WeekStartDay>(1); // 1 for Monday
-  
-  const { today, dateRanges } = useDateRanges(weekStartsOn);
+  const { today } = useDateRanges();
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
+
+  const todayRecordQuery = useMemoFirebase(() => {
+    if (!user) return null;
+    return collection(firestore, `users/${user.uid}/focusRecords`);
+  }, [user, firestore]);
   
-  const focusRecordsQuery = useMemoFirebase(() => {
-    if (!user || user.isAnonymous) return null;
-    const { start, end } = dateRanges[timeRange];
-    
-    return query(collection(firestore, `users/${user.uid}/focusRecords`), 
-        where('date', '>=', format(start, 'yyyy-MM-dd')),
-        where('date', '<=', format(end, 'yyyy-MM-dd'))
-    );
-  }, [user, firestore, timeRange, dateRanges]);
-
-  const { data: focusRecords, isLoading: focusRecordsLoading } = useCollection(focusRecordsQuery);
-
-  const totalFocusForPeriod = useMemo(() => {
-    if (!focusRecords) return 0;
-    return focusRecords.reduce((acc, record) => acc + (record.totalFocusMinutes || 0), 0);
-  }, [focusRecords]);
-
-  const sortedFocusRecords = useMemo(() => {
-      if (!focusRecords) return [];
-      return [...focusRecords].sort((a,b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [focusRecords]);
+  const { data: focusRecords, isLoading: focusRecordsLoading } = useCollection(todayRecordQuery);
 
   const stats = useMemo(() => {
     const todayDateStr = format(today, 'yyyy-MM-dd');
-    const todayRecord = sortedFocusRecords.find(r => r.id === todayDateStr);
+    const todayRecord = focusRecords?.find(r => r.id === todayDateStr);
     
     return {
       todayPomos: todayRecord?.totalPomos || 0,
       todayFocus: todayRecord?.totalFocusMinutes || 0,
     };
-  }, [sortedFocusRecords, today]);
-  
+  }, [focusRecords, today]);
+
   const sessionsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return query(
@@ -87,12 +67,6 @@ export default function DashboardPage() {
   }, [user, firestore, today]);
 
   const { data: sessions, isLoading: sessionsLoading } = useCollection(sessionsQuery);
-
-  const chartSourceData = useMemo(() => {
-    if (!focusRecords) return [];
-    return focusRecords.map(r => ({ date: r.id, totalFocusMinutes: r.totalFocusMinutes }));
-  }, [focusRecords]);
-
 
   if (isUserLoading || !user || user.isAnonymous) {
     return (
@@ -107,11 +81,11 @@ export default function DashboardPage() {
 
   return (
     <>
-    <AddFocusRecordDialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen} />
-    <div className="flex flex-col min-h-screen bg-background text-foreground">
-      <Header />
-      <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <AddFocusRecordDialog open={isAddDialogOpen} onOpenChange={setAddDialogOpen} />
+      <div className="flex flex-col min-h-screen bg-background text-foreground">
+        <Header />
+        <main className="flex-1 flex flex-col pt-20 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div className='flex items-center gap-2'>
               <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
                 <Link href="/">
@@ -120,68 +94,38 @@ export default function DashboardPage() {
               </Button>
               <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
             </div>
-            <div className="flex items-center gap-2">
-                <Label htmlFor='week-start' className='text-xs text-muted-foreground'>Week starts on</Label>
-                <Select value={String(weekStartsOn)} onValueChange={(val) => setWeekStartsOn(Number(val) as WeekStartDay)}>
-                    <SelectTrigger id='week-start' className='w-[120px] h-8 text-xs'>
-                        <SelectValue placeholder="Select day" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="0">Sunday</SelectItem>
-                        <SelectItem value="1">Monday</SelectItem>
-                        <SelectItem value="2">Tuesday</SelectItem>
-                        <SelectItem value="3">Wednesday</SelectItem>
-                        <SelectItem value="4">Thursday</SelectItem>
-                        <SelectItem value="5">Friday</SelectItem>
-                        <SelectItem value="6">Saturday</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-        </div>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
-            <StatCard title="Today's Focus" value={formatDuration(stats.todayFocus)} icon={Clock} />
-            <StatCard title="Today's Pomos" value={String(stats.todayPomos)} icon={Target} />
-        </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 mb-6">
+              <StatCard title="Today's Focus" value={formatDuration(stats.todayFocus)} icon={Clock} />
+              <StatCard title="Today's Pomos" value={String(stats.todayPomos)} icon={Target} />
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2">
                 <CardHeader>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <div>
-                          <CardTitle>Focus Activity</CardTitle>
-                          <CardDescription>Your focus minutes over the selected period.</CardDescription>
-                      </div>
-                      <div className="text-2xl font-bold text-right sm:text-left">
-                          {formatDuration(totalFocusForPeriod)}
-                      </div>
-                  </div>
+                  <CardTitle>Focus Activity</CardTitle>
+                  <CardDescription>Your focus minutes over different periods.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs defaultValue="week" onValueChange={(value) => setTimeRange(value as 'day'|'week'|'month')} className="w-full">
-                        <TabsList className="grid w-full grid-cols-3 mb-4">
-                            <TabsTrigger value="day">Day</TabsTrigger>
+                    <Tabs defaultValue="week" className="w-full">
+                        <TabsList className="grid w-full grid-cols-4 mb-4">
+                            <TabsTrigger value="today">Today</TabsTrigger>
                             <TabsTrigger value="week">Week</TabsTrigger>
                             <TabsTrigger value="month">Month</TabsTrigger>
+                            <TabsTrigger value="overall">Overall</TabsTrigger>
                         </TabsList>
-                        <TabsContent value="day">
-                            <DailyFocusChart />
+                        <TabsContent value="today">
+                           <TodayChart />
                         </TabsContent>
                         <TabsContent value="week">
-                            <HistoricalFocusChart 
-                              data={chartSourceData} 
-                              loading={focusRecordsLoading} 
-                              timeRange='week'
-                              weekStartsOn={weekStartsOn}
-                            />
+                            <WeekChart data={focusRecords || []} loading={focusRecordsLoading} />
                         </TabsContent>
                         <TabsContent value="month">
-                             <HistoricalFocusChart 
-                              data={chartSourceData} 
-                              loading={focusRecordsLoading} 
-                              timeRange='month'
-                              weekStartsOn={weekStartsOn}
-                            />
+                             <MonthChart data={focusRecords || []} loading={focusRecordsLoading} />
+                        </TabsContent>
+                        <TabsContent value="overall">
+                            <OverallChart allRecords={focusRecords || []} loading={focusRecordsLoading} />
                         </TabsContent>
                     </Tabs>
                 </CardContent>
@@ -209,7 +153,7 @@ export default function DashboardPage() {
                         {sessions.map(session => (
                         <li key={session.id} className="flex justify-between items-center text-sm">
                             <div>
-                            <span className='capitalize font-medium'>{session.type === 'manual' ? 'Manual Entry' : session.type.replace('B', ' B')} </span> 
+                            <span className='capitalize font-medium'>{session.type === 'manual' ? 'Manual Entry' : session.type.replace('B', ' B')} </span>
                             <p className="text-muted-foreground text-xs" title={new Date(session.startTime).toLocaleString()}>
                                 {formatDistanceToNow(parseISO(session.startTime), { addSuffix: true })}
                             </p>

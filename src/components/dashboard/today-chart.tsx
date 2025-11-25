@@ -11,6 +11,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CardDescription } from '../ui/card';
 
 export const TodayChart = () => {
     const { user } = useUser();
@@ -51,9 +52,10 @@ export const TodayChart = () => {
     const hasData = chartData.some(d => d.minutes > 0);
 
     return (
-        <div className="h-[250px] w-full">
+        <div className="space-y-4">
+             <CardDescription>Your focus activity by hour for today.</CardDescription>
             {hasData ? (
-                <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
+                <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-[250px]">
                     <BarChart data={chartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
                         <CartesianGrid vertical={false} strokeDasharray="3 3" />
                         <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
