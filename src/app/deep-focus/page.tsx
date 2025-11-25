@@ -6,11 +6,9 @@ import { useTheme } from 'next-themes';
 
 export default function DeepFocusPage() {
     const containerRef = useRef<HTMLDivElement>(null);
-    // Use the theme from the provider directly
     const { theme, setTheme } = useTheme();
 
     const toggleTheme = () => {
-        // Toggle between light and dark mode
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
 

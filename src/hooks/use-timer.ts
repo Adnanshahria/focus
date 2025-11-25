@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/timer-store';
-import { useUser, useFirestore } from '@/firebase/provider';
+import { useUser, useFirestore } from '@/firebase';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 
 export const useTimer = () => {
@@ -149,7 +149,7 @@ export const useTimer = () => {
     }
     handleTimerEnd();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isActive, completeCycle, recordSession]);
+  }, [timeLeft, isActive]);
 
   return { ...store, start, pause, resetSession, addTime, subtractTime, endAndSaveSession };
 };
