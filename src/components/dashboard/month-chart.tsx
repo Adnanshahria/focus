@@ -1,7 +1,7 @@
 'use client';
 import { useMemo } from 'react';
 import { HistoricalFocusChart } from './historical-focus-chart';
-import { CardDescription } from '../ui/card';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 import { isWithinInterval } from 'date-fns';
 
@@ -23,16 +23,21 @@ export const MonthChart = ({ data, loading }: { data: any[], loading: boolean })
     }, [data, dateRanges.month]);
 
     return (
-        <div className='space-y-4'>
-            <CardDescription>
-                Total this month: <span className="font-semibold text-foreground">{formatDuration(monthlyTotal)}</span>
-            </CardDescription>
-            <HistoricalFocusChart 
-                data={data} 
-                loading={loading} 
-                timeRange='month'
-                weekStartsOn={1} // weekStartsOn doesn't affect month view
-            />
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>Monthly Activity</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <CardDescription>
+                    Total this month: <span className="font-semibold text-foreground">{formatDuration(monthlyTotal)}</span>
+                </CardDescription>
+                <HistoricalFocusChart 
+                    data={data} 
+                    loading={loading} 
+                    timeRange='month'
+                    weekStartsOn={1} // weekStartsOn doesn't affect month view
+                />
+            </CardContent>
+        </Card>
     );
 };

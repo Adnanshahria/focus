@@ -11,7 +11,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CardDescription } from '../ui/card';
+import { CardDescription, Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Clock, Target } from 'lucide-react';
 
 function formatDuration(minutes: number) {
@@ -72,43 +72,48 @@ export const TodayChart = () => {
 
 
     return (
-        <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="flex items-center p-3 rounded-lg border bg-background">
-                    <Clock className="w-5 h-5 mr-3 text-primary" />
-                    <div>
-                        <p className="text-xs text-muted-foreground">Focus</p>
-                        <p className="text-lg font-bold">{formatDuration(totalMinutes)}</p>
+        <Card>
+            <CardHeader>
+                <CardTitle>Today's Activity</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center p-3 rounded-lg border bg-card">
+                        <Clock className="w-5 h-5 mr-3 text-primary" />
+                        <div>
+                            <p className="text-xs text-muted-foreground">Focus</p>
+                            <p className="text-lg font-bold">{formatDuration(totalMinutes)}</p>
+                        </div>
+                    </div>
+                    <div className="flex items-center p-3 rounded-lg border bg-card">
+                        <Target className="w-5 h-5 mr-3 text-primary" />
+                        <div>
+                            <p className="text-xs text-muted-foreground">Pomos</p>
+                            <p className="text-lg font-bold">{totalPomos}</p>
+                        </div>
                     </div>
                 </div>
-                <div className="flex items-center p-3 rounded-lg border bg-background">
-                    <Target className="w-5 h-5 mr-3 text-primary" />
-                    <div>
-                        <p className="text-xs text-muted-foreground">Pomos</p>
-                        <p className="text-lg font-bold">{totalPomos}</p>
-                    </div>
+
+                <CardDescription>Hourly Breakdown</CardDescription>
+                
+                <div className="h-[200px] w-full">
+                    {hasData ? (
+                        <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
+                            <BarChart data={hourlyChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
+                                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
+                                <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
+                                <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
+                                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                                <Bar dataKey="minutes" fill="hsl(var(--primary))" radius={4} />
+                            </BarChart>
+                        </ChartContainer>
+                    ) : (
+                        <div className="h-[200px] flex items-center justify-center text-muted-foreground">
+                            No focus sessions recorded today.
+                        </div>
+                    )}
                 </div>
-            </div>
-
-            <CardDescription>Hourly Breakdown</CardDescription>
-
-            <div className="h-[200px] w-full">
-                {hasData ? (
-                    <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
-                        <BarChart data={hourlyChartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
-                            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
-                            <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-                            <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
-                            <Bar dataKey="minutes" fill="hsl(var(--primary))" radius={4} />
-                        </BarChart>
-                    </ChartContainer>
-                ) : (
-                    <div className="h-[200px] flex items-center justify-center text-muted-foreground">
-                        No focus sessions recorded today.
-                    </div>
-                )}
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };

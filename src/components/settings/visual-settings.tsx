@@ -37,7 +37,10 @@ export function VisualSettings() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-  const { setVisuals: setStoreVisuals } = useTimerStore();
+  const { antiBurnIn: storeAntiBurnIn, setVisuals: setStoreVisuals } = useTimerStore(state => ({
+    antiBurnIn: state.antiBurnIn,
+    setVisuals: state.setVisuals
+  }));
 
   const userPreferencesRef = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
@@ -52,15 +55,18 @@ export function VisualSettings() {
     watch,
     reset,
     setValue,
-    formState: { isSubmitting, isDirty },
+    formState: { isSubmitting },
   } = useForm<VisualSettingsFormValues>({
     resolver: zodResolver(visualSettingsSchema),
-    defaultValues: defaultValues,
+    defaultValues: {
+      ...defaultValues,
+      antiBurnIn: storeAntiBurnIn,
+      theme: (theme as 'light' | 'dark') || defaultValues.theme,
+    },
   });
 
   const watchedValues = watch();
-  
-  // Sync remote preferences to form state
+
   useEffect(() => {
     if (preferences) {
       const newValues = {
@@ -68,34 +74,27 @@ export function VisualSettings() {
         antiBurnIn: preferences.antiBurnIn ?? defaultValues.antiBurnIn,
       };
       reset(newValues);
-      if(newValues.theme) {
+      if(newValues.theme !== theme) {
         setTheme(newValues.theme);
       }
       setStoreVisuals({ antiBurnIn: newValues.antiBurnIn });
     }
-  }, [preferences, reset, setTheme, setStoreVisuals]);
-
-  // Sync theme from next-themes to form state
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [preferences, reset]);
+  
   useEffect(() => {
-      setValue('theme', (theme as 'light' | 'dark') || defaultValues.theme);
+    setValue('theme', (theme as 'light' | 'dark') || defaultValues.theme);
   }, [theme, setValue]);
-
-  const handleValueChange = <T extends keyof VisualSettingsFormValues>(field: T, value: VisualSettingsFormValues[T]) => {
-      setValue(field, value, { shouldDirty: true });
-      if (field === 'theme') {
-          setTheme(value as string);
-      }
-      // Immediately submit form to save changes
-      handleSubmit(onSubmit)();
-  }
 
   const onSubmit = (data: VisualSettingsFormValues) => {
     setStoreVisuals({ antiBurnIn: data.antiBurnIn });
+    setTheme(data.theme);
+
     if (!userPreferencesRef) {
-        if (!user || user.isAnonymous) {
-            // Silently fail for anonymous users, don't show toast
-        }
-        return;
+      if (!user || user.isAnonymous) {
+        // Silently fail for anonymous users, don't show toast
+      }
+      return;
     }
     
     const dataToSave = { id: 'main', ...data };
@@ -108,6 +107,16 @@ export function VisualSettings() {
     });
     reset(data); // Resets dirty state after save
   };
+
+  const handleAntiBurnInChange = (checked: boolean) => {
+    setValue('antiBurnIn', checked, { shouldDirty: true });
+    handleSubmit(onSubmit)();
+  };
+
+  const handleThemeChange = (value: 'light' | 'dark') => {
+    setValue('theme', value, { shouldDirty: true });
+    handleSubmit(onSubmit)();
+  };
   
   if (isLoading && user && !user.isAnonymous) {
       return <div>Loading settings...</div>;
@@ -118,10 +127,10 @@ export function VisualSettings() {
       <div className="space-y-2">
         <Label>Theme</Label>
         <RadioGroup
-          onValueChange={(value: 'light' | 'dark') => handleValueChange('theme', value)}
+          onValueChange={handleThemeChange}
           value={watchedValues.theme}
           className="grid grid-cols-2 gap-2"
-          disabled={!user || user.isAnonymous}
+          disabled={isSubmitting}
         >
           <Label className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary">
             <Sun className="h-5 w-5"/>
@@ -146,8 +155,8 @@ export function VisualSettings() {
         <Switch 
           id="antiBurnIn"
           checked={watchedValues.antiBurnIn}
-          onCheckedChange={(checked) => handleValueChange('antiBurnIn', checked)}
-          disabled={!user || user.isAnonymous}
+          onCheckedChange={handleAntiBurnInChange}
+          disabled={isSubmitting}
         />
       </div>
     </form>

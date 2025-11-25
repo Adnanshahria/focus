@@ -6,7 +6,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { format, parseISO, eachDayOfInterval, subMonths, isWithinInterval } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
-import { CardDescription } from '../ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 type ChartData = {
   date: string;
@@ -62,7 +62,11 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
     if (loading) return <Skeleton className="h-[350px] w-full" />;
     
     return (
-        <div className="space-y-4">
+        <>
+        <CardHeader>
+            <CardTitle>Overall Activity</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <CardDescription>Filter your focus history by date range.</CardDescription>
                 <DatePickerWithRange date={dateRange} setDate={setDateRange} />
@@ -103,6 +107,7 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
                     </BarChart>
                 </ChartContainer>
             )}
-        </div>
+        </CardContent>
+        </>
     );
 };

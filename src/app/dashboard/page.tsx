@@ -2,7 +2,7 @@
 
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -64,15 +64,19 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            <RecentActivityCard onLogClick={() => setAddDialogOpen(true)} />
-            <TodayChart />
-            <WeekChart data={focusRecords || []} loading={focusRecordsLoading} />
-            <MonthChart data={focusRecords || []} loading={focusRecordsLoading} />
-            <Card className="lg:col-span-2">
-                <OverallChart allRecords={focusRecords || []} loading={focusRecordsLoading} />
-            </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className='space-y-6'>
+                <RecentActivityCard onLogClick={() => setAddDialogOpen(true)} />
+                <TodayChart />
+            </div>
+            <div className="space-y-6">
+                 <WeekChart data={focusRecords || []} loading={focusRecordsLoading} />
+                 <MonthChart data={focusRecords || []} loading={focusRecordsLoading} />
+            </div>
           </div>
+          <Card className="col-span-1 md:col-span-2">
+            <OverallChart allRecords={focusRecords || []} loading={focusRecordsLoading} />
+          </Card>
         </main>
       </div>
     </>
