@@ -29,12 +29,16 @@ export function Header() {
   const handleDeepFocusClick = async () => {
     setLoading('deep-focus');
     try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else {
         await document.documentElement.requestFullscreen();
-        router.push('/deep-focus');
+      }
     } catch (error) {
-        console.error("Could not enter fullscreen:", error);
-        // Fallback for browsers that don't support it or if user denies it.
-        router.push('/deep-focus');
+        console.error("Could not toggle fullscreen:", error);
+    } finally {
+      // The loading state will be reset by the useEffect that watches the pathname.
+      // The navigation itself is handled by a listener in the RootLayout.
     }
   };
 
