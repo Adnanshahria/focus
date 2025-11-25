@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
@@ -51,11 +50,9 @@ export function VisualSettings() {
   const { data: preferences, isLoading } = useDoc<UserPreferences>(userPreferencesRef);
 
   const {
-    handleSubmit,
     watch,
     reset,
     setValue,
-    formState: { isSubmitting },
   } = useForm<VisualSettingsFormValues>({
     resolver: zodResolver(visualSettingsSchema),
     defaultValues: {
@@ -86,36 +83,34 @@ export function VisualSettings() {
     setValue('theme', (theme as 'light' | 'dark') || defaultValues.theme);
   }, [theme, setValue]);
 
-  const onSubmit = (data: VisualSettingsFormValues) => {
-    setStoreVisuals({ antiBurnIn: data.antiBurnIn });
-    setTheme(data.theme);
-
-    if (!userPreferencesRef) {
-      if (!user || user.isAnonymous) {
-        // Silently fail for anonymous users, don't show toast
-      }
-      return;
+  const saveSettings = (data: Partial<VisualSettingsFormValues>) => {
+    if (data.theme) {
+      setTheme(data.theme);
+    }
+    if (data.antiBurnIn !== undefined) {
+      setStoreVisuals({ antiBurnIn: data.antiBurnIn });
     }
     
+    if (!userPreferencesRef) return;
+    
     const dataToSave = { id: 'main', ...data };
-
     setDocumentNonBlocking(userPreferencesRef, dataToSave, { merge: true });
     
     toast({
       title: 'Settings Updated',
       description: 'Your appearance settings have been saved.',
     });
-    reset(data); // Resets dirty state after save
+    reset({ ...watchedValues, ...data });
   };
 
   const handleAntiBurnInChange = (checked: boolean) => {
     setValue('antiBurnIn', checked, { shouldDirty: true });
-    handleSubmit(onSubmit)();
+    saveSettings({ antiBurnIn: checked });
   };
 
   const handleThemeChange = (value: 'light' | 'dark') => {
     setValue('theme', value, { shouldDirty: true });
-    handleSubmit(onSubmit)();
+    saveSettings({ theme: value });
   };
   
   if (isLoading && user && !user.isAnonymous) {
@@ -123,14 +118,13 @@ export function VisualSettings() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <div className="space-y-6">
       <div className="space-y-2">
         <Label>Theme</Label>
         <RadioGroup
           onValueChange={handleThemeChange}
           value={watchedValues.theme}
           className="grid grid-cols-2 gap-2"
-          disabled={isSubmitting}
         >
           <Label className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary">
             <Sun className="h-5 w-5"/>
@@ -156,9 +150,8 @@ export function VisualSettings() {
           id="antiBurnIn"
           checked={watchedValues.antiBurnIn}
           onCheckedChange={handleAntiBurnInChange}
-          disabled={isSubmitting}
         />
       </div>
-    </form>
+    </div>
   );
 }
