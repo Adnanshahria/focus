@@ -22,8 +22,6 @@ export default function DashboardPage() {
   
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
-      // Instead of redirecting, show a dialog.
-      // Or, keep the redirect for a hard gate. For this example, let's assume redirect is desired.
       router.push('/');
     }
   }, [user, isUserLoading, router]);
@@ -62,15 +60,20 @@ export default function DashboardPage() {
       <AddFocusRecordDialog open={isAuthDialogOpen} onOpenChange={setAuthDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header />
-        <main className="flex-1 flex flex-col pt-28 p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
-          <div className="fixed top-14 left-0 right-0 bg-background/95 backdrop-blur-sm z-40 lg:hidden border-b">
-              <div className="flex items-center justify-start gap-4 p-4 max-w-6xl mx-auto">
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-                <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
-            </div>
+        
+        <div className="fixed top-14 left-0 right-0 bg-background/95 backdrop-blur-sm z-40 lg:hidden border-b">
+            <div className="flex items-center justify-start gap-4 p-4 max-w-6xl mx-auto">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Progress</h1>
           </div>
+        </div>
+
+        <main className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+          {/* This spacer div creates space for the two fixed headers on mobile/desktop */}
+          <div className="h-28 lg:h-14"></div>
+
           <div className="hidden lg:flex items-center justify-start gap-4 mb-6 w-full">
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
                 <ArrowLeft className="h-4 w-4" />
