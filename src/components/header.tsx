@@ -26,6 +26,7 @@ export function Header() {
   
   useEffect(() => {
     const handleFullscreenChange = () => {
+      // If user exits fullscreen and they are on the deep focus page, navigate them back
       if (!document.fullscreenElement && pathname === '/deep-focus') {
         router.push('/');
       }
@@ -35,20 +36,9 @@ export function Header() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [pathname, router]);
 
-  const handleDeepFocusClick = async () => {
+  const handleDeepFocusClick = () => {
     setLoading('deep-focus');
-    try {
-        if (!document.fullscreenElement) {
-            await document.documentElement.requestFullscreen();
-            router.push('/deep-focus');
-        } else {
-            await document.exitFullscreen();
-        }
-    } catch (error) {
-        console.error("Could not toggle fullscreen:", error);
-    } finally {
-        setLoading(false);
-    }
+    router.push('/deep-focus');
   };
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
