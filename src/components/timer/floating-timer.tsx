@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
-import { useTimer, useTimerStore } from '@/hooks/use-timer';
+import { useTimer } from '@/hooks/use-timer';
+import { useTimerStore } from '@/store/timer-store';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
 import { Button } from '../ui/button';
