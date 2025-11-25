@@ -4,7 +4,6 @@ import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
-import { Button } from '@/components/ui/button';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { TodayChart } from '@/components/dashboard/today-chart';
 import { WeekChart } from '@/components/dashboard/week-chart';
@@ -114,7 +113,7 @@ export default function DashboardPage() {
       <AddFocusRecordDialog open={isAuthDialogOpen} onOpenChange={setAuthDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header onDeepFocusClick={handleEnterDeepFocus} />
-        <main className="flex-1 p-4 pt-20 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
+        <main className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className='space-y-6'>
               <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
