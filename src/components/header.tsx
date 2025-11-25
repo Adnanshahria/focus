@@ -48,32 +48,24 @@ export function Header() {
         <div className="flex items-center gap-1 sm:gap-2">
           <Link href="/deep-focus" passHref>
              <Button 
-                asChild
                 variant="ghost" 
                 size="sm"
                 className={cn(glassButtonClasses)}
                 aria-label="Deep Focus"
                 onClick={() => setLoading('deep-focus')}
             >
-              <a>
-                {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
-              </a>
+              {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
             </Button>
           </Link>
-          <Link href="/dashboard" passHref>
-            <Button
-                asChild
-                variant="ghost" 
-                size="sm"
-                className={cn(glassButtonClasses)}
-                aria-label="Progress"
-                onClick={(e: any) => handleProgressClick(e)}
-            >
-             <a>
-                {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
-             </a>
-            </Button>
-          </Link>
+          <Button
+              variant="ghost" 
+              size="sm"
+              className={cn(glassButtonClasses)}
+              aria-label="Progress"
+              onClick={(e: any) => handleProgressClick(e)}
+          >
+            {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
+          </Button>
           <Settings />
         </div>
       </header>
