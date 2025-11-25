@@ -1,6 +1,6 @@
 'use client';
 
-import { Cog, User, Palette, Timer as TimerIcon, Code, Mail } from "lucide-react";
+import { Cog, User, Palette, Timer as TimerIcon, Code, Mail, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import Link from "next/link";
 import { Separator } from "./ui/separator";
 import React from "react";
+import { AppGuide } from "./settings/app-guide";
 
 const devInfo = {
     name: "Mohammed Adnan Shahria",
@@ -92,6 +93,10 @@ export function Settings() {
         <div className="flex-1 overflow-y-auto py-6 space-y-8 pr-6">
             <Section icon={User} title="User Profile">
                 <UserProfile />
+            </Section>
+            <Separator />
+            <Section icon={Info} title="App Guide">
+                <AppGuide />
             </Section>
             <Separator />
             <Section icon={Palette} title="Appearance">
