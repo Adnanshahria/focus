@@ -3,15 +3,28 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  const firestoreInstance = getFirestore(app);
+  
+  // Enable offline persistence
+  enableIndexedDbPersistence(firestoreInstance).catch((err) => {
+    if (err.code == 'failed-precondition') {
+      // Multiple tabs open, persistence can only be enabled in one.
+      // This is a normal scenario.
+    } else if (err.code == 'unimplemented') {
+      // The current browser does not support all of the
+      // features required to enable persistence.
+    }
+  });
+
   return {
     firebaseApp: app,
     auth: getAuth(app),
-    firestore: getFirestore(app)
+    firestore: firestoreInstance
   };
 }
 
