@@ -2,7 +2,7 @@
 
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,9 @@ import { RecentActivityCard } from '@/components/dashboard/recent-activity-card'
 import { Card } from '@/components/ui/card';
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
 import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
-import { useCollection } from '@/firebase/firestore/use-collection';
+import { useCollection, useDoc } from '@/firebase';
 import { collection, query, orderBy, where, doc } from 'firebase/firestore';
-import { format, startOfDay, isWithinInterval, startOfMonth } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 
 export default function DashboardPage() {
@@ -25,23 +25,19 @@ export default function DashboardPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
-  const { today, dateRanges } = useDateRanges();
+  const { today } = useDateRanges();
   const todayDateString = format(today, 'yyyy-MM-dd');
 
-  // Unified query for current month's records to optimize initial load
-  const monthlyRecordsQuery = useMemoFirebase(() => {
+  // --- Start of Optimized Data Fetching ---
+
+  // 1. Prioritize Today's Data for instant load
+  const todayRecordRef = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
-    const monthStart = format(startOfMonth(today), 'yyyy-MM-dd');
-    return query(
-        collection(firestore, `users/${user.uid}/focusRecords`),
-        where('date', '>=', monthStart),
-        orderBy('date', 'asc')
-    );
-  }, [user, firestore, today]);
+    return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
+  }, [user, firestore, todayDateString]);
+  
+  const { data: todayRecord, isLoading: isTodayRecordLoading } = useDoc(todayRecordRef);
 
-  const { data: currentMonthRecords, isLoading: areRecordsLoading } = useCollection(monthlyRecordsQuery);
-
-  // Unified query for today's sessions
   const sessionsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return query(
@@ -52,20 +48,29 @@ export default function DashboardPage() {
   
   const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
 
-  // Memoized derived data for charts
-  const todayRecord = useMemo(() => currentMonthRecords?.find(r => r.id === todayDateString), [currentMonthRecords, todayDateString]);
-  const weeklyRecords = useMemo(() => currentMonthRecords?.filter(r => isWithinInterval(new Date(r.date), dateRanges.week)), [currentMonthRecords, dateRanges.week]);
-  const monthlyRecords = useMemo(() => currentMonthRecords, [currentMonthRecords]);
+  // 2. Fetch historical data for charts in the background
+  const historicalRecordsQuery = useMemoFirebase(() => {
+    if (!user || user.isAnonymous) return null;
+    return query(
+        collection(firestore, `users/${user.uid}/focusRecords`),
+        orderBy('date', 'asc')
+    );
+  }, [user, firestore]);
+
+  const { data: allRecords, isLoading: areAllRecordsLoading } = useCollection(historicalRecordsQuery);
+  
+  // --- End of Optimized Data Fetching ---
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
+  
+  // The main page skeleton only waits for the user and today's essential data
+  const isEssentialDataLoading = isUserLoading || isTodayRecordLoading || areSessionsLoading;
 
-  const isLoading = isUserLoading || areRecordsLoading || areSessionsLoading;
-
-  if (isLoading) {
+  if (isEssentialDataLoading) {
     return <DashboardSkeleton />;
   }
   
@@ -100,12 +105,14 @@ export default function DashboardPage() {
               <TodayChart todayRecord={todayRecord} sessions={todaySessions} />
             </div>
             <div className="space-y-6">
-              <WeekChart weeklyRecords={weeklyRecords} />
-              <MonthChart monthlyRecords={monthlyRecords} />
+              {/* These components now handle their own loading state internally */}
+              <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
+              <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
             </div>
           </div>
           <Card className="col-span-1 md:col-span-2">
-            <OverallChart allRecords={currentMonthRecords} />
+            {/* This component handles its own loading state internally */}
+            <OverallChart allRecords={allRecords} />
           </Card>
         </main>
       </div>

@@ -5,6 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { useUserPreferences, WeekStartDay } from '@/hooks/use-user-preferences.tsx';
+import { isWithinInterval } from 'date-fns';
+import { useDateRanges } from '@/hooks/use-date-ranges';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -14,13 +16,20 @@ function formatDuration(minutes: number) {
 }
 
 interface WeekChartProps {
-    weeklyRecords: any[] | undefined | null;
+    allRecords: any[] | undefined | null;
+    isLoading: boolean;
 }
 
-export const WeekChart = ({ weeklyRecords }: WeekChartProps) => {
+export const WeekChart = ({ allRecords, isLoading }: WeekChartProps) => {
     const { preferences, updatePreferences } = useUserPreferences();
     const weekStartsOn = preferences?.weekStartsOn ?? 1;
 
+    const { dateRanges } = useDateRanges(weekStartsOn as WeekStartDay);
+    const weeklyRecords = useMemo(() => {
+        if (!allRecords) return [];
+        return allRecords.filter(r => isWithinInterval(new Date(r.date), dateRanges.week));
+    }, [allRecords, dateRanges.week]);
+    
     const weeklyTotal = useMemo(() => {
         if (!weeklyRecords) return 0;
         return weeklyRecords.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
@@ -58,7 +67,7 @@ export const WeekChart = ({ weeklyRecords }: WeekChartProps) => {
             <CardContent>
                 <HistoricalFocusChart 
                     data={weeklyRecords || []} 
-                    loading={!weeklyRecords} 
+                    loading={isLoading} 
                     timeRange='week'
                     weekStartsOn={weekStartsOn as WeekStartDay}
                 />

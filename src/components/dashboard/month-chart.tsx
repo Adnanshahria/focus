@@ -2,6 +2,8 @@
 import { useMemo } from 'react';
 import { HistoricalFocusChart } from './historical-focus-chart';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
+import { isWithinInterval } from 'date-fns';
+import { useDateRanges } from '@/hooks/use-date-ranges';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -11,10 +13,17 @@ function formatDuration(minutes: number) {
 }
 
 interface MonthChartProps {
-    monthlyRecords: any[] | undefined | null;
+    allRecords: any[] | undefined | null;
+    isLoading: boolean;
 }
 
-export const MonthChart = ({ monthlyRecords }: MonthChartProps) => {
+export const MonthChart = ({ allRecords, isLoading }: MonthChartProps) => {
+    const { dateRanges } = useDateRanges();
+    const monthlyRecords = useMemo(() => {
+        if (!allRecords) return [];
+        return allRecords.filter(r => isWithinInterval(new Date(r.date), dateRanges.month));
+    }, [allRecords, dateRanges.month]);
+
     const monthlyTotal = useMemo(() => {
         if (!monthlyRecords) return 0;
         return monthlyRecords.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
@@ -31,7 +40,7 @@ export const MonthChart = ({ monthlyRecords }: MonthChartProps) => {
             <CardContent>
                 <HistoricalFocusChart 
                     data={monthlyRecords || []} 
-                    loading={!monthlyRecords} 
+                    loading={isLoading} 
                     timeRange='month'
                     weekStartsOn={1} // weekStartsOn doesn't affect month view
                 />
