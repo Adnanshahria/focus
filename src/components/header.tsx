@@ -31,10 +31,6 @@ export function Header() {
         e.preventDefault();
         setAuthFeatureName('view your progress');
         setAuthDialogOpen(true);
-    } else if (destination === 'deep-focus' && !isRegisteredUser) {
-        e.preventDefault();
-        setAuthFeatureName('enter deep focus mode');
-        setAuthDialogOpen(true);
     } else {
         setLoading(destination);
         router.push(`/${destination}`);
