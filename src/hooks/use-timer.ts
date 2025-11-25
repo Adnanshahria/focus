@@ -83,21 +83,28 @@ export const useTimer = () => {
     startAction(Date.now());
   }, [startAction]);
 
-  const pause = useCallback(() => {
+  const pause = useCallback(async () => {
+    if (isActive && sessionStartTime) {
+      await recordSession(false);
+    }
     pauseAction();
-  }, [pauseAction]);
+  }, [isActive, sessionStartTime, pauseAction, recordSession]);
 
   const reset = useCallback(() => {
     resetAction();
   }, [resetAction]);
 
   const endAndSaveSession = useCallback(async () => {
-    if (isActive && sessionStartTime) {
-      pause();
-      await recordSession(false);
+    // If timer is active or was paused mid-session, record it before resetting.
+    if (sessionStartTime) {
+        // If it was active, pause first which also triggers save.
+        if (isActive) {
+            await pause();
+        }
     }
+    // Now perform the reset of the state.
     endAndSaveAction();
-  }, [isActive, sessionStartTime, pause, recordSession, endAndSaveAction]);
+  }, [isActive, sessionStartTime, pause, endAndSaveAction]);
 
 
   useEffect(() => {
