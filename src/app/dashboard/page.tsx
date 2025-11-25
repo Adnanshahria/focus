@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser } from '@/firebase';
@@ -20,6 +21,9 @@ import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
+import { FloatingTimer } from '@/components/timer/floating-timer';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -29,10 +33,14 @@ export default function DashboardPage() {
   const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { today } = useDateRanges();
   const todayDateString = format(today, 'yyyy-MM-dd');
+  const [isDeepFocus, setDeepFocus] = useState(false);
+  const { theme, setTheme } = useTheme();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   // --- Start of Optimized Data Fetching ---
-
-  // 1. Memoize reference for Today's Data for instant load
   const todayRecordRef = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
@@ -50,7 +58,6 @@ export default function DashboardPage() {
   
   const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
 
-  // 2. Memoize query for historical data for charts in the background
   const historicalRecordsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return query(
@@ -60,7 +67,6 @@ export default function DashboardPage() {
   }, [user, firestore]);
 
   const { data: allRecords, isLoading: areAllRecordsLoading } = useCollection(historicalRecordsQuery);
-  
   // --- End of Optimized Data Fetching ---
 
   useEffect(() => {
@@ -84,9 +90,41 @@ export default function DashboardPage() {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement) {
+        setDeepFocus(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
   
-  // The main page skeleton only waits for the user auth check.
-  // Individual components will handle their own loading states.
+  const handleEnterDeepFocus = () => {
+    const element = document.documentElement;
+    if (element.requestFullscreen) {
+      element.requestFullscreen()
+        .then(() => setDeepFocus(true))
+        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+    }
+  };
+
+  if (isDeepFocus) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+          <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="w-full h-full"
+          >
+              <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
+          </motion.div>
+      </div>
+    );
+  }
+  
   if (isUserLoading) {
     return <DashboardSkeleton />;
   }
@@ -95,7 +133,7 @@ export default function DashboardPage() {
     <>
       <AddFocusRecordDialog open={isAuthDialogOpen} onOpenChange={setAuthDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
-        <Header />
+        <Header onDeepFocusClick={handleEnterDeepFocus} />
         
         <div className={cn(
           "fixed top-14 left-0 right-0 bg-background/95 backdrop-blur-sm z-40 lg:hidden border-b transition-transform duration-300",
@@ -125,13 +163,11 @@ export default function DashboardPage() {
               <TodayChart todayRecord={todayRecord} isLoading={isTodayRecordLoading} sessions={todaySessions} />
             </div>
             <div className="space-y-6">
-              {/* These components now handle their own loading state internally */}
               <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
               <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
             </div>
           </div>
           <Card className="col-span-1 md:col-span-2">
-            {/* This component handles its own loading state internally */}
             <OverallChart allRecords={allRecords} />
           </Card>
         </main>
