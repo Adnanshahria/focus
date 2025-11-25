@@ -112,8 +112,10 @@ export function VisualSettings() {
   };
 
   const handleThemeChange = (value: 'light' | 'dark') => {
-    setValue('theme', value, { shouldDirty: true });
-    saveSettings({ theme: value });
+    if (value !== theme) {
+        setValue('theme', value, { shouldDirty: true });
+        saveSettings({ theme: value });
+    }
   };
   
   if (isLoading && user && !user.isAnonymous) {
@@ -136,16 +138,21 @@ export function VisualSettings() {
       <div className="space-y-2">
         <Label>Theme</Label>
         <RadioGroup
-          onValueChange={handleThemeChange}
           value={watchedValues.theme}
           className="grid grid-cols-2 gap-2"
         >
-          <Label className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary">
+          <Label 
+            onClick={() => handleThemeChange('light')}
+            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary"
+          >
             <Sun className="h-5 w-5"/>
             <RadioGroupItem value="light" id="theme-light" className="sr-only"/>
             <span>Light</span>
           </Label>
-          <Label className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary">
+          <Label 
+            onClick={() => handleThemeChange('dark')}
+            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary"
+          >
             <Moon className="h-5 w-5"/>
             <RadioGroupItem value="dark" id="theme-dark" className="sr-only"/>
             <span>Dark</span>

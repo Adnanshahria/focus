@@ -52,7 +52,7 @@ export function TimerDisplay() {
       <div className="z-10 text-center">
         <h2 className={cn(
           "text-6xl md:text-7xl font-black tracking-tight tabular-nums text-foreground",
-          "bg-clip-text text-transparent bg-gradient-to-b from-white to-neutral-300"
+          "dark:bg-clip-text dark:text-transparent dark:bg-gradient-to-b dark:from-white dark:to-neutral-300"
         )}>
           {formatTime(timeLeft)}
         </h2>
