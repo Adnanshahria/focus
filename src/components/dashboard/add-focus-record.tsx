@@ -42,14 +42,14 @@ const addRecordSchema = z.object({
   if (data.ampm === 'pm' && data.hour < 12) {
     hour24 += 12;
   }
-  if (data.ampm === 'am' && data.hour === 12) {
+  if (data.ampm === 'am' && data.hour === 12) { // Midnight case
     hour24 = 0;
   }
   const selectedDateTime = set(data.date, { hours: hour24, minutes: data.minute });
   return !isFuture(selectedDateTime);
 }, {
   message: 'Start time cannot be in the future.',
-  path: ['hour'], // You can associate the error with a specific field
+  path: ['hour'], // Associate the error with a field for display
 });
 
 
