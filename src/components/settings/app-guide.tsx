@@ -10,17 +10,18 @@ const guideContent = {
     title: "App Guide & Features",
     features: {
       title: "Features",
-      pomodoro: "**Pomodoro Timer:** A classic 25-minute timer to boost your focus. After each session, take a short break. After four Pomodoros, take a longer break.",
-      breaks: "**Short & Long Breaks:** 5-minute short breaks and 15-minute long breaks are built-in to help you recharge effectively.",
-      deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions, including the status bar and browser UI, for maximum concentration.",
-      progress: "**Progress Tracking:** (Registered users only) Visit the 'Progress' page to see your daily and weekly focus history, including total focus time and Pomodoros completed.",
-      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer from the 'Progress' page.",
+      pomodoro: "**Pomodoro Timer:** A classic 25-minute timer to boost your focus. After each session, take a short break. After four Pomodoros, take a longer break. *How to use:* Select 'Pomodoro' on the main screen and press 'Start'.",
+      breaks: "**Short & Long Breaks:** 5-minute short breaks and 15-minute long breaks are built-in to help you recharge effectively. *How to use:* The app automatically suggests the correct break type. Just press 'Start'.",
+      deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions. *How to use:* Click 'Deep Focus' in the header. Click anywhere on the screen to briefly show controls for pausing or exiting.",
+      progress: "**Progress Tracking:** (Registered users only) Visit the 'Progress' page to see your daily and weekly focus history, including total focus time and Pomodoros completed. *How to use:* Sign up for an account, and your sessions will be logged automatically.",
+      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer. *How to use:* Go to the 'Progress' page and click the 'Log' button.",
+      addTime: "**Add Time:** Need a few more minutes? Quickly add 3 minutes to any active timer session. *How to use:* While the timer is running, click the '+' button."
     },
     settings: {
-      title: "Settings",
-      profile: "**User Profile:** Sign up to save your preferences and track your progress across devices. Anonymous users' data is local to the browser.",
-      appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Pixel Shifting' to protect OLED screens during Deep Focus.",
-      timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your workflow.",
+      title: "Settings Explained",
+      profile: "**User Profile:** Sign up to save your preferences and track your progress across devices. Anonymous users' data is local to the browser and temporary.",
+      appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Pixel Shifting' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
+      timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your personal workflow. Changes are saved automatically for registered users.",
     },
     buildLog: {
       title: "Build Information",
@@ -33,17 +34,18 @@ const guideContent = {
     title: "অ্যাপ গাইড এবং বৈশিষ্ট্য",
     features: {
       title: "বৈশিষ্ট্য",
-      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন।",
-      breaks: "**ছোট এবং দীর্ঘ বিরতি:** কার্যকরভাবে রিচার্জ করতে আপনাকে সাহায্য করার জন্য ৫-মিনিটের ছোট বিরতি এবং ১৫-মিনিটের দীর্ঘ বিরতি রয়েছে।",
-      deepFocus: "**ডিপ ফোকাস মোড:** একটি সম্পূর্ণ স্ক্রিন মোড যা স্ট্যাটাস বার এবং ব্রাউজার UI সহ সমস্ত বিভ্রান্তি লুকিয়ে রাখে, সর্বাধিক ঘনত্বের জন্য।",
-      progress: "** অগ্রগতি ট্র্যাকিং:** (শুধুমাত্র নিবন্ধিত ব্যবহারকারী) আপনার দৈনিক এবং সাপ্তাহিক ফোকাস ইতিহাস দেখতে ' অগ্রগতি' পৃষ্ঠাটি দেখুন, যার মধ্যে মোট ফোকাস সময় এবং সম্পন্ন পোমোডোরো রয়েছে।",
-      manualLog: "**ম্যানুয়াল লগিং:** ' অগ্রগতি' পৃষ্ঠা থেকে টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন।",
+      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন। *কিভাবে ব্যবহার করবেন:* প্রধান স্ক্রিনে 'Pomodoro' নির্বাচন করুন এবং 'Start' চাপুন।",
+      breaks: "**ছোট এবং দীর্ঘ বিরতি:** আপনাকে কার্যকরভাবে রিচার্জ করতে সাহায্য করার জন্য ৫-মিনিটের ছোট বিরতি এবং ১৫-মিনিটের দীর্ঘ বিরতি রয়েছে। *কিভাবে ব্যবহার করবেন:* অ্যাপটি স্বয়ংক্রিয়ভাবে সঠিক বিরতির ধরন নির্বাচন করে। শুধু 'Start' চাপুন।",
+      deepFocus: "**ডিপ ফোকাস মোড:** একটি সম্পূর্ণ স্ক্রিন মোড যা সমস্ত বিভ্রান্তি লুকিয়ে রাখে। *কিভাবে ব্যবহার করবেন:* হেডারে 'Deep Focus'-এ ক্লিক করুন। পজ বা প্রস্থান করার জন্য কন্ট্রোল দেখতে স্ক্রিনের যেকোনো জায়গায় ক্লিক করুন।",
+      progress: "** অগ্রগতি ট্র্যাকিং:** (শুধুমাত্র নিবন্ধিত ব্যবহারকারী) আপনার দৈনিক এবং সাপ্তাহিক ফোকাস ইতিহাস দেখতে 'Progress' পৃষ্ঠাটি দেখুন। *কিভাবে ব্যবহার করবেন:* একটি অ্যাকাউন্টের জন্য সাইন আপ করুন, এবং আপনার সেশনগুলি স্বয়ংক্রিয়ভাবে লগ করা হবে।",
+      manualLog: "**ম্যানুয়াল লগিং:** টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন। *কিভাবে ব্যবহার করবেন:* 'Progress' পৃষ্ঠায় যান এবং 'Log' বোতামে ক্লিক করুন।",
+      addTime: "**সময় যোগ করুন:** আরও কয়েক মিনিট প্রয়োজন? যেকোনো সক্রিয় টাইমার সেশনে দ্রুত ৩ মিনিট যোগ করুন। *কিভাবে ব্যবহার করবেন:* টাইমার চলাকালীন '+' বোতামে ক্লিক করুন।"
     },
     settings: {
-      title: "সেটিংস",
-      profile: "**ব্যবহারকারী প্রোফাইল:** আপনার পছন্দগুলি সংরক্ষণ করতে এবং ডিভাইস জুড়ে আপনার অগ্রগতি ট্র্যাক করতে সাইন আপ করুন। বেনামী ব্যবহারকারীদের ডেটা ব্রাউজারে স্থানীয় থাকে।",
-      appearance: "**অ্যাপিয়ারেন্স:** একটি মসৃণ লাইট মোড এবং একটি শীতল ডার্ক মোডের মধ্যে স্যুইচ করুন। ডিপ ফোকাসের সময় OLED স্ক্রিন রক্ষা করতে 'পিক্সেল শিফটিং' সক্ষম করুন।",
-      timer: "**টাইমার সময়কাল:** আপনার ওয়ার্কফ্লো অনুসারে আপনার পোমোডোরো, ছোট বিরতি এবং দীর্ঘ বিরতির সেশনের দৈর্ঘ্য কাস্টমাইজ করুন।",
+      title: "সেটিংস পরিচিতি",
+      profile: "**ব্যবহারকারী প্রোফাইল:** আপনার পছন্দগুলি সংরক্ষণ করতে এবং ডিভাইস জুড়ে আপনার অগ্রগতি ট্র্যাক করতে সাইন আপ করুন। বেনামী ব্যবহারকারীদের ডেটা ব্রাউজারে স্থানীয় এবং অস্থায়ী থাকে।",
+      appearance: "**অ্যাপিয়ারেন্স:** লাইট মোড এবং ডার্ক মোডের মধ্যে স্যুইচ করুন। 'Pixel Shifting' সক্ষম করে ডিপ ফোকাস মোডে টাইমারটিকে সূক্ষ্মভাবে সরিয়ে OLED স্ক্রিন রক্ষা করুন।",
+      timer: "**টাইমার সময়কাল:** আপনার ব্যক্তিগত ওয়ার্কফ্লো অনুসারে আপনার পোমোডোরো, ছোট বিরতি এবং দীর্ঘ বিরতির সেশনের দৈর্ঘ্য কাস্টমাইজ করুন। নিবন্ধিত ব্যবহারকারীদের জন্য পরিবর্তনগুলি স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।",
     },
     buildLog: {
       title: "নির্মাণ তথ্য",
@@ -55,12 +57,15 @@ const guideContent = {
 };
 
 const FormattedContent = ({ text }: { text: string }) => {
-    const parts = text.split(/(\*\*.*?\*\*)/g);
+    const parts = text.split(/(\*\*.*?\*\*)|(\*.*?\*)/g).filter(Boolean);
     return (
-        <p>
+        <p className="text-sm text-muted-foreground leading-relaxed">
             {parts.map((part, index) => {
                 if (part.startsWith('**') && part.endsWith('**')) {
                     return <strong key={index} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
+                }
+                if (part.startsWith('*') && part.endsWith('*')) {
+                    return <em key={index} className="text-foreground/80">{part.slice(1, -1)}</em>;
                 }
                 return part;
             })}
@@ -94,9 +99,10 @@ export function AppGuide() {
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="features">
           <AccordionTrigger>{content.features.title}</AccordionTrigger>
-          <AccordionContent className="space-y-2 text-sm text-muted-foreground">
+          <AccordionContent className="space-y-3">
             <FormattedContent text={content.features.pomodoro} />
             <FormattedContent text={content.features.breaks} />
+             <FormattedContent text={content.features.addTime} />
             <FormattedContent text={content.features.deepFocus} />
             <FormattedContent text={content.features.progress} />
             <FormattedContent text={content.features.manualLog} />
@@ -104,7 +110,7 @@ export function AppGuide() {
         </AccordionItem>
         <AccordionItem value="settings">
           <AccordionTrigger>{content.settings.title}</AccordionTrigger>
-          <AccordionContent className="space-y-2 text-sm text-muted-foreground">
+          <AccordionContent className="space-y-3">
              <FormattedContent text={content.settings.profile} />
              <FormattedContent text={content.settings.appearance} />
              <FormattedContent text={content.settings.timer} />
@@ -112,7 +118,7 @@ export function AppGuide() {
         </AccordionItem>
          <AccordionItem value="build-log">
           <AccordionTrigger>{content.buildLog.title}</AccordionTrigger>
-          <AccordionContent className="space-y-2 text-sm text-muted-foreground">
+          <AccordionContent className="space-y-2">
              <FormattedContent text={content.buildLog.version} />
              <FormattedContent text={content.buildLog.developer} />
           </AccordionContent>
