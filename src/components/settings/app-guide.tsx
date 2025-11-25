@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Mail } from 'lucide-react';
 
 const guideContent = {
   en: {
@@ -29,12 +28,6 @@ const guideContent = {
       appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Pixel Shifting' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
       timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your personal workflow. Changes are saved automatically for registered users.",
     },
-    buildLog: {
-      title: "Build Log",
-      version: "Version: 21.7 (prime edition)",
-      developer: "Developer: Mohammed Adnan Shahria",
-      emailLabel: "Email:"
-    },
     language: "Language"
   },
   bn: {
@@ -58,12 +51,6 @@ const guideContent = {
       profile: "**ব্যবহারকারী প্রোফাইল:** আপনার পছন্দগুলি সংরক্ষণ করতে এবং ডিভাইস জুড়ে আপনার অগ্রগতি ট্র্যাক করতে সাইন আপ করুন। বেনামী ব্যবহারকারীদের ডেটা ব্রাউজারে স্থানীয় এবং অস্থায়ী থাকে।",
       appearance: "**অ্যাপিয়ারেন্স:** লাইট মোড এবং ডার্ক মোডের মধ্যে স্যুইচ করুন। 'Pixel Shifting' সক্ষম করে ডিপ ফোকাস মোডে টাইমারটিকে সূক্ষ্মভাবে সরিয়ে OLED স্ক্রিন রক্ষা করুন।",
       timer: "**টাইমার সময়কাল:** আপনার ব্যক্তিগত ওয়ার্কফ্লো অনুসারে আপনার পোমোডোরো, ছোট বিরতি এবং দীর্ঘ বিরতির সেশনের দৈর্ঘ্য কাস্টমাইজ করুন। নিবন্ধিত ব্যবহারকারীদের জন্য পরিবর্তনগুলি স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।",
-    },
-    buildLog: {
-      title: "নির্মাণ লগ",
-      version: "সংস্করণ: ২১.৭ (প্রাইম সংস্করণ)",
-      developer: "ডেভেলপার: মোহাম্মদ আদনান শাহরিয়া",
-      emailLabel: "ইমেইল:"
     },
     language: "ভাষা"
   }
@@ -98,7 +85,6 @@ const FormattedContent = ({ text }: { text: string }) => {
 export function AppGuide() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const content = guideContent[language];
-  const developerEmail = "adnanshahria2006@gmail.com";
 
   return (
     <div className="space-y-4">
@@ -169,19 +155,6 @@ export function AppGuide() {
              <FormattedContent text={content.settings.profile} />
              <FormattedContent text={content.settings.appearance} />
              <FormattedContent text={content.settings.timer} />
-          </AccordionContent>
-        </AccordionItem>
-         <AccordionItem value="build-log">
-          <AccordionTrigger>{content.buildLog.title}</AccordionTrigger>
-          <AccordionContent className="space-y-2 text-sm">
-             <FormattedContent text={content.buildLog.version} />
-             <FormattedContent text={content.buildLog.developer} />
-             <div className="flex items-center gap-2 text-muted-foreground">
-                <span className='font-semibold text-foreground'>{content.buildLog.emailLabel}</span>
-                <a href={`mailto:${developerEmail}`} className="text-primary hover:underline">
-                  <Mail className="h-5 w-5" />
-                </a>
-             </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

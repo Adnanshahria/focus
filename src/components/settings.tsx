@@ -1,6 +1,6 @@
 'use client';
 
-import { Cog, User, Palette, Timer as TimerIcon, Info } from "lucide-react";
+import { Cog, User, Palette, Timer as TimerIcon, Info, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -15,6 +15,7 @@ import { UserProfile } from "./auth/user-profile";
 import { VisualSettings } from "./settings/visual-settings";
 import { TimerSettings } from "./settings/timer-settings";
 import { AppGuide } from "./settings/app-guide";
+import { BuildLog } from "./settings/build-log";
 
 const Section = ({ icon: Icon, title, children }: { icon: React.ElementType, title: string, children: React.ReactNode }) => (
     <AccordionItem value={title}>
@@ -61,6 +62,9 @@ export function Settings() {
                 </Section>
                 <Section icon={TimerIcon} title="Timer">
                     <TimerSettings />
+                </Section>
+                 <Section icon={FileText} title="Build Log">
+                    <BuildLog />
                 </Section>
             </Accordion>
         </div>
