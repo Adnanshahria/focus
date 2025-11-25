@@ -114,8 +114,7 @@ export default function DashboardPage() {
       <AddFocusRecordDialog open={isAuthDialogOpen} onOpenChange={setAuthDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header onDeepFocusClick={handleEnterDeepFocus} />
-        
-        <main className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 pt-20 max-w-6xl mx-auto w-full">
+        <main className="flex-1 p-4 pt-20 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className='space-y-6'>
               <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
