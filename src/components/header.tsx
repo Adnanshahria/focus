@@ -58,7 +58,7 @@ export function Header() {
                 aria-label="Deep Focus"
                 disabled={loading === 'deep-focus'}
               >
-                <a>{loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}</a>
+                <span>{loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}</span>
               </Button>
             </Link>
             <Link href="/dashboard" passHref onClick={(e) => handleNavigationClick(e, 'dashboard')}>
@@ -70,7 +70,7 @@ export function Header() {
                 aria-label="Progress"
                 disabled={loading === 'dashboard'}
               >
-                <a>{loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}</a>
+                <span>{loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}</span>
               </Button>
             </Link>
           <Settings />
