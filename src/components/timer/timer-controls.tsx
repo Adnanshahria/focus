@@ -27,7 +27,7 @@ export function TimerControls() {
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
-                onClick={pause}
+                onClick={handleTogglePlay}
                 size="lg"
                 className={cn(
                     "rounded-full w-28 h-14 text-lg font-bold uppercase tracking-wider transition-all duration-300",
