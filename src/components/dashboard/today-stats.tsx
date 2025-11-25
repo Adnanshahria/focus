@@ -48,7 +48,11 @@ export const TodayStats = ({ userId }: { userId: string }) => {
   }, [weeklyRecords]);
 
   if (isTodayLoading || isWeekLoading) {
-    return <Skeleton className="w-64 h-10 mt-6" />;
+    return (
+        <div className="mt-6 flex flex-col gap-2">
+            <Skeleton className="w-64 h-10" />
+        </div>
+    );
   }
 
   return (
@@ -56,14 +60,18 @@ export const TodayStats = ({ userId }: { userId: string }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.3 }}
-      className="mt-6 flex items-center justify-center gap-3 text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2"
+      className="mt-6 flex flex-col gap-2"
     >
-      <Clock className="w-4 h-4" />
-      <span>Today:</span>
-      <span className="font-semibold text-foreground">{formatDuration(focusMinutes)}</span>
-      <div className="border-l border-white/20 h-4 mx-2"></div>
-      <span>This Week:</span>
-      <span className="font-semibold text-foreground">{formatDuration(weeklyFocusMinutes)}</span>
+      <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 w-64">
+        <Clock className="w-4 h-4 mr-3" />
+        <span>Today:</span>
+        <span className="font-semibold text-foreground ml-auto">{formatDuration(focusMinutes)}</span>
+      </div>
+       <div className="flex items-center justify-center text-sm text-muted-foreground bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2 w-64">
+        <Clock className="w-4 h-4 mr-3" />
+        <span>This Week:</span>
+        <span className="font-semibold text-foreground ml-auto">{formatDuration(weeklyFocusMinutes)}</span>
+      </div>
     </motion.div>
   );
 }
