@@ -57,10 +57,8 @@ export const useTimer = () => {
             totalPomos: newTotalPomos,
           };
           
-          // Set the main record data
           transaction.set(focusRecordRef, focusRecordUpdate, { merge: true });
 
-          // Set the new session data
           transaction.set(newSessionRef, {
             id: newSessionRef.id,
             focusRecordId: focusRecordRef.id,
@@ -71,9 +69,12 @@ export const useTimer = () => {
             completed: isCompletion,
           });
         });
+        // After successful transaction, then reset state
+        return true;
       } catch (error) {
         console.error("Transaction to record session failed: ", error);
         // Optionally, emit a global error here to notify the user
+        return false;
       }
     },
     [user, firestore, sessionStartTime, mode]
@@ -92,11 +93,13 @@ export const useTimer = () => {
   }, [resetAction]);
 
   const endAndSaveSession = useCallback(async () => {
-      if (isActive && sessionStartTime) { // Only record if it was active
-          await recordSession(false);
-      }
-      endAndSaveAction();
-  }, [isActive, sessionStartTime, recordSession, endAndSaveAction]);
+    if (isActive && sessionStartTime) {
+      pause(); // Pause first to stop the timer
+      await recordSession(false);
+    }
+    // This will reset the UI state regardless of whether the session was active
+    endAndSaveAction(); 
+  }, [isActive, sessionStartTime, pause, recordSession, endAndSaveAction]);
 
 
   useEffect(() => {

@@ -80,6 +80,7 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
       isActive: false,
       timeLeft: initialTime,
       sessionDuration: initialTime,
+      sessionStartTime: null,
     });
   },
   start: startTime => set(state => ({ 

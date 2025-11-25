@@ -31,11 +31,11 @@ export default function DeepFocusPage() {
 
 
     if (isUserLoading || !user) {
-        return <div className="fixed inset-0 bg-card flex items-center justify-center"><Skeleton className="w-full h-full" /></div>
+        return <div className="fixed inset-0 bg-background flex items-center justify-center"><Skeleton className="w-full h-full" /></div>
     }
 
     return (
-        <div ref={containerRef} className="fixed inset-0 bg-card flex flex-col items-center justify-center" onClick={enterFullScreen}>
+        <div ref={containerRef} className="fixed inset-0 bg-background flex flex-col items-center justify-center" onClick={enterFullScreen}>
             <FloatingTimer />
         </div>
     );

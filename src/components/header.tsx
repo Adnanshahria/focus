@@ -24,7 +24,7 @@ export function Header() {
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-background/50 backdrop-blur-md border-b">
+    <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-transparent">
       <Logo />
       <div className="flex items-center gap-1 sm:gap-2">
         <Button 
