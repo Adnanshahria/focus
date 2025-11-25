@@ -2,7 +2,8 @@
 
 import { useUser } from '@/firebase';
 import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
-import { useDoc, useCollection } from '@/firebase/firestore/use-collection';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { useCollection } from '@/firebase/firestore/use-collection';
 import { useMemo } from 'react';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format, parseISO } from 'date-fns';
