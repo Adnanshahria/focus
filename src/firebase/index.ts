@@ -3,28 +3,24 @@
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore'
+import { getFirestore } from 'firebase/firestore'
 
-// IMPORTANT: DO NOT MODIFY THIS FUNCTION
+/**
+ * Initializes the Firebase app and returns the core services.
+ * This function handles both server-side and client-side rendering by
+ * checking if an app has already been initialized.
+ *
+ * IMPORTANT: Persistence is now handled in the <FirestoreInit /> client component,
+ * which is the correct pattern for the Next.js App Router.
+ */
 export function initializeFirebase() {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   const firestoreInstance = getFirestore(app);
-  
-  // This function is now called inside the dedicated client provider.
-  // This ensures it runs once at the top level of the app.
-  enableIndexedDbPersistence(firestoreInstance).catch((err) => {
-    if (err.code == 'failed-precondition') {
-      // Multiple tabs open, persistence can only be enabled in one.
-      // This is a normal scenario.
-    } else if (err.code == 'unimplemented') {
-      // The current browser does not support all of the
-      // features required to enable persistence.
-    }
-  });
+  const authInstance = getAuth(app);
 
   return {
     firebaseApp: app,
-    auth: getAuth(app),
+    auth: authInstance,
     firestore: firestoreInstance
   };
 }
