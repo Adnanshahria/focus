@@ -154,14 +154,23 @@ export const useFirebaseApp = (): FirebaseApp => {
   return firebaseApp;
 };
 
-type MemoFirebase <T> = T & {__memo?: boolean};
+type MemoFirebase<T> = T & { __memo?: true };
 
-export function useMemoFirebase<T>(factory: () => T, deps: DependencyList): T | (MemoFirebase<T>) {
+export function useMemoFirebase<T>(
+  factory: () => T,
+  deps: DependencyList | undefined
+): T {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const memoized = useMemo(factory, deps);
-  
-  if(typeof memoized !== 'object' || memoized === null) return memoized;
-  (memoized as MemoFirebase<T>).__memo = true;
-  
+
+  if (typeof memoized !== 'object' || memoized === null) {
+    return memoized;
+  }
+  // This is a DEV-only safeguard to ensure developers use this hook correctly.
+  // It should not be relied upon in production logic.
+  if (process.env.NODE_ENV === 'development') {
+    (memoized as MemoFirebase<T>).__memo = true;
+  }
   return memoized;
 }
 
