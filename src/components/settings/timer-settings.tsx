@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,6 +13,7 @@ import { doc, collection } from 'firebase/firestore';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
+import { AuthRequiredDialog } from '../auth/auth-required-dialog';
 
 const timerSettingsSchema = z.object({
   pomodoroDuration: z.coerce.number().min(1, "Must be at least 1 minute"),
@@ -26,6 +27,7 @@ export function TimerSettings() {
   const { user } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
   
   const setDurations = useTimerStore(state => state.setDurations);
   const durations = useTimerStore(state => ({
@@ -79,10 +81,14 @@ export function TimerSettings() {
   }, [preferences, reset, setDurations]);
 
   const onSubmit = (data: TimerSettingsFormValues) => {
+    if (!user || user.isAnonymous) {
+      setAuthDialogOpen(true);
+      return;
+    }
     if (!userPreferencesRef) {
-        toast({ variant: 'destructive', title: 'Not Logged In', description: 'You must be logged in to save settings.'});
-        return;
-    };
+      toast({ variant: 'destructive', title: 'Error', description: 'Could not save settings.' });
+      return;
+    }
     
     const newDurationsInSeconds = {
       id: 'main', // Add id to satisfy security rules
@@ -124,25 +130,32 @@ export function TimerSettings() {
   const isAnon = !user || user.isAnonymous;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="pomodoroDuration">Pomodoro (minutes)</Label>
-        <Input id="pomodoroDuration" type="number" {...register('pomodoroDuration')} disabled={isAnon}/>
-        {errors.pomodoroDuration && <p className="text-destructive text-xs">{errors.pomodoroDuration.message}</p>}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="shortBreakDuration">Short Break (minutes)</Label>
-        <Input id="shortBreakDuration" type="number" {...register('shortBreakDuration')} disabled={isAnon}/>
-        {errors.shortBreakDuration && <p className="text-destructive text-xs">{errors.shortBreakDuration.message}</p>}
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="longBreakDuration">Long Break (minutes)</Label>
-        <Input id="longBreakDuration" type="number" {...register('longBreakDuration')} disabled={isAnon}/>
-        {errors.longBreakDuration && <p className="text-destructive text-xs">{errors.longBreakDuration.message}</p>}
-      </div>
-      <Button type="submit" disabled={isSubmitting || !isDirty || isAnon} className="w-full">
-        {isSubmitting ? 'Saving...' : isAnon ? 'Log in to Save' : 'Save Changes'}
-      </Button>
-    </form>
+    <>
+      <AuthRequiredDialog 
+        open={isAuthDialogOpen} 
+        onOpenChange={setAuthDialogOpen}
+        featureName="save your settings"
+      />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="pomodoroDuration">Pomodoro (minutes)</Label>
+          <Input id="pomodoroDuration" type="number" {...register('pomodoroDuration')} />
+          {errors.pomodoroDuration && <p className="text-destructive text-xs">{errors.pomodoroDuration.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="shortBreakDuration">Short Break (minutes)</Label>
+          <Input id="shortBreakDuration" type="number" {...register('shortBreakDuration')} />
+          {errors.shortBreakDuration && <p className="text-destructive text-xs">{errors.shortBreakDuration.message}</p>}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="longBreakDuration">Long Break (minutes)</Label>
+          <Input id="longBreakDuration" type="number" {...register('longBreakDuration')} />
+          {errors.longBreakDuration && <p className="text-destructive text-xs">{errors.longBreakDuration.message}</p>}
+        </div>
+        <Button type="submit" disabled={isSubmitting || !isDirty} className="w-full">
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
+        </Button>
+      </form>
+    </>
   );
 }

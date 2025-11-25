@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Sun, Moon } from 'lucide-react';
 import { useTimerStore } from '@/store/timer-store';
 import { Skeleton } from '../ui/skeleton';
+import { AuthRequiredDialog } from '../auth/auth-required-dialog';
 
 const visualSettingsSchema = z.object({
   theme: z.enum(['light', 'dark']),
@@ -37,6 +38,7 @@ export function VisualSettings() {
   const firestore = useFirestore();
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
+  const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
   const { antiBurnIn: storeAntiBurnIn, setVisuals: setStoreVisuals } = useTimerStore(state => ({
     antiBurnIn: state.antiBurnIn,
     setVisuals: state.setVisuals
@@ -89,14 +91,17 @@ export function VisualSettings() {
   }, [theme, setValue]);
 
   const saveSettings = (data: Partial<VisualSettingsFormValues>) => {
+    if (isAnon) {
+      setAuthDialogOpen(true);
+      return;
+    }
+    
     if (data.theme && data.theme !== theme) {
       setTheme(data.theme);
     }
     if (data.antiBurnIn !== undefined) {
       setStoreVisuals({ antiBurnIn: data.antiBurnIn });
     }
-    
-    if (isAnon) return;
     
     const dataToSave = { id: 'main', ...data };
     setDocumentNonBlocking(userPreferencesRef!, dataToSave, { merge: true });
@@ -109,11 +114,19 @@ export function VisualSettings() {
   };
 
   const handleAntiBurnInChange = (checked: boolean) => {
+    if (isAnon) {
+        setAuthDialogOpen(true);
+        return;
+    }
     setValue('antiBurnIn', checked, { shouldDirty: true });
     saveSettings({ antiBurnIn: checked });
   };
 
   const handleThemeChange = (value: 'light' | 'dark') => {
+    if (isAnon) {
+        setAuthDialogOpen(true);
+        return;
+    }
     if (value !== theme) {
         setValue('theme', value, { shouldDirty: true });
         saveSettings({ theme: value });
@@ -136,49 +149,52 @@ export function VisualSettings() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Label>Theme</Label>
-        <RadioGroup
-          value={watchedValues.theme}
-          className="grid grid-cols-2 gap-2"
-          disabled={isAnon}
-        >
-          <Label 
-            onClick={() => !isAnon && handleThemeChange('light')}
-            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
-            data-disabled={isAnon}
+    <>
+      <AuthRequiredDialog 
+        open={isAuthDialogOpen} 
+        onOpenChange={setAuthDialogOpen}
+        featureName="change appearance settings"
+      />
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <Label>Theme</Label>
+          <RadioGroup
+            value={watchedValues.theme}
+            className="grid grid-cols-2 gap-2"
           >
-            <Sun className="h-5 w-5"/>
-            <RadioGroupItem value="light" id="theme-light" className="sr-only"/>
-            <span>Light</span>
-          </Label>
-          <Label 
-            onClick={() => !isAnon && handleThemeChange('dark')}
-            className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50"
-            data-disabled={isAnon}
-          >
-            <Moon className="h-5 w-5"/>
-            <RadioGroupItem value="dark" id="theme-dark" className="sr-only"/>
-            <span>Dark</span>
-          </Label>
-        </RadioGroup>
-      </div>
-      
-      <div className="flex items-center justify-between rounded-lg border p-3">
-        <div className="space-y-0.5">
-          <Label htmlFor="antiBurnIn">Anti-Burn</Label>
-          <p className="text-xs text-muted-foreground">
-            Moves the Timer to save Amoled/Oled/Poled screen pixels in the deepfocus mode.
-          </p>
+            <Label 
+              onClick={() => handleThemeChange('light')}
+              className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary"
+            >
+              <Sun className="h-5 w-5"/>
+              <RadioGroupItem value="light" id="theme-light" className="sr-only"/>
+              <span>Light</span>
+            </Label>
+            <Label 
+              onClick={() => handleThemeChange('dark')}
+              className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary"
+            >
+              <Moon className="h-5 w-5"/>
+              <RadioGroupItem value="dark" id="theme-dark" className="sr-only"/>
+              <span>Dark</span>
+            </Label>
+          </RadioGroup>
         </div>
-        <Switch 
-          id="antiBurnIn"
-          checked={watchedValues.antiBurnIn}
-          onCheckedChange={handleAntiBurnInChange}
-          disabled={isAnon}
-        />
+        
+        <div className="flex items-center justify-between rounded-lg border p-3">
+          <div className="space-y-0.5">
+            <Label htmlFor="antiBurnIn">Anti-Burn</Label>
+            <p className="text-xs text-muted-foreground">
+              Moves the Timer to save Amoled/Oled/Poled screen pixels in the deepfocus mode.
+            </p>
+          </div>
+          <Switch 
+            id="antiBurnIn"
+            checked={watchedValues.antiBurnIn}
+            onCheckedChange={handleAntiBurnInChange}
+          />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
