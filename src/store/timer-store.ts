@@ -55,6 +55,7 @@ type TimerActions = {
   }) => void;
   setVisuals: (visuals: Partial<VisualSettings>) => void;
   addTime: (seconds: number) => void;
+  subtractTime: (seconds: number) => void;
 };
 
 export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
@@ -144,4 +145,10 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
       sessionDuration: state.sessionDuration + seconds,
     }));
   },
+  subtractTime: seconds => {
+    set(state => ({
+      timeLeft: Math.max(0, state.timeLeft - seconds),
+      sessionDuration: Math.max(0, state.sessionDuration - seconds)
+    }));
+  }
 }));

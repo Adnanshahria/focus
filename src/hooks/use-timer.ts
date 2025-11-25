@@ -22,6 +22,7 @@ export const useTimer = () => {
     mode,
     sessionStartTime,
     addTime,
+    subtractTime,
   } = store;
 
   const { user } = useUser();
@@ -163,7 +164,7 @@ export const useTimer = () => {
     }
   }, [timeLeft, isActive, completeCycle, recordSession]);
 
-  return { ...store, start, pause, reset, addTime };
+  return { ...store, start, pause, reset, addTime, subtractTime };
 };
 
 export * from '@/store/timer-store';

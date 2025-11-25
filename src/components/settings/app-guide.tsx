@@ -10,12 +10,12 @@ const guideContent = {
     title: "App Guide & Features",
     features: {
       title: "Features",
-      pomodoro: "**Pomodoro Timer:** A classic 25-minute timer to boost your focus. After each session, take a short break. After four Pomodoros, take a longer break. *How to use:* Select 'Pomodoro' on the main screen and press 'Start'. You can add 3 minutes by clicking the '+' button or change the default duration in the 'Timer' settings below.",
+      pomodoro: "**Pomodoro Timer:** A classic 25-minute timer to boost your focus. After each session, take a short break. After four Pomodoros, take a longer break. *How to use:* Select 'Pomodoro' on the main screen and press 'Start'. You can add or subtract 3 minutes by clicking the '+' or '-' buttons, or change the default duration in the 'Timer' settings below.",
       breaks: "**Short & Long Breaks:** 5-minute short breaks and 15-minute long breaks are built-in to help you recharge effectively. *How to use:* The app automatically suggests the correct break type. Just press 'Start'.",
       deepFocus: "**Deep Focus Mode:** An immersive, fullscreen mode that hides all distractions, perfect for when you need to eliminate interruptions. *How to use:* Click 'Deep Focus' in the header to enter. The timer will float in the center of a black screen. Click anywhere on the screen to briefly show controls for pausing, adding time, or exiting.",
       progress: "**Progress Tracking:** (Registered users only) Visit the 'Progress' page to see your daily, weekly, and monthly focus history. It includes charts for total focus time and a log of your recent sessions. *How to use:* Sign up for an account, and your completed Pomodoro sessions will be logged automatically.",
-      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate. *How to use:* Go to the 'Progress' page and click the 'Log' button.",
-      addTime: "**Add Time:** Need a few more minutes to wrap things up? Quickly add 3 minutes to any active timer session. *How to use:* While the timer is running on the main screen or in Deep Focus mode, click the '+' button."
+      manualLog: "**Manual Logging:** Manually add focus sessions you completed without the timer, ensuring your progress chart is always accurate. *How to use:* Go to the 'Progress' page and click the 'Log' button. You can specify the date, start time, and duration.",
+      addTime: "**Add/Subtract Time:** Need a few more minutes to wrap things up, or want to shorten a break? Quickly add or subtract 3 minutes from any active timer session. *How to use:* While the timer is running on the main screen or in Deep Focus mode, click the '+' or '-' button."
     },
     settings: {
       title: "Settings Explained",
@@ -35,12 +35,12 @@ const guideContent = {
     title: "অ্যাপ গাইড এবং বৈশিষ্ট্য",
     features: {
       title: "বৈশিষ্ট্য",
-      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন। *কিভাবে ব্যবহার করবেন:* প্রধান স্ক্রিনে 'Pomodoro' নির্বাচন করুন এবং 'Start' চাপুন। আপনি '+' বোতামে ক্লিক করে ৩ মিনিট যোগ করতে পারেন বা নীচের 'টাইমার' সেটিংসে ডিফল্ট সময়কাল পরিবর্তন করতে পারেন।",
+      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন। *কিভাবে ব্যবহার করবেন:* প্রধান স্ক্রিনে 'Pomodoro' নির্বাচন করুন এবং 'Start' চাপুন। আপনি '+' বা '-' বোতামে ক্লিক করে ৩ মিনিট যোগ বা বিয়োগ করতে পারেন, অথবা নীচের 'টাইমার' সেটিংসে ডিফল্ট সময়কাল পরিবর্তন করতে পারেন।",
       breaks: "**ছোট এবং দীর্ঘ বিরতি:** আপনাকে কার্যকরভাবে রিচার্জ করতে সাহায্য করার জন্য ৫-মিনিটের ছোট বিরতি এবং ১৫-মিনিটের দীর্ঘ বিরতি রয়েছে। *কিভাবে ব্যবহার করবেন:* অ্যাপটি স্বয়ংক্রিয়ভাবে সঠিক বিরতির ধরন নির্বাচন করে। শুধু 'Start' চাপুন।",
       deepFocus: "**ডিপ ফোকাস মোড:** একটি সম্পূর্ণ স্ক্রিন মোড যা সমস্ত বিভ্রান্তি লুকিয়ে রাখে, যখন আপনাকে বাধা দূর করতে হবে তার জন্য উপযুক্ত। *কিভাবে ব্যবহার করবেন:* প্রবেশ করতে হেডারে 'Deep Focus'-এ ক্লিক করুন। টাইমারটি একটি কালো পর্দার центре ভাসবে। পজ করতে, সময় যোগ করতে বা প্রস্থান করার জন্য নিয়ন্ত্রণগুলি সংক্ষিপ্তভাবে দেখাতে স্ক্রিনের যেকোনো জায়গায় ক্লিক করুন।",
       progress: "** অগ্রগতি ট্র্যাকিং:** (শুধুমাত্র নিবন্ধিত ব্যবহারকারী) আপনার দৈনিক, সাপ্তাহিক এবং মাসিক ফোকাস ইতিহাস দেখতে 'Progress' পৃষ্ঠাটি দেখুন। এতে মোট ফোকাস সময়ের জন্য চার্ট এবং আপনার সাম্প্রতিক সেশনগুলির একটি লগ অন্তর্ভুক্ত রয়েছে। *কিভাবে ব্যবহার করবেন:* একটি অ্যাকাউন্টের জন্য সাইন আপ করুন, এবং আপনার সম্পন্ন পোমোডোরো সেশনগুলি স্বয়ংক্রিয়ভাবে লগ করা হবে।",
-      manualLog: "**ম্যানুয়াল লগিং:** টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন, যাতে আপনার অগ্রগতি চার্ট সর্বদা সঠিক থাকে। *কিভাবে ব্যবহার করবেন:* 'Progress' পৃষ্ঠায় যান এবং 'Log' বোতামে ক্লিক করুন।",
-      addTime: "**সময় যোগ করুন:** কাজ শেষ করতে আরও কয়েক মিনিট প্রয়োজন? যেকোনো সক্রিয় টাইমার সেশনে দ্রুত ৩ মিনিট যোগ করুন। *কিভাবে ব্যবহার করবেন:* টাইমার চলাকালীন প্রধান স্ক্রিনে বা ডিপ ফোকাস মোডে '+' বোতামে ক্লিক করুন।"
+      manualLog: "**ম্যানুয়াল লগিং:** টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন, যাতে আপনার অগ্রগতি চার্ট সর্বদা সঠিক থাকে। *কিভাবে ব্যবহার করবেন:* 'Progress' পৃষ্ঠায় যান এবং 'Log' বোতামে ক্লিক করুন। আপনি তারিখ, শুরুর সময় এবং সময়কাল নির্দিষ্ট করতে পারেন।",
+      addTime: "**সময় যোগ/বিয়োগ করুন:** কাজ শেষ করতে আরও কয়েক মিনিট প্রয়োজন, বা বিরতি ছোট করতে চান? যেকোনো সক্রিয় টাইমার সেশনে দ্রুত ৩ মিনিট যোগ বা বিয়োগ করুন। *কিভাবে ব্যবহার করবেন:* টাইমার চলাকালীন প্রধান স্ক্রিনে বা ডিপ ফোকাস মোডে '+' বা '-' বোতামে ক্লিক করুন।"
     },
     settings: {
       title: "সেটিংস পরিচিতি",
@@ -100,19 +100,51 @@ export function AppGuide() {
         </div>
       <Accordion type="single" collapsible className="w-full">
         <AccordionItem value="features">
-          <AccordionTrigger>{content.features.title}</AccordionTrigger>
-          <AccordionContent className="space-y-3">
-            <FormattedContent text={content.features.pomodoro} />
-            <FormattedContent text={content.features.breaks} />
-            <FormattedContent text={content.features.addTime} />
-            <FormattedContent text={content.features.deepFocus} />
-            <FormattedContent text={content.features.progress} />
-            <FormattedContent text={content.features.manualLog} />
+          <AccordionTrigger>Features</AccordionTrigger>
+          <AccordionContent className="space-y-3 pl-4 border-l">
+            <Accordion type="multiple" collapsible className="w-full">
+                <AccordionItem value="pomodoro-timer">
+                    <AccordionTrigger className="py-2 text-sm">Pomodoro Timer</AccordionTrigger>
+                    <AccordionContent className="pt-2">
+                        <FormattedContent text={content.features.pomodoro} />
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="breaks">
+                    <AccordionTrigger className="py-2 text-sm">Short & Long Breaks</AccordionTrigger>
+                    <AccordionContent className="pt-2">
+                        <FormattedContent text={content.features.breaks} />
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="add-time">
+                    <AccordionTrigger className="py-2 text-sm">Add/Subtract Time</AccordionTrigger>
+                    <AccordionContent className="pt-2">
+                        <FormattedContent text={content.features.addTime} />
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="deep-focus">
+                    <AccordionTrigger className="py-2 text-sm">Deep Focus Mode</AccordionTrigger>
+                    <AccordionContent className="pt-2">
+                         <FormattedContent text={content.features.deepFocus} />
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="progress-tracking">
+                    <AccordionTrigger className="py-2 text-sm">Progress Tracking</AccordionTrigger>
+                    <AccordionContent className="pt-2">
+                        <FormattedContent text={content.features.progress} />
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="manual-logging" className="border-b-0">
+                    <AccordionTrigger className="py-2 text-sm">Manual Logging</AccordionTrigger>
+                    <AccordionContent className="pt-2 pb-0">
+                        <FormattedContent text={content.features.manualLog} />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="settings">
-          <AccordionTrigger>{content.settings.title}</AccordionTrigger>
-          <AccordionContent className="space-y-3">
+          <AccordionTrigger>Settings Explained</AccordionTrigger>
+          <AccordionContent className="space-y-3 pl-4 border-l">
              <FormattedContent text={content.settings.profile} />
              <FormattedContent text={content.settings.appearance} />
              <FormattedContent text={content.settings.timer} />

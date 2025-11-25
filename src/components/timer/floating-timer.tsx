@@ -6,7 +6,7 @@ import { useTimer, useTimerStore } from '@/hooks/use-timer';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const formatTime = (seconds: number) => {
@@ -29,6 +29,7 @@ export function FloatingTimer() {
     start,
     pause,
     addTime,
+    subtractTime,
     sessionDuration,
   } = useTimer();
   const { antiBurnIn } = useTimerStore();
@@ -73,28 +74,43 @@ export function FloatingTimer() {
   }, [controlsAnimation]);
 
   const handleExit = useCallback(() => {
-    if (document.fullscreenElement && document.exitFullscreen) {
+    if (document.fullscreenElement) {
         document.exitFullscreen().catch(err => console.error(err));
     }
-    router.push('/');
+    router.back();
   }, [router]);
 
   const handleAddTime = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const timeToAdd = 3 * 60;
-    addTime(timeToAdd);
+    addTime(3 * 60);
+  }
+
+  const handleSubtractTime = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    subtractTime(3 * 60);
   }
 
   useEffect(() => {
     if (isSupported) request();
     showControls(); // Show controls on mount
+    
+    // Handle Android hardware back button
+    const handlePopState = (event: PopStateEvent) => {
+        event.preventDefault();
+        handleExit();
+    };
+
+    window.history.pushState(null, '', window.location.href);
+    window.addEventListener('popstate', handlePopState);
+
 
     return () => {
       if (isSupported) release();
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
+      window.removeEventListener('popstate', handlePopState);
     };
-  }, [isSupported, request, release, showControls]);
+  }, [isSupported, request, release, showControls, handleExit]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -103,10 +119,13 @@ export function FloatingTimer() {
         showControls();
         isActive ? pause() : start();
       }
+      if(e.key === 'Escape') {
+        handleExit();
+      }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showControls, isActive, pause, start]);
+  }, [showControls, isActive, pause, start, handleExit]);
 
   useEffect(() => {
     if (!antiBurnIn) return;
@@ -151,16 +170,17 @@ export function FloatingTimer() {
             <path
               d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
               stroke="rgba(255, 255, 255, 0.1)"
-              strokeWidth="4"
+              strokeWidth="6"
             />
             <motion.path
                 ref={pathRef}
                 d="M240,1.5 h223.5 a15,15 0 0 1 15,15 v237 a15,15 0 0 1 -15,15 h-447 a15,15 0 0 1 -15,-15 v-237 a15,15 0 0 1 15,-15 Z"
                 stroke="white"
-                strokeWidth="4"
+                strokeWidth="6"
                 strokeDasharray={pathLength}
                 strokeDashoffset={strokeDashoffset}
                 initial={false}
+                transition={{ duration: 1, ease: 'easeInOut' }}
             />
           </svg>
 
@@ -175,16 +195,24 @@ export function FloatingTimer() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={controlsAnimation}
-        className="absolute bottom-8 sm:bottom-10 flex items-center gap-4"
+        className="absolute bottom-8 sm:bottom-10 flex items-center gap-2"
         style={{ pointerEvents: controlsVisible ? 'auto' : 'none' }}
       >
         <Button
           variant="ghost"
           size="icon"
           onClick={handleExit}
-          className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+          className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
         >
-          <ArrowLeft className="w-7 h-7 sm:w-8 sm:h-8" />
+          <ArrowLeft className="w-7 h-7" />
+        </Button>
+         <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSubtractTime}
+            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+        >
+          <Minus className="w-7 h-7" />
         </Button>
         <Button
           onClick={e => {
@@ -193,21 +221,21 @@ export function FloatingTimer() {
           }}
           variant="ghost"
           size="icon"
-          className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
+          className="w-16 h-16 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
         >
           {isActive ? (
-            <Pause className="w-9 h-9 sm:w-10 sm:h-10" />
+            <Pause className="w-9 h-9" />
           ) : (
-            <Play className="w-9 h-9 sm:w-10 sm:h-10 ml-1" />
+            <Play className="w-9 h-9 ml-1" />
           )}
         </Button>
         <Button
             variant="ghost"
             size="icon"
             onClick={handleAddTime}
-            className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
         >
-          <Plus className="w-7 h-7 sm:w-8 sm:h-8" />
+          <Plus className="w-7 h-7" />
         </Button>
       </motion.div>
     </div>

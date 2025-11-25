@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
+import { format, set, setHours, setMinutes } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,8 @@ const addRecordSchema = z.object({
   date: z.date({
     required_error: 'A date is required.',
   }),
+  hour: z.coerce.number().min(0).max(23),
+  minute: z.coerce.number().min(0).max(59),
   duration: z.coerce
     .number()
     .min(1, 'Duration must be at least 1 minute.')
@@ -47,6 +49,8 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
   const { user } = useUser();
   const firestore = useFirestore();
 
+  const now = new Date();
+
   const {
     register,
     handleSubmit,
@@ -56,7 +60,9 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
   } = useForm<AddRecordFormValues>({
     resolver: zodResolver(addRecordSchema),
     defaultValues: {
-      date: new Date(),
+      date: now,
+      hour: now.getHours(),
+      minute: now.getMinutes(),
       duration: 25,
     },
   });
@@ -75,7 +81,9 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     setIsSubmitting(true);
 
     try {
-      const dateString = format(data.date, 'yyyy-MM-dd');
+      const dateWithTime = setMinutes(setHours(data.date, data.hour), data.minute);
+      const dateString = format(dateWithTime, 'yyyy-MM-dd');
+      
       const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, dateString);
       const sessionsCollectionRef = collection(focusRecordRef, 'sessions');
 
@@ -97,8 +105,8 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
         transaction.set(newSessionRef, {
           id: newSessionRef.id,
           focusRecordId: focusRecordRef.id,
-          startTime: data.date.toISOString(),
-          endTime: new Date(data.date.getTime() + data.duration * 60000).toISOString(),
+          startTime: dateWithTime.toISOString(),
+          endTime: new Date(dateWithTime.getTime() + data.duration * 60000).toISOString(),
           duration: data.duration,
           type: 'manual',
         });
@@ -137,7 +145,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
-          <div className="space-y-2">
+           <div className="space-y-2">
             <Label htmlFor="date">Date</Label>
             <Popover>
               <PopoverTrigger asChild>
@@ -166,6 +174,20 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
             </Popover>
             {errors.date && <p className="text-destructive text-xs">{errors.date.message}</p>}
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="hour">Hour</Label>
+              <Input id="hour" type="number" {...register('hour')} />
+              {errors.hour && <p className="text-destructive text-xs">{errors.hour.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="minute">Minute</Label>
+              <Input id="minute" type="number" {...register('minute')} />
+              {errors.minute && <p className="text-destructive text-xs">{errors.minute.message}</p>}
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="duration">Duration (minutes)</Label>
             <Input id="duration" type="number" {...register('duration')} />
