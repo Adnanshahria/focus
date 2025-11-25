@@ -10,7 +10,8 @@ export function initializeFirebase() {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   const firestoreInstance = getFirestore(app);
   
-  // Enable offline persistence
+  // This function is now called inside the dedicated client provider.
+  // This ensures it runs once at the top level of the app.
   enableIndexedDbPersistence(firestoreInstance).catch((err) => {
     if (err.code == 'failed-precondition') {
       // Multiple tabs open, persistence can only be enabled in one.
