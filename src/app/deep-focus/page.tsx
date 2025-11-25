@@ -15,14 +15,23 @@ export default function DeepFocusPage() {
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
     
-    // Set dark theme and handle exiting fullscreen.
     useEffect(() => {
         setTheme('dark');
-        setVisible(true);
+        
+        const requestFs = async () => {
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch (error) {
+                console.error("Could not enter fullscreen:", error);
+            } finally {
+                setVisible(true);
+            }
+        };
+        
+        requestFs();
 
         const handleFullscreenChange = () => {
           if (!document.fullscreenElement) {
-            // User exited fullscreen, navigate back
             router.push('/');
           }
         };
