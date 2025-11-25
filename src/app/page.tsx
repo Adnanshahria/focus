@@ -6,7 +6,7 @@ import { useUser, useAuth, initiateAnonymousSignIn, useFirestore, useDoc, useMem
 import { useEffect, useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format, startOfDay } from "date-fns";
-import { doc, collection } from "firebase/firestore";
+import { doc } from "firebase/firestore";
 import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -22,8 +22,8 @@ const TodayStats = ({ userId }: { userId: string }) => {
   const todayDateString = useMemo(() => format(startOfDay(new Date()), 'yyyy-MM-dd'), []);
   
   const focusRecordRef = useMemoFirebase(() => {
-    if (!firestore) return null;
-    return doc(collection(firestore, `users/${userId}/focusRecords`), todayDateString);
+    if (!firestore || !userId) return null;
+    return doc(firestore, `users/${userId}/focusRecords`, todayDateString);
   }, [firestore, userId, todayDateString]);
   
   const { data: todayRecord, isLoading } = useDoc(focusRecordRef);

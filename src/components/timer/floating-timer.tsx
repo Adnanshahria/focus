@@ -6,7 +6,7 @@ import { useTimer, useTimerStore } from '@/hooks/use-timer';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const formatTime = (seconds: number) => {
@@ -31,6 +31,7 @@ export function FloatingTimer() {
     addTime,
     subtractTime,
     sessionDuration,
+    reset,
   } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
@@ -88,6 +89,11 @@ export function FloatingTimer() {
   const handleSubtractTime = (e: React.MouseEvent) => {
     e.stopPropagation();
     subtractTime(3 * 60);
+  }
+
+  const handleReset = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    reset();
   }
 
   useEffect(() => {
@@ -189,7 +195,7 @@ export function FloatingTimer() {
                 strokeDasharray={pathLength}
                 strokeDashoffset={strokeDashoffset}
                 initial={false}
-                transition={{ duration: 1, ease: 'easeInOut' }}
+                transition={{ duration: 1, ease: 'linear' }}
             />
           </svg>
 
@@ -222,6 +228,14 @@ export function FloatingTimer() {
             className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
         >
           <Minus className="w-7 h-7" />
+        </Button>
+         <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleReset}
+            className="w-14 h-14 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm"
+        >
+          <RotateCcw className="w-6 h-6" />
         </Button>
         <Button
           onClick={e => {

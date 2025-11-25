@@ -34,7 +34,7 @@ export function TimerControls() {
           onClick={isActive ? pause : start}
           size="lg"
           className={cn(
-            "rounded-full w-32 h-14 text-lg font-bold uppercase tracking-wider transition-all duration-300",
+            "rounded-full w-28 h-14 text-lg font-bold uppercase tracking-wider transition-all duration-300",
             "text-background shadow-[0_0_20px_hsl(var(--primary)/0.4)]",
             isActive 
               ? "bg-secondary hover:bg-secondary/90 text-secondary-foreground" 
