@@ -1,3 +1,4 @@
+
 'use client';
     
 import { useState, useEffect } from 'react';
@@ -8,8 +9,6 @@ import {
   FirestoreError,
   DocumentSnapshot,
 } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 import { WithId, Memoized, UseDocResult } from './types';
 
 
@@ -20,7 +19,7 @@ export function useDoc<T = any>(
 
   const [data, setData] = useState<StateDataType>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<FirestoreError | Error | null>(null);
+  const [error, setError] = useState<FirestoreError | null>(null);
 
   if (process.env.NODE_ENV === 'development') {
     if (memoizedDocRef && !memoizedDocRef.__memo) {
@@ -50,12 +49,11 @@ export function useDoc<T = any>(
         setError(null);
         setIsLoading(false);
       },
-      (error: FirestoreError) => {
-        const contextualError = new FirestorePermissionError({ operation: 'get', path: memoizedDocRef.path });
-        setError(contextualError);
+      (err: FirestoreError) => {
+        console.error("Firestore (useDoc) Error: ", err);
+        setError(err);
         setData(null);
         setIsLoading(false);
-        errorEmitter.emit('permission-error', contextualError);
       }
     );
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,18 +10,7 @@ import {
   QuerySnapshot,
   CollectionReference,
 } from 'firebase/firestore';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
 import { WithId, Memoized, UseCollectionResult } from './types';
-
-export interface InternalQuery extends Query<DocumentData> {
-  _query: {
-    path: {
-      canonicalString(): string;
-      toString(): string;
-    }
-  }
-}
 
 export function useCollection<T = any>(
     memoizedTargetRefOrQuery: Memoized<CollectionReference<DocumentData> | Query<DocumentData>> | null | undefined,
@@ -30,7 +20,7 @@ export function useCollection<T = any>(
 
   const [data, setData] = useState<StateDataType>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<FirestoreError | Error | null>(null);
+  const [error, setError] = useState<FirestoreError | null>(null);
 
   if (process.env.NODE_ENV === 'development') {
     if (memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
@@ -57,13 +47,11 @@ export function useCollection<T = any>(
         setError(null);
         setIsLoading(false);
       },
-      (error: FirestoreError) => {
-        const path = (memoizedTargetRefOrQuery as InternalQuery)._query.path.canonicalString();
-        const contextualError = new FirestorePermissionError({ operation: 'list', path });
-        setError(contextualError);
+      (err: FirestoreError) => {
+        console.error("Firestore (useCollection) Error: ", err);
+        setError(err);
         setData(null);
         setIsLoading(false);
-        errorEmitter.emit('permission-error', contextualError);
       }
     );
 

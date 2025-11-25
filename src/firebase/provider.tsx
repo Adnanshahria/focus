@@ -1,10 +1,10 @@
+
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth, User } from 'firebase/auth';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
 import { useUser as useUserHook, UserAuthState } from './hooks/use-user';
 
 // Combined state for the Firebase context
@@ -27,12 +27,6 @@ interface FirebaseProviderProps {
   firestore: Firestore;
   auth: Auth;
 }
-
-// We need a separate component to use the useUser hook, as it requires the context.
-const AuthStateInitializer: React.FC = () => {
-  return null; // This component doesn't render anything.
-};
-
 
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
@@ -71,7 +65,6 @@ const FirebaseUserProvider: React.FC<{children: ReactNode}> = ({ children }) => 
 
     return (
         <FirebaseContext.Provider value={fullContextValue as FirebaseContextState}>
-            <FirebaseErrorListener />
             {children}
         </FirebaseContext.Provider>
     )

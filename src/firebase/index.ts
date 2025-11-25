@@ -1,36 +1,11 @@
+
 'use client';
 
-import { firebaseConfig } from '@/firebase/config';
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore'
-import { useUser as useUserHook } from './hooks/use-user'
-
-/**
- * Initializes the Firebase app and returns the core services.
- * This function handles both server-side and client-side rendering by
- * checking if an app has already been initialized.
- */
-export function initializeFirebase() {
-  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  const firestoreInstance = getFirestore(app);
-  const authInstance = getAuth(app);
-
-  return {
-    firebaseApp: app,
-    auth: authInstance,
-    firestore: firestoreInstance
-  };
-}
-
+export * from './init';
 export * from './provider';
 export * from './client-provider';
 export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './non-blocking-updates';
-export * from './errors';
-export * from './error-emitter';
-
-// Re-export useUser and initiate functions from the non-blocking-login file
-export { useUser } from './hooks/use-user';
-export { initiateAnonymousSignIn, initiateEmailSignUp, initiateEmailSignIn } from './non-blocking-login';
+export * from './hooks/use-user';
+export * from './non-blocking-login';
