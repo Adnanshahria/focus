@@ -198,6 +198,8 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   const uiColor = theme === 'dark' ? 'white' : 'hsl(var(--primary))';
   const bgColorClass = theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-primary/10 hover:bg-primary/20';
 
+  const isPristine = timeLeft === sessionDuration;
+
   return (
     <div
       className="w-full h-full flex flex-col items-center justify-center cursor-pointer"
@@ -276,6 +278,7 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
             variant="ghost"
             size="icon"
             onClick={handleEndAndSave}
+            disabled={isPristine}
             className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
             style={{ color: uiColor }}
           >
@@ -324,4 +327,3 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     </div>
   );
 }
-

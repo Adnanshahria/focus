@@ -22,15 +22,14 @@ export const useTimer = () => {
     endAndSaveSession: endAndSaveAction,
   } = store;
 
+  const { user } = useUser();
+  const firestore = useFirestore();
+
   const lastTickTimeRef = useRef<number | null>(null);
   const frameIdRef = useRef<number | null>(null);
 
   const recordSession = useCallback(
     async (isCompletion: boolean) => {
-      // Hooks are called inside, just-in-time.
-      const { user } = useUser();
-      const firestore = useFirestore();
-
       if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
       if (mode !== 'pomodoro') return false;
 
@@ -76,7 +75,7 @@ export const useTimer = () => {
         return false;
       }
     },
-    [sessionStartTime, mode] // user and firestore are stable from context
+    [user, firestore, sessionStartTime, mode] 
   );
 
   const start = useCallback(() => {
@@ -95,16 +94,11 @@ export const useTimer = () => {
   }, [resetAction]);
 
   const endAndSaveSession = useCallback(async () => {
-    // If timer is active or was paused mid-session, record it before resetting.
     if (sessionStartTime) {
-        // If it was active, pause first which also triggers save.
-        if (isActive) {
-            await pause();
-        }
+      await recordSession(false); // Record partial session
     }
-    // Now perform the reset of the state.
-    endAndSaveAction();
-  }, [isActive, sessionStartTime, pause, endAndSaveAction]);
+    endAndSaveAction(); // Then reset the state
+  }, [sessionStartTime, recordSession, endAndSaveAction]);
 
 
   useEffect(() => {
@@ -158,7 +152,7 @@ export const useTimer = () => {
     }
     handleTimerEnd();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isActive]);
+  }, [timeLeft, isActive, completeCycle, recordSession]);
 
   return { ...store, start, pause, reset, addTime, subtractTime, endAndSaveSession };
 };
