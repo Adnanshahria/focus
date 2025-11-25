@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 
-const isGithub = process.env.GITHUB_ACTIONS === "true";
+const isGithub = process.env.GITHUB_REPOSITORY;
+const repo = isGithub ? process.env.GITHUB_REPOSITORY?.split('/')[1] : '';
 
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: isGithub ? "/focus" : "",
-  assetPrefix: isGithub ? "/focus/" : "",
+  basePath: isGithub ? `/${repo}` : "",
+  assetPrefix: isGithub ? `/${repo}/` : "",
   images: {
     unoptimized: true,
   },

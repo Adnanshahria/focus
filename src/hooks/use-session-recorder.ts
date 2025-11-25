@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser } from '@/firebase';
+import { useFirestore } from '@/firebase/hooks/hooks';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 import { TimerMode } from '@/store/timer-state';
 

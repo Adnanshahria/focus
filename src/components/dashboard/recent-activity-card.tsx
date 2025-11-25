@@ -6,7 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser } from '@/firebase';
+import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
+import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query, orderBy, limit, doc } from 'firebase/firestore';
 import { format } from 'date-fns';
 

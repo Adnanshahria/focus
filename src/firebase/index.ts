@@ -8,4 +8,5 @@ export * from './firestore/use-collection';
 export * from './firestore/use-doc';
 export * from './non-blocking-updates';
 export * from './hooks/use-user';
+export * from './hooks/hooks';
 export * from './non-blocking-login';

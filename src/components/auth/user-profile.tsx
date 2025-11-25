@@ -1,6 +1,7 @@
 'use client';
 
-import { useUser, useAuth } from '@/firebase';
+import { useUser } from '@/firebase';
+import { useAuth } from '@/firebase/hooks/hooks';
 import { AuthForm } from './auth-form';
 import { Button } from '@/components/ui/button';
 import { LogOut } from 'lucide-react';

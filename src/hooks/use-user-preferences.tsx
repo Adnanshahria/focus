@@ -1,6 +1,9 @@
 'use client';
 import { useState, useCallback } from 'react';
-import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useUser } from '@/firebase';
+import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 import { doc, collection } from 'firebase/firestore';
 import { AuthRequiredDialog } from '@/components/auth/auth-required-dialog';
 

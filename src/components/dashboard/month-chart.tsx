@@ -3,8 +3,9 @@ import { useMemo } from 'react';
 import { HistoricalFocusChart } from './historical-focus-chart';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
 import { useDateRanges } from '@/hooks/use-date-ranges';
-import { isWithinInterval } from 'date-fns';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser } from '@/firebase';
+import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
+import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { format } from 'date-fns';
 

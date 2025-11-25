@@ -14,7 +14,8 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useUser, useFirestore } from '@/firebase';
+import { useUser } from '@/firebase';
+import { useFirestore } from '@/firebase/hooks/hooks';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 import { ManualTimeInput } from './manual-time-input';
 
