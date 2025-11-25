@@ -8,7 +8,7 @@ import { useTimerStore } from '@/store/timer-store';
 import { cn } from '@/lib/utils';
 import { useWakeLock } from '@/hooks/use-wakelock';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus, RotateCcw, Moon, Sun } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const formatTime = (seconds: number) => {
@@ -39,6 +39,7 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     subtractTime,
     sessionDuration,
     endAndSaveSession,
+    resetSession,
   } = useTimer();
   const { antiBurnIn } = useTimerStore();
 
@@ -103,6 +104,12 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   const handleEndAndSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     endAndSaveSession();
+    showControls();
+  }
+
+  const handleCancel = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    resetSession();
     showControls();
   }
   
@@ -248,72 +255,86 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
           variant="ghost"
           size="icon"
           onClick={handleExit}
-          className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+          className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
           style={{ color: uiColor }}
         >
-          <ArrowLeft className="w-7 h-7" />
+          <ArrowLeft className="w-6 h-6" />
         </Button>
         
-        {!isActive ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleEndAndSave}
-            disabled={isPristine}
-            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
-            style={{ color: uiColor }}
-          >
-            <RotateCcw className="w-6 h-6" />
-          </Button>
-        ) : (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSubtractTime}
-            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
-            style={{ color: uiColor }}
-          >
-            <Minus className="w-7 h-7" />
-          </Button>
-        )}
-        
-        <Button
-          onClick={handleTogglePlay}
-          variant="ghost"
-          size="icon"
-          className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')}
-          style={{ color: uiColor }}
-        >
-          {isActive ? (
-            <Pause className="w-9 h-9" />
-          ) : (
-            <Play className="w-9 h-9 ml-1" />
-          )}
-        </Button>
-
-        {!isActive ? (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleToggleTheme}
-            className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
-            style={{ color: uiColor }}
-          >
-            {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-          </Button>
-        ) : (
-          <Button
+        {isActive ? (
+          <>
+            <Button
               variant="ghost"
               size="icon"
-              onClick={handleAddTime}
-              className={cn("w-14 h-14 rounded-full backdrop-blur-sm", bgColorClass)}
+              onClick={handleSubtractTime}
+              className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
               style={{ color: uiColor }}
-          >
-            <Plus className="w-7 h-7" />
-          </Button>
+            >
+              <Minus className="w-7 h-7" />
+            </Button>
+            <Button
+              onClick={handleTogglePlay}
+              variant="ghost"
+              size="icon"
+              className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')}
+              style={{ color: uiColor }}
+            >
+              <Pause className="w-9 h-9" />
+            </Button>
+            <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleAddTime}
+                className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
+                style={{ color: uiColor }}
+            >
+              <Plus className="w-7 h-7" />
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCancel}
+              disabled={isPristine}
+              className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
+              style={{ color: uiColor }}
+            >
+              <XCircle className="w-6 h-6" />
+            </Button>
+             <Button
+              onClick={handleTogglePlay}
+              variant="ghost"
+              size="icon"
+              className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')}
+              style={{ color: uiColor }}
+            >
+              <Play className="w-9 h-9 ml-1" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleEndAndSave}
+              disabled={isPristine}
+              className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
+              style={{ color: uiColor }}
+            >
+              <CheckCircle className="w-6 h-6" />
+            </Button>
+          </>
         )}
 
-        <div className="w-14 h-14" />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleToggleTheme}
+          className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)}
+          style={{ color: uiColor }}
+        >
+          {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+        </Button>
+
       </motion.div>
     </div>
   );

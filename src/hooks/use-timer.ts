@@ -83,13 +83,12 @@ export const useTimer = () => {
   }, [startAction]);
 
   const pause = useCallback(async () => {
-    if (isActive && sessionStartTime) {
-      await recordSession(false);
-    }
+    // The session saving logic is now handled by endAndSaveSession or completion.
+    // Pause should only pause.
     pauseAction();
-  }, [isActive, sessionStartTime, pauseAction, recordSession]);
+  }, [pauseAction]);
 
-  const reset = useCallback(() => {
+  const resetSession = useCallback(() => {
     resetAction();
   }, [resetAction]);
 
@@ -154,5 +153,5 @@ export const useTimer = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, isActive, completeCycle, recordSession]);
 
-  return { ...store, start, pause, reset, addTime, subtractTime, endAndSaveSession };
+  return { ...store, start, pause, resetSession, addTime, subtractTime, endAndSaveSession };
 };
