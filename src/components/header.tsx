@@ -26,12 +26,12 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
 
   const isDashboard = pathname.includes('/dashboard');
 
+  // Fail-safe to reset loading state on any navigation change.
   useEffect(() => {
-    // Reset loading state on navigation change
     setLoading(false);
   }, [pathname]);
   
-  const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
+  const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm group";
 
   const handleRecordClick = (e: React.MouseEvent) => {
     if (isDashboard) return;
@@ -39,6 +39,7 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
         e.preventDefault();
         setAuthFeatureName('view your record');
         setAuthDialogOpen(true);
+        setLoading(false); // Reset loading state if auth is required
     } else {
         setLoading('dashboard');
         router.push(`/dashboard`);
@@ -48,7 +49,7 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
   const handleDeepFocusClick = (e: React.MouseEvent) => {
     setLoading('deepfocus');
     onDeepFocusClick?.();
-    // The loading state will be reset by the useEffect on pathname change or component unmount.
+    // No need to reset loading here; the fullscreen change or navigation will trigger the useEffect.
   }
 
   return (
@@ -85,7 +86,8 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
                     aria-label="Deep Focus"
                     disabled={loading === 'deepfocus'}
                 >
-                    {loading === 'deepfocus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
+                    <Loader className="animate-spin absolute h-4 w-4 hidden group-disabled:block" />
+                    <span className="group-disabled:opacity-0">Deep Focus</span>
                 </Button>
                 <Button
                     onClick={handleRecordClick}
@@ -95,7 +97,8 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
                     aria-label="Record"
                     disabled={loading === 'dashboard'}
                 >
-                    {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Record'}
+                    <Loader className="animate-spin absolute h-4 w-4 hidden group-disabled:block" />
+                    <span className="group-disabled:opacity-0">Record</span>
                 </Button>
             </div>
             
