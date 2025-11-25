@@ -1,7 +1,7 @@
 'use client';
 
 import { FloatingTimer } from '@/components/timer/floating-timer';
-import { useRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTheme } from 'next-themes';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -15,23 +15,10 @@ export default function DeepFocusPage() {
         setTheme(theme === 'dark' ? 'light' : 'dark');
     };
     
-    // Default to dark mode and enter fullscreen on mount.
+    // Set dark theme and handle exiting fullscreen.
     useEffect(() => {
         setTheme('dark');
-        
-        const enterFullScreen = async () => {
-            try {
-                if (document.documentElement.requestFullscreen) {
-                    await document.documentElement.requestFullscreen();
-                    setVisible(true); // Fade in content after entering fullscreen
-                }
-            } catch (error) {
-                console.error("Could not enter fullscreen:", error);
-                setVisible(true); // Still show content if fullscreen fails
-            }
-        };
-
-        enterFullScreen();
+        setVisible(true);
 
         const handleFullscreenChange = () => {
           if (!document.fullscreenElement) {

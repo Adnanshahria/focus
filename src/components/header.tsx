@@ -24,21 +24,16 @@ export function Header() {
     setLoading(false);
   }, [pathname]);
   
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      // If user exits fullscreen and they are on the deep focus page, navigate them back
-      if (!document.fullscreenElement && pathname === '/deep-focus') {
-        router.push('/');
-      }
-    };
-    
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, [pathname, router]);
-
-  const handleDeepFocusClick = () => {
+  const handleDeepFocusClick = async () => {
     setLoading('deep-focus');
-    router.push('/deep-focus');
+    try {
+      await document.documentElement.requestFullscreen();
+      router.push('/deep-focus');
+    } catch (error) {
+      console.error("Could not enter fullscreen:", error);
+      // Still navigate even if fullscreen fails, to provide the dark UI
+      router.push('/deep-focus');
+    }
   };
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
