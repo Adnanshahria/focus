@@ -38,30 +38,30 @@
  
   .dark {
     --background: 0 0% 0%; /* AMOLED Black */
-    --foreground: 210 40% 98%; /* White */
+    --foreground: 210 40% 98%;
     
-    /* Neon Blue for primary elements */
-    --primary: 205 90% 64%; /* Bright Neon Blue */
+    /* Brighter Neon Blue for more vibrancy */
+    --primary: 200 100% 55%; /* More saturated and brighter blue */
     --primary-foreground: 224 71% 4%; /* Dark blue for text on neon blue */
     
-    /* Cards with glassmorphism */
-    --card: 215 28% 17% / 0.1;
+    /* Solid, slightly lighter card for better content visibility */
+    --card: 220 15% 9%; 
     --card-foreground: 210 40% 98%;
     
-    /* Secondary & Muted colors */
-    --secondary: 215 28% 17%;
+    /* Secondary & Muted colors - increased brightness */
+    --secondary: 215 28% 20%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 215 28% 17%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 215 28% 20%;
+    --muted-foreground: 215 25% 75%; /* Brighter muted text */
     
     /* Accent for hover states */
-    --accent: 215 28% 22%;
+    --accent: 215 28% 25%;
     --accent-foreground: 210 40% 98%;
     
-    /* Borders and Rings */
-    --border: 215 28% 25%;
-    --input: 215 28% 25%;
-    --ring: 205 90% 64%;
+    /* Borders and Rings - using primary color for more pop */
+    --border: 215 28% 18%;
+    --input: 215 28% 18%;
+    --ring: 200 100% 55%; /* Ring color matches new primary */
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 210 40% 98%;
