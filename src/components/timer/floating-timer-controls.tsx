@@ -12,13 +12,13 @@ interface FloatingTimerControlsProps {
   isActive: boolean;
   isPristine: boolean;
   isSaving: boolean;
-  onExit: (e: React.MouseEvent) => void;
-  onSubtractTime: (e: React.MouseEvent) => void;
-  onTogglePlay: (e: React.MouseEvent) => void;
-  onAddTime: (e: React.MouseEvent) => void;
-  onCancel: (e: React.MouseEvent) => void;
-  onEndAndSave: (e: React.MouseEvent) => void;
-  onToggleTheme: (e: React.MouseEvent) => void;
+  onExit: (event: React.MouseEvent) => void;
+  onSubtractTime: (event: React.MouseEvent) => void;
+  onTogglePlay: (event: React.MouseEvent) => void;
+  onAddTime: (event: React.MouseEvent) => void;
+  onCancel: (event: React.MouseEvent) => void;
+  onEndAndSave: (event: React.MouseEvent) => void;
+  onToggleTheme: (event: React.MouseEvent) => void;
 }
 
 export const FloatingTimerControls = ({

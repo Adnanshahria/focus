@@ -14,6 +14,7 @@ export default function Home() {
   const auth = useAuth();
 
   useEffect(() => {
+    // Ensure auth is initialized before attempting to sign in.
     if (!isUserLoading && !user && auth) {
       initiateAnonymousSignIn(auth);
     }

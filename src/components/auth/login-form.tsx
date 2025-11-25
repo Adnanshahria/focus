@@ -37,12 +37,14 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       await initiateEmailSignIn(auth, data.email, data.password);
+      // onAuthStateChanged will handle the rest
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: error.message || 'Invalid credentials. Please try again.',
+        description: error.message,
       });
+    } finally {
       setIsSubmitting(false);
     }
   };

@@ -10,7 +10,6 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
 import { initiateEmailSignUp } from '@/firebase/non-blocking-login';
-import { cn } from '@/lib/utils';
 
 const signUpSchema = z
   .object({
@@ -46,12 +45,14 @@ export function SignUpForm() {
         title: 'Account Created!',
         description: 'Welcome to FocusFlow.',
       });
+      // onAuthStateChanged will handle the user state change.
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Sign Up Failed',
-        description: error.message || 'An unexpected error occurred.',
+        description: error.message,
       });
+    } finally {
       setIsSubmitting(false);
     }
   };

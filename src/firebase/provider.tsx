@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo } from 'react';
@@ -34,14 +33,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   firestore,
   auth,
 }) => {
-
   const servicesAvailable = !!(firebaseApp && firestore && auth);
   const baseContextValue = useMemo(() => ({
       areServicesAvailable: servicesAvailable,
       firebaseApp: servicesAvailable ? firebaseApp : null,
       firestore: servicesAvailable ? firestore : null,
       auth: servicesAvailable ? auth : null,
-  }), [firebaseApp, firestore, auth, servicesAvailable]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [firebaseApp, firestore, auth]);
 
   return (
     <FirebaseContext.Provider value={baseContextValue as FirebaseContextState}>
@@ -58,9 +57,7 @@ const FirebaseUserProvider: React.FC<{children: ReactNode}> = ({ children }) => 
 
     const fullContextValue = useMemo(() => ({
         ...baseContext,
-        user: userAuthState.user,
-        isUserLoading: userAuthState.isUserLoading,
-        userError: userAuthState.userError,
+        ...userAuthState
     }), [baseContext, userAuthState]);
 
     return (
