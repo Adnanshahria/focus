@@ -27,13 +27,12 @@ export function Header() {
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
-  const handleNavigationClick = (e: React.MouseEvent<HTMLAnchorElement>, destination: 'dashboard') => {
+  const handleNavigationClick = (e: React.MouseEvent<HTMLButtonElement>, destination: 'dashboard' | 'deep-focus') => {
     if (!isRegisteredUser) {
         e.preventDefault();
-        setAuthFeatureName('view your progress');
+        setAuthFeatureName(destination === 'dashboard' ? 'view your progress' : 'enter deep focus');
         setAuthDialogOpen(true);
     } else {
-        setLoading(destination);
         router.push(`/${destination}`);
     }
   }
@@ -48,34 +47,24 @@ export function Header() {
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-transparent">
         <Logo />
         <div className="flex items-center gap-1 sm:gap-2">
-          <Link 
-            href="/deep-focus"
-            onClick={() => setLoading('deep-focus')}
-            passHref
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className={cn(glassButtonClasses)}
+            aria-label="Deep Focus"
+            onClick={(e) => handleNavigationClick(e, 'deep-focus')}
           >
-             <Button 
-                variant="ghost" 
-                size="sm"
-                className={cn(glassButtonClasses)}
-                aria-label="Deep Focus"
-            >
-              {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
-            </Button>
-          </Link>
-          <Link
-              href="/dashboard"
+            Deep Focus
+          </Button>
+          <Button
+              variant="ghost" 
+              size="sm"
+              className={cn(glassButtonClasses)}
+              aria-label="Progress"
               onClick={(e) => handleNavigationClick(e, 'dashboard')}
-              passHref
           >
-            <Button
-                variant="ghost" 
-                size="sm"
-                className={cn(glassButtonClasses)}
-                aria-label="Progress"
-            >
-              {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
-            </Button>
-          </Link>
+            Progress
+          </Button>
           <Settings />
         </div>
       </header>
