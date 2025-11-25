@@ -1,9 +1,6 @@
 'use client';
 
 import { create } from 'zustand';
-import { User } from 'firebase/auth';
-import { Firestore } from 'firebase/firestore';
-
 
 export type TimerMode = 'pomodoro' | 'shortBreak' | 'longBreak';
 
@@ -32,11 +29,6 @@ type VisualSettings = {
   antiBurnIn: boolean;
 };
 
-type FirebaseServices = {
-    getFirebaseServices?: () => { user: User | null };
-    getFirestoreInstance?: () => Firestore;
-}
-
 type TimerState = {
   mode: TimerMode;
   timeLeft: number;
@@ -47,8 +39,7 @@ type TimerState = {
   totalFocusMinutes: number;
   totalPomos: number;
 } & TimerDurations &
-  VisualSettings &
-  FirebaseServices;
+  VisualSettings;
 
 type TimerActions = {
   setMode: (mode: TimerMode) => void;
@@ -66,7 +57,6 @@ type TimerActions = {
   addTime: (seconds: number) => void;
   subtractTime: (seconds: number) => void;
   endAndSaveSession: () => void;
-  setFirebaseServices: (services: FirebaseServices) => void;
 };
 
 export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
@@ -82,8 +72,6 @@ export const useTimerStore = create<TimerState & TimerActions>((set, get) => ({
   totalFocusMinutes: 0,
   totalPomos: 0,
   antiBurnIn: true, // Enabled by default for better UX on OLED
-
-  setFirebaseServices: (services) => set({ ...services }),
 
   setMode: mode => {
     const initialTime = getInitialTime(mode, get());

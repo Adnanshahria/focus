@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/timer-store';
-import { useUser, useFirestore } from '@/firebase/provider';
+import { useUser, useFirestore } from '@/firebase';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 
 export const useTimer = () => {
@@ -22,19 +22,14 @@ export const useTimer = () => {
     endAndSaveSession: endAndSaveAction,
   } = store;
 
-  // These hooks are now called inside the callback to prevent premature initialization
-  // const { user } = useUser();
-  // const firestore = useFirestore();
+  const { user } = useUser();
+  const firestore = useFirestore();
 
   const lastTickTimeRef = useRef<number | null>(null);
   const frameIdRef = useRef<number | null>(null);
 
   const recordSession = useCallback(
     async (isCompletion: boolean) => {
-      // Services are fetched "just-in-time" inside the function
-      const { user } = useTimerStore.getState().getFirebaseServices!();
-      const firestore = useTimerStore.getState().getFirestoreInstance!();
-
       if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
       if (mode !== 'pomodoro') return false;
 
@@ -80,7 +75,7 @@ export const useTimer = () => {
         return false;
       }
     },
-    [sessionStartTime, mode]
+    [sessionStartTime, mode, user, firestore]
   );
 
   const start = useCallback(() => {

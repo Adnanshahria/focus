@@ -5,7 +5,6 @@ import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
-import { useTimerStore } from '@/store/timer-store';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -68,8 +67,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     userError: null,
   });
   
-  const setFirebaseServicesInStore = useTimerStore(state => state.setFirebaseServices);
-
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
     if (!auth) { // If no Auth service instance, cannot determine user state
@@ -105,17 +102,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       userError: userAuthState.userError,
     };
   }, [firebaseApp, firestore, auth, userAuthState]);
-  
-  // This effect will run whenever the contextValue changes,
-  // specifically when the user's auth state is resolved.
-  useEffect(() => {
-    if (contextValue.areServicesAvailable) {
-      setFirebaseServicesInStore({
-        getFirebaseServices: () => ({ user: contextValue.user }),
-        getFirestoreInstance: () => contextValue.firestore!,
-      });
-    }
-  }, [contextValue.areServicesAvailable, contextValue.user, contextValue.firestore, setFirebaseServicesInStore]);
 
 
   return (
