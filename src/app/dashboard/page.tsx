@@ -15,6 +15,7 @@ import { MonthChart } from '@/components/dashboard/month-chart';
 import { OverallChart } from '@/components/dashboard/overall-chart';
 import { RecentActivityCard } from '@/components/dashboard/recent-activity-card';
 import { Card } from '@/components/ui/card';
+import { collection } from 'firebase/firestore';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -29,7 +30,7 @@ export default function DashboardPage() {
   }, [user, isUserLoading, router]);
 
   const allRecordsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    if (!user || !firestore) return null;
     return collection(firestore, `users/${user.uid}/focusRecords`);
   }, [user, firestore]);
   
