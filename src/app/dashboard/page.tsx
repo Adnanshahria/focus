@@ -8,153 +8,21 @@ import { Clock, Target, Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { collection, query, orderBy, limit, where } from 'firebase/firestore';
-import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfDay, eachDayOfInterval, formatDistanceToNow, add } from 'date-fns';
+import { format, parseISO, formatDistanceToNow } from 'date-fns';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { StatCard } from '@/components/dashboard/stat-card';
+import { DailyFocusChart } from '@/components/dashboard/daily-focus-chart';
+import { HistoricalFocusChart } from '@/components/dashboard/historical-focus-chart';
+import { useDateRanges } from '@/hooks/use-date-ranges';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
   const hours = Math.floor(minutes / 60);
   const mins = Math.round(minutes % 60);
   return `${hours}h ${mins}m`;
-}
-
-type ChartData = {
-  date: string;
-  totalFocusMinutes: number;
-}
-
-const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string, icon: React.ElementType, description?: string }) => (
-    <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-            <Icon className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-            <div className="text-2xl font-bold">{value}</div>
-            {description && <p className="text-xs text-muted-foreground">{description}</p>}
-        </CardContent>
-    </Card>
-);
-
-const DailyFocusChart = () => {
-    const { user } = useUser();
-    const firestore = useFirestore();
-    const today = useMemo(() => new Date(), []);
-    const todayDateString = useMemo(() => format(today, 'yyyy-MM-dd'), [today]);
-
-    const sessionsQuery = useMemoFirebase(() => {
-        if (!user || user.isAnonymous) return null;
-        return query(
-            collection(firestore, `users/${user.uid}/focusRecords/${todayDateString}/sessions`),
-            orderBy('startTime', 'asc')
-        );
-    }, [user, firestore, todayDateString]);
-
-    const { data: sessions, isLoading } = useCollection(sessionsQuery);
-
-    const chartData = useMemo(() => {
-        const hourlyFocus = Array.from({ length: 24 }, (_, i) => ({
-            time: `${String(i).padStart(2, '0')}:00`,
-            minutes: 0,
-        }));
-
-        if (sessions) {
-            sessions.forEach(session => {
-                if (session.startTime && typeof session.duration === 'number') {
-                    const start = parseISO(session.startTime);
-                    const hour = start.getHours();
-                    hourlyFocus[hour].minutes += session.duration;
-                }
-            });
-        }
-        return hourlyFocus;
-    }, [sessions]);
-
-    if (isLoading) return <Skeleton className="h-[250px] w-full" />;
-
-    const hasData = chartData.some(d => d.minutes > 0);
-
-    return (
-        <div className="h-[250px] w-full">
-            {hasData ? (
-                <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
-                    <BarChart data={chartData} margin={{ top: 20, right: 20, left: -10, bottom: 0 }}>
-                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                        <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(value, index) => index % 4 === 0 ? value : ''} />
-                        <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-                        <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
-                        <Bar dataKey="minutes" fill="hsl(var(--primary))" radius={4} />
-                    </BarChart>
-                </ChartContainer>
-            ) : (
-                <div className="h-[250px] flex items-center justify-center text-muted-foreground">
-                    No focus sessions recorded today.
-                </div>
-            )}
-        </div>
-    );
-};
-
-const renderChart = (data: ChartData[], loading: boolean, timeRange: 'week' | 'month', dateRanges: any) => {
-    if (loading) return <Skeleton className="h-[250px] w-full" />;
-    
-    let chartData = data;
-    let tickFormatter = (val: string) => format(parseISO(val), 'MMM d');
-    
-    if (timeRange === 'week' || timeRange === 'month') {
-        const { start, end } = dateRanges[timeRange];
-        const interval = eachDayOfInterval({ start, end });
-        const dataMap = new Map(data.map(d => [d.date, d.totalFocusMinutes]));
-
-        chartData = interval.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd');
-            return {
-                date: dateStr,
-                totalFocusMinutes: dataMap.get(dateStr) || 0,
-            }
-        });
-
-        if (timeRange === 'month') {
-            tickFormatter = (val: string, index: number) => {
-                const date = parseISO(val);
-                if(date.getDate() === 1 || (date.getDate() - 1) % 7 === 0) {
-                    return format(date, 'd');
-                }
-                return '';
-            }
-        }
-    }
-    
-    if (chartData.length === 0) return <div className="text-center p-4 text-muted-foreground h-[250px] flex items-center justify-center">No data for this period.</div>;
-
-    return (
-      <ChartContainer config={{ totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-[250px]">
-        <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
-          <CartesianGrid vertical={false} strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="date" 
-            tickFormatter={tickFormatter}
-            tickLine={false}
-            axisLine={false}
-            tickMargin={8}
-            interval="preserveStartEnd"
-          />
-          <YAxis stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-          <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-          <Bar dataKey="totalFocusMinutes" fill="hsl(var(--primary))" radius={4} />
-        </BarChart>
-      </ChartContainer>
-    );
 }
 
 export default function DashboardPage() {
@@ -164,28 +32,18 @@ export default function DashboardPage() {
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   const [timeRange, setTimeRange] = useState<'day' | 'week' | 'month'>('week');
   
+  const { today, dateRanges } = useDateRanges();
+
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
   
-  const today = useMemo(() => startOfDay(new Date()), []);
-  const dateRanges = useMemo(() => {
-    const endOfWeekDate = endOfWeek(today, { weekStartsOn: 1 });
-    return {
-      day: { start: today, end: today },
-      week: { start: startOfWeek(today, { weekStartsOn: 1 }), end: endOfWeekDate },
-      month: { start: startOfMonth(today), end: endOfMonth(today) },
-    }
-  }, [today]);
-  
   const focusRecordsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     const { start, end } = dateRanges[timeRange];
     
-    // Firestore does not allow orderBy on a different field than a range comparison.
-    // We will sort by date client-side after fetching.
     return query(collection(firestore, `users/${user.uid}/focusRecords`), 
         where('date', '>=', format(start, 'yyyy-MM-dd')),
         where('date', '<=', format(end, 'yyyy-MM-dd'))
@@ -227,7 +85,6 @@ export default function DashboardPage() {
 
   const chartSourceData = useMemo(() => {
     if (!focusRecords) return [];
-    // Ensure we use the unsorted records for the chart source as it will be processed again
     return focusRecords.map(r => ({ date: r.id, totalFocusMinutes: r.totalFocusMinutes }));
   }, [focusRecords]);
 
@@ -287,10 +144,18 @@ export default function DashboardPage() {
                             <DailyFocusChart />
                         </TabsContent>
                         <TabsContent value="week">
-                            {renderChart(chartSourceData, focusRecordsLoading, 'week', dateRanges)}
+                            <HistoricalFocusChart 
+                              data={chartSourceData} 
+                              loading={focusRecordsLoading} 
+                              timeRange='week'
+                            />
                         </TabsContent>
                         <TabsContent value="month">
-                            {renderChart(chartSourceData, focusRecordsLoading, 'month', dateRanges)}
+                             <HistoricalFocusChart 
+                              data={chartSourceData} 
+                              loading={focusRecordsLoading} 
+                              timeRange='month'
+                            />
                         </TabsContent>
                     </Tabs>
                 </CardContent>

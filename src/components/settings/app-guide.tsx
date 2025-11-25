@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { FormattedContent } from './formatted-content';
 
 const guideContent = {
   en: {
@@ -26,69 +26,11 @@ const guideContent = {
       appearance: "**Appearance:** Switch between a sleek light mode and a cool dark mode. Enable 'Anti-Burn' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
       timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions to fit your personal workflow. Changes are saved automatically for registered users.",
     },
-  },
-  bn: {
-    title: "অ্যাপ গাইড এবং বৈশিষ্ট্য",
-    features: {
-      title: "বৈশিষ্ট্য",
-      pomodoro: "**পোমোডোরো টাইমার:** আপনার মনোযোগ বাড়ানোর জন্য একটি ক্লাসিক ২৫-মিনিটের টাইমার। প্রতিটি সেশনের পরে, একটি ছোট বিরতি নিন। চারটি পোমোডোরোর পরে, একটি দীর্ঘ বিরতি নিন।\n\n**কিভাবে ব্যবহার করবেন:**\nপ্রধান স্ক্রিনে 'Pomodoro' নির্বাচন করুন এবং 'Start' চাপুন। আপনি '+' বা '-' বোতামে ক্লিক করে ৩ মিনিট যোগ বা বিয়োগ করতে পারেন, অথবা নীচের 'টাইমার' সেটিংসে ডিফল্ট সময়কাল পরিবর্তন করতে পারেন।",
-      breaks: "**ছোট এবং দীর্ঘ বিরতি:** আপনাকে কার্যকরভাবে রিচার্জ করতে সাহায্য করার জন্য ৫-মিনিটের ছোট বিরতি এবং ১৫-মিনিটের দীর্ঘ বিরতি রয়েছে।\n\n**কিভাবে ব্যবহার করবেন:**\nঅ্যাপটি স্বয়ংক্রিয়ভাবে সঠিক বিরতির ধরন নির্বাচন করে। শুধু 'Start' চাপুন।",
-      addTime: "**সময় যোগ/বিয়োগ করুন:** কাজ শেষ করতে আরও কয়েক মিনিট প্রয়োজন, বা বিরতি ছোট করতে চান? যেকোনো সক্রিয় টাইমার সেশনে দ্রুত ৩ মিনিট যোগ বা বিয়োগ করুন।\n\n**কিভাবে ব্যবহার করবেন:**\nটাইমার চলাকালীন প্রধান স্ক্রিনে বা ডিপ ফোকাস মোডে '+' বা '-' বোতামে ক্লিক করুন।",
-      deepFocus: "**ডিপ ফোকাস মোড:** একটি সম্পূর্ণ স্ক্রিন মোড যা সমস্ত বিভ্রান্তি লুকিয়ে রাখে, যখন আপনাকে বাধা দূর করতে হবে তার জন্য উপযুক্ত। এই মোডটি আপনাকে একটি মিনিমালিস্ট টাইমার ছাড়া সমস্ত UI উপাদানগুলি সরিয়ে দিয়ে আপনার কাজে প্রতিশ্রুতিবদ্ধ হতে সাহায্য করে।\n\n**কিভাবে ব্যবহার করবেন:**\nপ্রবেশ করতে হেডারে 'Deep Focus'-এ ক্লিক করুন। টাইমারটি একটি কালো পর্দার কেন্দ্রে ভাসবে। ডিভাইসের ব্যাক বোতাম টিপলে এই মোড থেকে বেরিয়ে আসা যাবে।",
-      progress: `**অগ্রগতি ট্র্যাকিং:** (শুধুমাত্র নিবন্ধিত ব্যবহারকারী) এই শক্তিশালী বিভাগটি আপনাকে আপনার প্রতিশ্রুতি কল্পনা করতে এবং আপনার অগ্রগতি উদযাপন করতে সাহায্য করে, যা একটি সামঞ্জস্যপূর্ণ ফোকাস অভ্যাস তৈরির জন্য একটি মূল প্রেরণা। এর মধ্যে রয়েছে:
-      - **আজকের ফোকাস এবং পোমোস কার্ড:** আজকের মোট ফোকাস মিনিট এবং সম্পন্ন পোমোডোরোগুলির একটি স্পষ্ট প্রদর্শনের মাধ্যমে আপনার দৈনিক অর্জনের একটি তাত্ক্ষণিক ওভারভিউ পান।
-      - **ফোকাস অ্যাক্টিভিটি চার্ট:** একটি ডাইনামিক বার চার্ট যা বিভিন্ন সময়কালে আপনার ফোকাস মিনিটগুলি দেখায়। আপনার ফোকাস প্যাটার্নগুলি দেখতে এবং সময়ের সাথে আপনার ধারাবাহিকতা ট্র্যাক করতে 'দিন', 'সপ্তাহ', এবং 'মাস' ট্যাবগুলি ব্যবহার করুন। 'দিন' ভিউ এমনকি আপনার ফোকাসকে ঘন্টা অনুসারে বিভক্ত করে দেখায়।
-      - **সাম্প্রতিক কার্যকলাপ লগ:** আজকের আপনার সবচেয়ে সাম্প্রতিক সেশনগুলির একটি তালিকা, যা দেখায় কখন সেগুলি ঘটেছে এবং সেগুলি কতক্ষণ স্থায়ী ছিল।
-      \n**কিভাবে ব্যবহার করবেন:**
-      একটি অ্যাকাউন্টের জন্য সাইন আপ করুন, এবং আপনার সম্পন্ন পোমোডোরো সেশনগুলি স্বয়ংক্রিয়ভাবে লগ করা হবে। আপনার আপডেট হওয়া পরিসংখ্যান দেখতে যেকোনো সময় 'Progress' পৃষ্ঠায় যান।`,
-      manualLog: "**ম্যানুয়াল লগিং:** টাইমার ছাড়াই সম্পন্ন করা ফোকাস সেশনগুলি ম্যানুয়ালি যুক্ত করুন, যাতে আপনার অগ্রগতি চার্ট সর্বদা সঠিক থাকে।\n\n**কিভাবে ব্যবহার করবেন:**\n'Progress' পৃষ্ঠায় যান এবং 'Log' বোতামে ক্লিক করুন। আপনি তারিখ, শুরুর সময় এবং সময়কাল নির্দিষ্ট করতে পারেন।",
-    },
-    settings: {
-      title: "সেটিংস পরিচিতি",
-      profile: "**ব্যবহারকারী প্রোফাইল:** আপনার পছন্দগুলি সংরক্ষণ করতে এবং ডিভাইস জুড়ে আপনার অগ্রগতি ট্র্যাক করতে সাইন আপ করুন। বেনামী ব্যবহারকারীদের ডেটা ব্রাউজারে স্থানীয় এবং অস্থায়ী থাকে।",
-      appearance: "**অ্যাপিয়ারেন্স:** লাইট মোড এবং ডার্ক মোডের মধ্যে স্যুইচ করুন। 'Anti-Burn' সক্ষম করে ডিপ ফোকাস মোডে টাইমারটিকে সূক্ষ্মভাবে সরিয়ে OLED স্ক্রিন রক্ষা করুন।",
-      timer: "**টাইমার সময়কাল:** আপনার ব্যক্তিগত ওয়ার্কফ্লো অনুসারে আপনার পোমোডোরো, ছোট বিরতি এবং দীর্ঘ বিরতির সেশনের দৈর্ঘ্য কাস্টমাইজ করুন। নিবন্ধিত ব্যবহারকারীদের জন্য পরিবর্তনগুলি স্বয়ংক্রিয়ভাবে সংরক্ষিত হয়।",
-    },
   }
 };
 
-const FormattedContent = ({ text }: { text: string }) => {
-    return (
-        <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
-            {text.split('\n').map((line, index) => {
-                if (line.trim() === '') {
-                    return <div key={index} className="h-2" />; // Represents a line gap
-                }
-                if (line.includes('**How to use:**')) {
-                     return (
-                        <p key={index} className="flex flex-col">
-                           <span className='h-2'></span>
-                           <strong className="font-semibold text-foreground">{line.replace(/\*\*/g, '')}</strong>
-                        </p>
-                    )
-                }
-                const parts = line.split(/(\*\*.*?\*\*)|(\*.*?\*)/g).filter(Boolean);
-                return (
-                    <p key={index}>
-                        {parts.map((part, partIndex) => {
-                            if (part.startsWith('**') && part.endsWith('**')) {
-                                return <strong key={partIndex} className="font-semibold text-foreground">{part.slice(2, -2)}</strong>;
-                            }
-                            if (part.startsWith('*') && part.endsWith('*')) {
-                                return <em key={partIndex} className="text-foreground/80">{part.slice(1, -1)}</em>;
-                            }
-                            return part;
-                        })}
-                    </p>
-                );
-            })}
-        </div>
-    );
-};
-
 export function AppGuide() {
-  const [language, setLanguage] = useState<'en' | 'bn'>('en');
-  const content = guideContent[language];
+  const content = guideContent.en;
 
   return (
     <div className="space-y-4">

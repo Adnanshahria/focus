@@ -1,23 +1,13 @@
 'use client';
 import Link from "next/link";
-import { Timer, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { Settings } from "@/components/settings";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/firebase";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-
-const Logo = () => (
-  <Link href="/" className="flex items-center gap-2 group transition-opacity hover:opacity-80">
-    <div className="w-8 h-8 flex items-center justify-center rounded-md bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
-        <Timer className="w-5 h-5 text-primary" />
-    </div>
-    <h1 className="text-xl font-bold tracking-tight">
-        FocusFlow
-    </h1>
-  </Link>
-)
+import { Logo } from "./logo";
 
 export function Header() {
   const { user } = useUser();
