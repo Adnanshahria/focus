@@ -4,7 +4,8 @@ import React, { DependencyList, createContext, useContext, ReactNode, useMemo, u
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
 import { Auth, User, onAuthStateChanged } from 'firebase/auth';
-import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
+import { FirebaseErrorListener } from '@/components/FirebaseErrorListener';
+import { useTimerStore } from '@/store/timer-store';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -66,6 +67,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     isUserLoading: true, // Start loading until first auth event
     userError: null,
   });
+  
+  const setFirebaseServicesInStore = useTimerStore(state => state.setFirebaseServices);
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
@@ -88,8 +91,8 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     );
     return () => unsubscribe(); // Cleanup
   }, [auth]); // Depends on the auth instance
-
-  // Memoize the context value
+  
+   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {
     const servicesAvailable = !!(firebaseApp && firestore && auth);
     return {
@@ -102,6 +105,18 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
       userError: userAuthState.userError,
     };
   }, [firebaseApp, firestore, auth, userAuthState]);
+  
+  // This effect will run whenever the contextValue changes,
+  // specifically when the user's auth state is resolved.
+  useEffect(() => {
+    if (contextValue.areServicesAvailable) {
+      setFirebaseServicesInStore({
+        getFirebaseServices: () => ({ user: contextValue.user }),
+        getFirestoreInstance: () => contextValue.firestore!,
+      });
+    }
+  }, [contextValue.areServicesAvailable, contextValue.user, contextValue.firestore, setFirebaseServicesInStore]);
+
 
   return (
     <FirebaseContext.Provider value={contextValue}>
