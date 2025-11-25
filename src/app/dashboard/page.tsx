@@ -5,7 +5,6 @@ import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
-import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AddFocusRecordDialog } from '@/components/dashboard/add-focus-record';
 import { TodayChart } from '@/components/dashboard/today-chart';
@@ -20,7 +19,6 @@ import { useCollection, useDoc } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
-import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { FloatingTimer } from '@/components/timer/floating-timer';
@@ -30,7 +28,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
-  const [isHeaderVisible, setIsHeaderVisible] = useState(true);
   const { today } = useDateRanges();
   const todayDateString = format(today, 'yyyy-MM-dd');
   const [isDeepFocus, setDeepFocus] = useState(false);
@@ -68,22 +65,6 @@ export default function DashboardPage() {
 
   const { data: allRecords, isLoading: areAllRecordsLoading } = useCollection(historicalRecordsQuery);
   // --- End of Optimized Data Fetching ---
-
-  useEffect(() => {
-    let lastScrollY = window.scrollY;
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        setIsHeaderVisible(false);
-      } else {
-        setIsHeaderVisible(true);
-      }
-      lastScrollY = currentScrollY;
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
@@ -125,7 +106,7 @@ export default function DashboardPage() {
     );
   }
   
-  if (isUserLoading) {
+  if (isUserLoading && !allRecords) {
     return <DashboardSkeleton />;
   }
   
@@ -135,28 +116,7 @@ export default function DashboardPage() {
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header onDeepFocusClick={handleEnterDeepFocus} />
         
-        <div className={cn(
-          "fixed top-14 left-0 right-0 bg-background/95 backdrop-blur-sm z-40 lg:hidden border-b transition-transform duration-300",
-          isHeaderVisible ? "translate-y-0" : "-translate-y-full"
-        )}>
-          <div className="flex items-center justify-start gap-4 p-4 max-w-6xl mx-auto">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Record</h1>
-          </div>
-        </div>
-
-        <main className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 max-w-6xl mx-auto w-full">
-          <div className="h-28 lg:h-14"></div>
-
-          <div className="hidden lg:flex items-center justify-start gap-4 mb-6 w-full">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => router.back()}>
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Record</h1>
-          </div>
-
+        <main className="flex-1 flex flex-col p-4 md:p-6 lg:p-8 pt-20 max-w-6xl mx-auto w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className='space-y-6'>
               <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
