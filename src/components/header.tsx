@@ -28,11 +28,12 @@ export function Header() {
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
   const handleNavigationClick = (e: React.MouseEvent<HTMLButtonElement>, destination: 'dashboard' | 'deep-focus') => {
-    if (!isRegisteredUser) {
+    if (destination === 'dashboard' && !isRegisteredUser) {
         e.preventDefault();
-        setAuthFeatureName(destination === 'dashboard' ? 'view your progress' : 'enter deep focus');
+        setAuthFeatureName('view your progress');
         setAuthDialogOpen(true);
     } else {
+        setLoading(destination);
         router.push(`/${destination}`);
     }
   }
@@ -53,8 +54,9 @@ export function Header() {
             className={cn(glassButtonClasses)}
             aria-label="Deep Focus"
             onClick={(e) => handleNavigationClick(e, 'deep-focus')}
+            disabled={loading === 'deep-focus'}
           >
-            Deep Focus
+            {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
           </Button>
           <Button
               variant="ghost" 
@@ -62,8 +64,9 @@ export function Header() {
               className={cn(glassButtonClasses)}
               aria-label="Progress"
               onClick={(e) => handleNavigationClick(e, 'dashboard')}
+              disabled={loading === 'dashboard'}
           >
-            Progress
+            {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
           </Button>
           <Settings />
         </div>
