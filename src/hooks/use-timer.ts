@@ -3,11 +3,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/timer-store';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, collection, getDoc, runTransaction } from 'firebase/firestore';
-import {
-  addDocumentNonBlocking,
-  setDocumentNonBlocking,
-} from '@/firebase/non-blocking-updates';
+import { doc, collection, runTransaction } from 'firebase/firestore';
 
 export const useTimer = () => {
   const store = useTimerStore();
@@ -35,26 +31,16 @@ export const useTimer = () => {
   const recordSession = useCallback(
     async (isCompletion: boolean) => {
       if (!user || user.isAnonymous || !firestore || !sessionStartTime) return;
-
       if (mode !== 'pomodoro') return;
 
       const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
-      if (durationInMinutes < 0.1) return;
+      if (durationInMinutes < 0.1) return; // Ignore very short sessions
 
       const today = new Date().toISOString().split('T')[0];
       const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
       const sessionsCollection = collection(focusRecordRef, 'sessions');
+      const newSessionRef = doc(sessionsCollection); // Create a ref for the new session
 
-      addDocumentNonBlocking(sessionsCollection, {
-        focusRecordId: focusRecordRef.id,
-        startTime: new Date(sessionStartTime).toISOString(),
-        endTime: new Date().toISOString(),
-        duration: durationInMinutes,
-        type: mode,
-        completed: isCompletion,
-      });
-
-      // Use a transaction to safely update totals
       try {
         await runTransaction(firestore, async (transaction) => {
           const recordSnap = await transaction.get(focusRecordRef);
@@ -71,10 +57,23 @@ export const useTimer = () => {
             totalPomos: newTotalPomos,
           };
           
+          // Set the main record data
           transaction.set(focusRecordRef, focusRecordUpdate, { merge: true });
+
+          // Set the new session data
+          transaction.set(newSessionRef, {
+            id: newSessionRef.id,
+            focusRecordId: focusRecordRef.id,
+            startTime: new Date(sessionStartTime).toISOString(),
+            endTime: new Date().toISOString(),
+            duration: durationInMinutes,
+            type: mode,
+            completed: isCompletion,
+          });
         });
       } catch (error) {
-        console.error("Transaction failed: ", error);
+        console.error("Transaction to record session failed: ", error);
+        // Optionally, emit a global error here to notify the user
       }
     },
     [user, firestore, sessionStartTime, mode]
@@ -92,12 +91,12 @@ export const useTimer = () => {
     resetAction();
   }, [resetAction]);
 
-  const endAndSaveSession = useCallback(() => {
-      if (isActive) {
-          recordSession(false);
+  const endAndSaveSession = useCallback(async () => {
+      if (isActive && sessionStartTime) { // Only record if it was active
+          await recordSession(false);
       }
       endAndSaveAction();
-  }, [isActive, recordSession, endAndSaveAction]);
+  }, [isActive, sessionStartTime, recordSession, endAndSaveAction]);
 
 
   useEffect(() => {
@@ -123,7 +122,7 @@ export const useTimer = () => {
         lastTickTimeRef.current = timestamp - (elapsed % 1000);
       }
 
-      if (useTimerStore.getState().timeLeft > 0) {
+      if (useTimerStore.getState().timeLeft > 0 && useTimerStore.getState().isActive) {
         frameIdRef.current = requestAnimationFrame(runTick);
       }
     };
@@ -144,8 +143,9 @@ export const useTimer = () => {
 
   useEffect(() => {
     if (timeLeft <= 0 && isActive) {
-      recordSession(true);
-      completeCycle();
+      recordSession(true).then(() => {
+        completeCycle();
+      });
     }
   }, [timeLeft, isActive, completeCycle, recordSession]);
 

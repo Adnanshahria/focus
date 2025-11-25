@@ -52,7 +52,7 @@ export function FloatingTimer() {
         const length = pathRef.current.getTotalLength();
         setPathLength(length);
     }
-  }, [isActive]); // Rerun when timer resets to get fresh path length
+  }, [isActive, sessionDuration]); // Rerun when timer resets to get fresh path length
 
   const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
   const strokeDashoffset = pathLength * (1 - progress);
@@ -98,6 +98,13 @@ export function FloatingTimer() {
     endAndSaveSession();
     showControls();
   }
+  
+  const handleTogglePlay = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    isActive ? pause() : start();
+    showControls();
+  }
+
 
   useEffect(() => {
     if (isSupported) request();
@@ -108,7 +115,9 @@ export function FloatingTimer() {
         handleExit();
     };
 
-    window.history.pushState({ deepFocus: true }, '');
+    if (window.history.state?.deepFocus !== true) {
+        window.history.pushState({ deepFocus: true }, '');
+    }
     window.addEventListener('popstate', handlePopState);
 
 
@@ -123,6 +132,7 @@ export function FloatingTimer() {
           window.history.back();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSupported, request, release, showControls, handleExit]);
 
 
@@ -242,11 +252,7 @@ export function FloatingTimer() {
         )}
         
         <Button
-          onClick={e => {
-            e.stopPropagation();
-            isActive ? pause() : start();
-            showControls();
-          }}
+          onClick={handleTogglePlay}
           variant="ghost"
           size="icon"
           className="w-16 h-16 rounded-full bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm"
@@ -268,6 +274,7 @@ export function FloatingTimer() {
             <Plus className="w-7 h-7" />
             </Button>
         )}
+        {!isActive && <div className="w-14 h-14" />}
       </motion.div>
     </div>
   );

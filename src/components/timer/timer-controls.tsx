@@ -7,19 +7,14 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export function TimerControls() {
-  const { isActive, start, pause, addTime, subtractTime, endAndSaveSession } = useTimer();
+  const { isActive, start, pause, addTime, subtractTime, endAndSaveSession, timeLeft, sessionDuration } = useTimer();
 
-  const handleAddTime = () => {
-    addTime(3 * 60); // Add 3 minutes
-  };
+  const handleAddTime = () => addTime(3 * 60);
+  const handleSubtractTime = () => subtractTime(3 * 60);
+  const handleEndAndSave = () => endAndSaveSession();
+  const handleTogglePlay = () => isActive ? pause() : start();
   
-  const handleSubtractTime = () => {
-    subtractTime(3 * 60); // Subtract 3 minutes
-  };
-
-  const handleEndAndSave = () => {
-    endAndSaveSession();
-  }
+  const isPristine = timeLeft === sessionDuration;
 
   return (
     <div className="flex items-center justify-center w-full gap-2">
@@ -52,13 +47,13 @@ export function TimerControls() {
        ) : (
         <>
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                <Button onClick={handleEndAndSave} size="icon" variant="ghost" className="rounded-full w-14 h-14 text-muted-foreground hover:text-foreground">
+                <Button onClick={handleEndAndSave} size="icon" variant="ghost" className="rounded-full w-14 h-14 text-muted-foreground hover:text-foreground" disabled={isPristine}>
                     <RotateCcw />
                 </Button>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
-                onClick={start}
+                onClick={handleTogglePlay}
                 size="lg"
                 className={cn(
                     "rounded-full w-28 h-14 text-lg font-bold uppercase tracking-wider transition-all duration-300",
@@ -67,7 +62,7 @@ export function TimerControls() {
                 )}
                 >
                 <Play className="mr-2" />
-                Start
+                {isPristine ? 'Start' : 'Resume'}
                 </Button>
             </motion.div>
              <div className="w-14 h-14"></div>
