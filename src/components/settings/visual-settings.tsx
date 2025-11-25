@@ -8,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useTheme } from 'next-themes';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Sun, Moon } from 'lucide-react';
-import { useTimerStore } from '@/store/timer-store';
 import { Skeleton } from '../ui/skeleton';
 import { useUserPreferences } from '@/hooks/use-user-preferences.tsx';
 
@@ -20,7 +19,6 @@ type VisualSettingsFormValues = {
 export function VisualSettings() {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
-  const setStoreVisuals = useTimerStore(state => state.setVisuals);
   const { preferences, isLoading, updatePreferences } = useUserPreferences();
 
   const { watch, reset, setValue } = useForm<VisualSettingsFormValues>();
@@ -37,9 +35,8 @@ export function VisualSettings() {
       if (newValues.theme !== theme) {
         setTheme(newValues.theme);
       }
-      setStoreVisuals({ antiBurnIn: newValues.antiBurnIn });
     }
-  }, [preferences, reset, theme, setTheme, setStoreVisuals]);
+  }, [preferences, reset, theme, setTheme]);
   
   useEffect(() => {
     if (theme) setValue('theme', theme as 'light' | 'dark');
@@ -47,7 +44,6 @@ export function VisualSettings() {
 
   const handleSettingsChange = (data: Partial<VisualSettingsFormValues>) => {
     if (data.theme && data.theme !== theme) setTheme(data.theme);
-    if (data.antiBurnIn !== undefined) setStoreVisuals({ antiBurnIn: data.antiBurnIn });
     
     updatePreferences(data);
     

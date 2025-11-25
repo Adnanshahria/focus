@@ -7,7 +7,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTimerStore } from '@/store/timer-store';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
 import { useUserPreferences } from '@/hooks/use-user-preferences.tsx';
@@ -22,7 +21,6 @@ type TimerSettingsFormValues = z.infer<typeof timerSettingsSchema>;
 
 export function TimerSettings() {
   const { toast } = useToast();
-  const setDurations = useTimerStore(state => state.setDurations);
   const { preferences, isLoading, updatePreferences } = useUserPreferences();
 
   const {
@@ -40,13 +38,8 @@ export function TimerSettings() {
         longBreakDuration: (preferences.longBreakDuration || 15 * 60) / 60,
       };
       reset(formValues);
-      setDurations({
-        pomodoroDuration: formValues.pomodoroDuration * 60,
-        shortBreakDuration: formValues.shortBreakDuration * 60,
-        longBreakDuration: formValues.longBreakDuration * 60,
-      });
     }
-  }, [preferences, reset, setDurations]);
+  }, [preferences, reset]);
 
   const onSubmit = (data: TimerSettingsFormValues) => {
     const newDurationsInSeconds = {
@@ -55,12 +48,15 @@ export function TimerSettings() {
       longBreakDuration: data.longBreakDuration * 60,
     };
     
+    // updatePreferences will trigger the useEffect in useUserPreferences
+    // which in turn updates the Zustand store.
     updatePreferences(newDurationsInSeconds);
+    
     toast({
       title: 'Settings Saved',
       description: 'Your timer durations have been updated.',
     });
-    reset(data);
+    reset(data); // Resets the dirty state of the form
   };
   
   if (isLoading) {
