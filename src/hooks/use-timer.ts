@@ -3,6 +3,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/timer-store';
 import { useSessionRecorder } from './use-session-recorder';
+import { useAudioAlert } from './use-audio-alert';
 
 export const useTimer = () => {
   const store = useTimerStore();
@@ -11,14 +12,20 @@ export const useTimer = () => {
     start: startAction, pause: pauseAction, reset: resetAction,
     mode, sessionStartTime, addTime, subtractTime,
     endAndSaveSession: endAndSaveAction, isSaving, setSaving,
+    sessionDuration
   } = store;
 
   const { recordSession } = useSessionRecorder();
+  const { playBeep, ensureAudioContext } = useAudioAlert();
 
   const lastTickTimeRef = useRef<number | null>(null);
   const frameIdRef = useRef<number | null>(null);
 
-  const start = useCallback(() => startAction(Date.now()), [startAction]);
+  const start = useCallback(() => {
+    ensureAudioContext();
+    startAction(Date.now());
+  }, [startAction, ensureAudioContext]);
+
   const pause = useCallback(() => pauseAction(), [pauseAction]);
   const resetSession = useCallback(() => resetAction(), [resetAction]);
 
@@ -32,7 +39,7 @@ export const useTimer = () => {
         setSaving(false);
     }
   }, [isSaving, sessionStartTime, recordSession, mode, endAndSaveAction, setSaving]);
-
+  
   useEffect(() => {
     if (!isActive) {
       lastTickTimeRef.current = null;
@@ -41,12 +48,21 @@ export const useTimer = () => {
       return;
     }
 
+    let lastBeepTime: number | null = null;
     const runTick = (timestamp: number) => {
       if (!lastTickTimeRef.current) lastTickTimeRef.current = timestamp;
       const elapsed = timestamp - lastTickTimeRef.current;
 
       if (elapsed >= 1000) {
         const secondsElapsed = Math.floor(elapsed / 1000);
+        const elapsedSessionTime = (sessionDuration - useTimerStore.getState().timeLeft);
+        if (lastBeepTime === null) lastBeepTime = elapsedSessionTime;
+        
+        if (elapsedSessionTime - lastBeepTime >= 600) {
+            playBeep();
+            lastBeepTime = elapsedSessionTime;
+        }
+
         tick(secondsElapsed);
         lastTickTimeRef.current = timestamp - (elapsed % 1000);
       }
@@ -60,7 +76,7 @@ export const useTimer = () => {
     else lastTickTimeRef.current = null;
 
     return () => { if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current); };
-  }, [isActive, timeLeft, tick]);
+  }, [isActive, timeLeft, tick, playBeep, sessionDuration]);
 
   useEffect(() => {
     const handleTimerEnd = async () => {
