@@ -12,7 +12,6 @@ export const useTimer = () => {
     start: startAction, pause: pauseAction, reset: resetAction,
     mode, sessionStartTime, addTime, subtractTime,
     endAndSaveSession: endAndSaveAction, isSaving, setSaving,
-    sessionDuration
   } = store;
 
   const { recordSession } = useSessionRecorder();
@@ -47,22 +46,13 @@ export const useTimer = () => {
       frameIdRef.current = null;
       return;
     }
-
-    let lastBeepTime: number | null = null;
+    
     const runTick = (timestamp: number) => {
       if (!lastTickTimeRef.current) lastTickTimeRef.current = timestamp;
       const elapsed = timestamp - lastTickTimeRef.current;
 
       if (elapsed >= 1000) {
         const secondsElapsed = Math.floor(elapsed / 1000);
-        const elapsedSessionTime = (sessionDuration - useTimerStore.getState().timeLeft);
-        if (lastBeepTime === null) lastBeepTime = elapsedSessionTime;
-        
-        if (elapsedSessionTime - lastBeepTime >= 600) {
-            playBeep();
-            lastBeepTime = elapsedSessionTime;
-        }
-
         tick(secondsElapsed);
         lastTickTimeRef.current = timestamp - (elapsed % 1000);
       }
@@ -76,11 +66,12 @@ export const useTimer = () => {
     else lastTickTimeRef.current = null;
 
     return () => { if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current); };
-  }, [isActive, timeLeft, tick, playBeep, sessionDuration]);
+  }, [isActive, timeLeft, tick]);
 
   useEffect(() => {
     const handleTimerEnd = async () => {
         if (timeLeft <= 0 && isActive) {
+            playBeep();
             setSaving(true);
             try {
                 await recordSession(sessionStartTime, mode, true);
@@ -92,7 +83,7 @@ export const useTimer = () => {
     }
     handleTimerEnd();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isActive]);
+  }, [timeLeft, isActive, playBeep]);
 
   return { ...store, start, pause, resetSession, addTime, subtractTime, endAndSaveSession };
 };

@@ -15,10 +15,11 @@ export const useSessionRecorder = () => {
         mode: TimerMode,
         isCompletion: boolean
     ) => {
+        // Only record sessions for logged-in (non-anonymous) users.
         if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
-        if (mode !== 'pomodoro') return false;
 
         const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
+        // Do not record very short, likely accidental, sessions.
         if (durationInMinutes < 0.1) return false;
 
         const today = new Date().toISOString().split('T')[0];
@@ -31,20 +32,31 @@ export const useSessionRecorder = () => {
                 const recordSnap = await transaction.get(focusRecordRef);
                 const currentData = recordSnap.data() || { totalFocusMinutes: 0, totalPomos: 0 };
                 
-                const newTotalFocusMinutes = currentData.totalFocusMinutes + durationInMinutes;
-                const newTotalPomos = isCompletion ? currentData.totalPomos + 1 : currentData.totalPomos;
+                let newTotalFocusMinutes = currentData.totalFocusMinutes;
+                let newTotalPomos = currentData.totalPomos;
+
+                // Only add to totals if it's a pomodoro session
+                if (mode === 'pomodoro') {
+                    newTotalFocusMinutes += durationInMinutes;
+                    if (isCompletion) {
+                        newTotalPomos += 1;
+                    }
+                }
 
                 const focusRecordUpdate = {
                     id: today, date: today, userId: user.uid,
                     totalFocusMinutes: newTotalFocusMinutes, totalPomos: newTotalPomos,
                 };
                 
-                transaction.set(focusRecordRef, focusRecordUpdate, { merge: true });
+                // Record all session types (pomodoro, shortBreak, longBreak)
                 transaction.set(newSessionRef, {
                     id: newSessionRef.id, focusRecordId: focusRecordRef.id,
                     startTime: new Date(sessionStartTime).toISOString(), endTime: new Date().toISOString(),
                     duration: durationInMinutes, type: mode, completed: isCompletion,
                 });
+
+                // Update the daily aggregate record
+                transaction.set(focusRecordRef, focusRecordUpdate, { merge: true });
             });
             return true;
         } catch (error) {
