@@ -76,11 +76,7 @@ export function SignUpForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className={cn(
-          'w-full',
-          'shadow-[0_0_15px_hsl(var(--destructive)/0.6)]'
-        )}
-        variant="destructive"
+        className="w-full"
       >
         {isSubmitting ? 'Creating Account...' : 'Create Account'}
       </Button>
