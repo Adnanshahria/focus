@@ -16,6 +16,7 @@ export function Header() {
   const isRegisteredUser = user && !user.isAnonymous;
   const [loading, setLoading] = useState<false | 'deep-focus' | 'dashboard'>(false);
   const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
+  const [authFeatureName, setAuthFeatureName] = useState('this feature');
   
   const pathname = usePathname();
 
@@ -26,13 +27,14 @@ export function Header() {
   
   const glassButtonClasses = "bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 text-foreground h-8 px-3 rounded-lg text-xs sm:text-sm";
 
-  const handleProgressClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNavigationClick = (e: React.MouseEvent<HTMLAnchorElement>, destination: 'deep-focus' | 'dashboard') => {
     if (!isRegisteredUser) {
         e.preventDefault();
+        setAuthFeatureName(destination === 'deep-focus' ? 'enter deep focus mode' : 'view your progress');
         setAuthDialogOpen(true);
     } else {
-        setLoading('dashboard');
-        router.push('/dashboard');
+        setLoading(destination);
+        router.push(`/${destination}`);
     }
   }
 
@@ -41,31 +43,39 @@ export function Header() {
       <AuthRequiredDialog 
         open={isAuthDialogOpen} 
         onOpenChange={setAuthDialogOpen}
-        featureName="view your progress"
+        featureName={authFeatureName}
       />
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-2 md:p-4 bg-transparent">
         <Logo />
         <div className="flex items-center gap-1 sm:gap-2">
-          <Link href="/deep-focus" passHref>
+          <Link 
+            href="/deep-focus"
+            onClick={(e) => handleNavigationClick(e, 'deep-focus')}
+            passHref
+          >
              <Button 
                 variant="ghost" 
                 size="sm"
                 className={cn(glassButtonClasses)}
                 aria-label="Deep Focus"
-                onClick={() => setLoading('deep-focus')}
             >
               {loading === 'deep-focus' ? <Loader className="animate-spin" /> : 'Deep Focus'}
             </Button>
           </Link>
-          <Button
-              variant="ghost" 
-              size="sm"
-              className={cn(glassButtonClasses)}
-              aria-label="Progress"
-              onClick={(e: any) => handleProgressClick(e)}
+          <Link
+              href="/dashboard"
+              onClick={(e) => handleNavigationClick(e, 'dashboard')}
+              passHref
           >
-            {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
-          </Button>
+            <Button
+                variant="ghost" 
+                size="sm"
+                className={cn(glassButtonClasses)}
+                aria-label="Progress"
+            >
+              {loading === 'dashboard' ? <Loader className="animate-spin" /> : 'Progress'}
+            </Button>
+          </Link>
           <Settings />
         </div>
       </header>

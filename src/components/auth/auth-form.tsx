@@ -15,6 +15,7 @@ import {
   initiateEmailSignIn,
 } from '@/firebase/non-blocking-login';
 import { ForgotPasswordDialog } from './forgot-password-dialog';
+import { cn } from '@/lib/utils';
 
 const signUpSchema = z
   .object({
@@ -144,7 +145,15 @@ export function AuthForm() {
             <Input id="confirm-password" type="password" {...registerSignUp('confirmPassword')} />
             {signUpErrors.confirmPassword && <p className="text-destructive text-xs">{signUpErrors.confirmPassword.message}</p>}
           </div>
-          <Button type="submit" disabled={isSubmitting} className="w-full">
+          <Button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className={cn(
+              "w-full",
+              "shadow-[0_0_15px_hsl(var(--destructive)/0.6)]"
+            )}
+            variant="destructive"
+          >
             {isSubmitting ? 'Creating Account...' : 'Create Account'}
           </Button>
         </form>
