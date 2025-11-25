@@ -4,6 +4,9 @@ import { HistoricalFocusChart } from './historical-focus-chart';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '../ui/card';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 import { isWithinInterval } from 'date-fns';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -12,16 +15,28 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-export const MonthChart = ({ data, loading }: { data: any[], loading: boolean }) => {
+export const MonthChart = () => {
+    const { user } = useUser();
+    const firestore = useFirestore();
     const { dateRanges } = useDateRanges();
+    const { start, end } = dateRanges.month;
+
+    const monthlyQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(
+            collection(firestore, `users/${user.uid}/focusRecords`),
+            where('date', '>=', format(start, 'yyyy-MM-dd')),
+            where('date', '<=', format(end, 'yyyy-MM-dd')),
+            orderBy('date', 'asc')
+        );
+    }, [user, firestore, start, end]);
+
+    const { data, isLoading: loading } = useCollection(monthlyQuery);
 
     const monthlyTotal = useMemo(() => {
-        const { start, end } = dateRanges.month;
         if (!data) return 0;
-        return data
-            .filter(record => isWithinInterval(new Date(record.date), { start, end }))
-            .reduce((acc, record) => acc + record.totalFocusMinutes, 0);
-    }, [data, dateRanges.month]);
+        return data.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
+    }, [data]);
 
     return (
         <Card>
@@ -33,7 +48,7 @@ export const MonthChart = ({ data, loading }: { data: any[], loading: boolean })
             </CardHeader>
             <CardContent>
                 <HistoricalFocusChart 
-                    data={data} 
+                    data={data || []} 
                     loading={loading} 
                     timeRange='month'
                     weekStartsOn={1} // weekStartsOn doesn't affect month view

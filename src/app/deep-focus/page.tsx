@@ -1,13 +1,9 @@
 'use client';
 
 import { FloatingTimer } from '@/components/timer/floating-timer';
-import { useUser, useAuth, initiateAnonymousSignIn } from '@/firebase';
-import { useEffect, useRef } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useRef } from 'react';
 
 export default function DeepFocusPage() {
-    const { user, isUserLoading } = useUser();
-    const auth = useAuth();
     const containerRef = useRef<HTMLDivElement>(null);
 
     const enterFullScreen = () => {
@@ -23,17 +19,6 @@ export default function DeepFocusPage() {
         }
     };
     
-    useEffect(() => {
-        if (!isUserLoading && !user) {
-            initiateAnonymousSignIn(auth);
-        }
-    }, [user, isUserLoading, auth]);
-
-
-    if (isUserLoading || !user) {
-        return <div className="fixed inset-0 bg-background flex items-center justify-center"><Skeleton className="w-full h-full" /></div>
-    }
-
     return (
         <div ref={containerRef} className="fixed inset-0 bg-background flex flex-col items-center justify-center" onClick={enterFullScreen}>
             <FloatingTimer />

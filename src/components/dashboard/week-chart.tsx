@@ -5,7 +5,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import { useDateRanges } from '@/hooks/use-date-ranges';
-import { isWithinInterval } from 'date-fns';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import { format } from 'date-fns';
 
 type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -16,17 +18,29 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-export const WeekChart = ({ data, loading }: { data: any[], loading: boolean }) => {
+export const WeekChart = () => {
     const [weekStartsOn, setWeekStartsOn] = useState<WeekStartDay>(1);
+    const { user } = useUser();
+    const firestore = useFirestore();
     const { dateRanges } = useDateRanges(weekStartsOn);
+    const { start, end } = dateRanges.week;
+
+    const weeklyQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(
+            collection(firestore, `users/${user.uid}/focusRecords`),
+            where('date', '>=', format(start, 'yyyy-MM-dd')),
+            where('date', '<=', format(end, 'yyyy-MM-dd')),
+            orderBy('date', 'asc')
+        );
+    }, [user, firestore, start, end]);
+
+    const { data, isLoading: loading } = useCollection(weeklyQuery);
 
     const weeklyTotal = useMemo(() => {
-        const { start, end } = dateRanges.week;
         if (!data) return 0;
-        return data
-            .filter(record => isWithinInterval(new Date(record.date), { start, end }))
-            .reduce((acc, record) => acc + record.totalFocusMinutes, 0);
-    }, [data, dateRanges.week]);
+        return data.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
+    }, [data]);
 
     return (
         <Card>
@@ -59,7 +73,7 @@ export const WeekChart = ({ data, loading }: { data: any[], loading: boolean }) 
             </CardHeader>
             <CardContent>
                 <HistoricalFocusChart 
-                    data={data} 
+                    data={data || []} 
                     loading={loading} 
                     timeRange='week'
                     weekStartsOn={weekStartsOn}

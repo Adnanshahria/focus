@@ -7,6 +7,8 @@ import { format, parseISO, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
 
 type ChartData = {
   date: string;
@@ -21,12 +23,24 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[], loading: boolean }) => {
+export const OverallChart = () => {
+    const { user } = useUser();
+    const firestore = useFirestore();
     const today = new Date();
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
       from: subMonths(today, 1),
       to: today,
     });
+    
+    const allRecordsQuery = useMemoFirebase(() => {
+        if (!user) return null;
+        return query(
+            collection(firestore, `users/${user.uid}/focusRecords`),
+            orderBy('date', 'asc')
+        );
+    }, [user, firestore]);
+
+    const { data: allRecords, isLoading: loading } = useCollection(allRecordsQuery);
 
     const { chartData, totalMinutesInRange, totalPomosInRange } = useMemo(() => {
         if (!allRecords) {

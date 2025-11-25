@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/header';
@@ -14,12 +14,9 @@ import { MonthChart } from '@/components/dashboard/month-chart';
 import { OverallChart } from '@/components/dashboard/overall-chart';
 import { RecentActivityCard } from '@/components/dashboard/recent-activity-card';
 import { Card } from '@/components/ui/card';
-import { collection, query, where, orderBy } from 'firebase/firestore';
-import { format, subMonths } from 'date-fns';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
-  const firestore = useFirestore();
   const router = useRouter();
   const [isAddDialogOpen, setAddDialogOpen] = useState(false);
   
@@ -28,19 +25,6 @@ export default function DashboardPage() {
       router.push('/');
     }
   }, [user, isUserLoading, router]);
-
-  const allRecordsQuery = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    // Fetch records from the last month by default for performance
-    const oneMonthAgo = format(subMonths(new Date(), 1), 'yyyy-MM-dd');
-    return query(
-        collection(firestore, `users/${user.uid}/focusRecords`),
-        where('date', '>=', oneMonthAgo),
-        orderBy('date', 'desc')
-    );
-  }, [user, firestore]);
-  
-  const { data: focusRecords, isLoading: focusRecordsLoading } = useCollection(allRecordsQuery);
 
   if (isUserLoading || !user || user.isAnonymous) {
     return (
@@ -74,12 +58,12 @@ export default function DashboardPage() {
                 <TodayChart />
             </div>
             <div className="space-y-6">
-                 <WeekChart data={focusRecords || []} loading={focusRecordsLoading} />
-                 <MonthChart data={focusRecords || []} loading={focusRecordsLoading} />
+                 <WeekChart />
+                 <MonthChart />
             </div>
           </div>
           <Card className="col-span-1 md:col-span-2">
-            <OverallChart allRecords={focusRecords || []} loading={focusRecordsLoading} />
+            <OverallChart />
           </Card>
         </main>
       </div>
