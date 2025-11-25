@@ -13,7 +13,6 @@ export const metadata: Metadata = {
     template: `%s | ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
-  manifest: "/manifest.json",
   formatDetection: {
     telephone: false,
   },
