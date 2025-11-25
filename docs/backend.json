@@ -59,6 +59,10 @@
         "longBreakDuration": {
           "type": "number",
           "description": "Custom long break duration in minutes."
+        },
+        "weekStartsOn": {
+          "type": "number",
+          "description": "The day the week starts on (0=Sun, 1=Mon, etc.)."
         }
       },
       "required": [

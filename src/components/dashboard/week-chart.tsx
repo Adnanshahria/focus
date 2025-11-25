@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { HistoricalFocusChart } from './historical-focus-chart';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -8,8 +8,7 @@ import { useDateRanges } from '@/hooks/use-date-ranges';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { format } from 'date-fns';
-
-type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+import { useUserPreferences, WeekStartDay } from '@/hooks/use-user-preferences.tsx';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -19,10 +18,12 @@ function formatDuration(minutes: number) {
 }
 
 export const WeekChart = () => {
-    const [weekStartsOn, setWeekStartsOn] = useState<WeekStartDay>(1);
     const { user } = useUser();
     const firestore = useFirestore();
-    const { dateRanges } = useDateRanges(weekStartsOn);
+    const { preferences, updatePreferences } = useUserPreferences();
+    const weekStartsOn = preferences?.weekStartsOn ?? 1;
+    
+    const { dateRanges } = useDateRanges(weekStartsOn as WeekStartDay);
     const { start, end } = dateRanges.week;
 
     const weeklyQuery = useMemoFirebase(() => {
@@ -54,7 +55,7 @@ export const WeekChart = () => {
                     </div>
                     <div className="flex items-center gap-2">
                         <Label htmlFor='week-start' className='text-xs text-muted-foreground shrink-0'>Week starts on</Label>
-                        <Select value={String(weekStartsOn)} onValueChange={(val) => setWeekStartsOn(Number(val) as WeekStartDay)}>
+                        <Select value={String(weekStartsOn)} onValueChange={(val) => updatePreferences({ weekStartsOn: Number(val) as WeekStartDay })}>
                             <SelectTrigger id='week-start' className='w-[120px] h-8 text-xs'>
                                 <SelectValue placeholder="Select day" />
                             </SelectTrigger>
@@ -76,7 +77,7 @@ export const WeekChart = () => {
                     data={data || []} 
                     loading={loading} 
                     timeRange='week'
-                    weekStartsOn={weekStartsOn}
+                    weekStartsOn={weekStartsOn as WeekStartDay}
                 />
             </CardContent>
         </Card>

@@ -1,19 +1,16 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTimerStore, TimerDurations } from '@/store/timer-store';
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc, collection } from 'firebase/firestore';
-import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
+import { useTimerStore } from '@/store/timer-store';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
-import { AuthRequiredDialog } from '../auth/auth-required-dialog';
+import { useUserPreferences } from '@/hooks/use-user-preferences.tsx';
 
 const timerSettingsSchema = z.object({
   pomodoroDuration: z.coerce.number().min(1, "Must be at least 1 minute"),
@@ -24,118 +21,60 @@ const timerSettingsSchema = z.object({
 type TimerSettingsFormValues = z.infer<typeof timerSettingsSchema>;
 
 export function TimerSettings() {
-  const { user } = useUser();
-  const firestore = useFirestore();
   const { toast } = useToast();
-  const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
-  
   const setDurations = useTimerStore(state => state.setDurations);
-  const durations = useTimerStore(state => ({
-    pomodoroDuration: state.pomodoroDuration / 60,
-    shortBreakDuration: state.shortBreakDuration / 60,
-    longBreakDuration: state.longBreakDuration / 60,
-  }));
-
-  const userPreferencesRef = useMemoFirebase(() => {
-    if (!user || user.isAnonymous) return null;
-    const prefCollection = collection(firestore, `users/${user.uid}/userPreferences`);
-    return doc(prefCollection, 'main');
-  }, [user, firestore]);
-  
-  const { data: preferences, isLoading } = useDoc<TimerDurations>(userPreferencesRef);
+  const { preferences, isLoading, updatePreferences } = useUserPreferences();
 
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors, isSubmitting, isDirty },
-  } = useForm<TimerSettingsFormValues>({
-    resolver: zodResolver(timerSettingsSchema),
-    defaultValues: durations,
-  });
+  } = useForm<TimerSettingsFormValues>();
 
   useEffect(() => {
     if (preferences) {
-      const remoteDurations = {
-        pomodoroDuration: preferences.pomodoroDuration ? preferences.pomodoroDuration / 60 : 25,
-        shortBreakDuration: preferences.shortBreakDuration ? preferences.shortBreakDuration / 60 : 5,
-        longBreakDuration: preferences.longBreakDuration ? preferences.longBreakDuration / 60 : 15,
+      const formValues = {
+        pomodoroDuration: (preferences.pomodoroDuration || 25 * 60) / 60,
+        shortBreakDuration: (preferences.shortBreakDuration || 5 * 60) / 60,
+        longBreakDuration: (preferences.longBreakDuration || 15 * 60) / 60,
       };
-      reset(remoteDurations);
-      
-      const storeDurations = {
-        pomodoroDuration: remoteDurations.pomodoroDuration * 60,
-        shortBreakDuration: remoteDurations.shortBreakDuration * 60,
-        longBreakDuration: remoteDurations.longBreakDuration * 60,
-      };
-      setDurations(storeDurations);
-
-    } else {
-        const defaultDurations = {
-          pomodoroDuration: 25,
-          shortBreakDuration: 5,
-          longBreakDuration: 15,
-        }
-        reset(defaultDurations);
+      reset(formValues);
+      setDurations({
+        pomodoroDuration: formValues.pomodoroDuration * 60,
+        shortBreakDuration: formValues.shortBreakDuration * 60,
+        longBreakDuration: formValues.longBreakDuration * 60,
+      });
     }
   }, [preferences, reset, setDurations]);
 
   const onSubmit = (data: TimerSettingsFormValues) => {
-    if (!user || user.isAnonymous) {
-      setAuthDialogOpen(true);
-      return;
-    }
-    if (!userPreferencesRef) {
-      toast({ variant: 'destructive', title: 'Error', description: 'Could not save settings.' });
-      return;
-    }
-    
     const newDurationsInSeconds = {
-      id: 'main', // Add id to satisfy security rules
       pomodoroDuration: data.pomodoroDuration * 60,
       shortBreakDuration: data.shortBreakDuration * 60,
       longBreakDuration: data.longBreakDuration * 60,
     };
-
-    setDocumentNonBlocking(userPreferencesRef, newDurationsInSeconds, { merge: true });
-    setDurations(newDurationsInSeconds);
     
+    updatePreferences(newDurationsInSeconds);
     toast({
       title: 'Settings Saved',
       description: 'Your timer durations have been updated.',
     });
-    reset(data); // Resets the dirty state
+    reset(data);
   };
   
-  if (isLoading && user && !user.isAnonymous) {
+  if (isLoading) {
       return (
         <div className="space-y-4">
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-10 w-full" />
-            </div>
-            <div className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-10 w-full" />
-            </div>
+            <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
+            <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
+            <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
             <Skeleton className="h-10 w-full" />
         </div>
       );
   }
 
-  const isAnon = !user || user.isAnonymous;
-
   return (
-    <>
-      <AuthRequiredDialog 
-        open={isAuthDialogOpen} 
-        onOpenChange={setAuthDialogOpen}
-        featureName="save your settings"
-      />
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="pomodoroDuration">Pomodoro (minutes)</Label>
@@ -156,6 +95,5 @@ export function TimerSettings() {
           {isSubmitting ? 'Saving...' : 'Save Changes'}
         </Button>
       </form>
-    </>
   );
 }
