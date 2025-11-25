@@ -85,7 +85,6 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     if (document.fullscreenElement) {
         document.exitFullscreen().catch(err => console.error(err));
     }
-    // Instead of router.back(), which can be unreliable, we push to the homepage.
     router.push('/');
   }, [router]);
 
@@ -123,18 +122,14 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     if (isSupported) request();
     showControls(); 
     
-    // This effect manages the browser's back button behavior.
     const handlePopState = (event: PopStateEvent) => {
-        // When the user navigates back, trigger the exit function.
         event.preventDefault(); 
         handleExit();
     };
 
-    // Push a new state to the history when entering deep focus.
     if (window.history.state?.page !== 'deepFocus') {
         window.history.pushState({ page: 'deepFocus' }, '');
     }
-    // Add the listener for the back button.
     window.addEventListener('popstate', handlePopState);
 
     return () => {
@@ -142,16 +137,12 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
       if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
       if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
       
-      // Clean up the history listener.
       window.removeEventListener('popstate', handlePopState);
       
-      // If we are still on the deep focus page in history, go back one step.
       if (window.history.state?.page === 'deepFocus') {
           try {
             window.history.back();
-          } catch(e) {
-            // This can fail if the history stack is empty.
-          }
+          } catch(e) {}
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
