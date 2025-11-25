@@ -17,6 +17,7 @@ export const MonthChart = ({ data, loading }: { data: any[], loading: boolean })
 
     const monthlyTotal = useMemo(() => {
         const { start, end } = dateRanges.month;
+        if (!data) return 0;
         return data
             .filter(record => isWithinInterval(new Date(record.date), { start, end }))
             .reduce((acc, record) => acc + record.totalFocusMinutes, 0);

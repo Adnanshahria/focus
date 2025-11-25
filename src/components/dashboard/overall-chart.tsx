@@ -6,7 +6,7 @@ import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 import { format, parseISO, isWithinInterval, subMonths } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
-import { CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 type ChartData = {
   date: string;
@@ -28,23 +28,27 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
       to: today,
     });
 
-    const { chartData, totalMinutes } = useMemo(() => {
+    const { chartData, totalMinutesInRange } = useMemo(() => {
+        if (!allRecords) {
+            return { chartData: [], totalMinutesInRange: 0 };
+        }
         if (!dateRange || !dateRange.from || !dateRange.to) {
              const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
-             return { chartData: allRecords, totalMinutes };
+             return { chartData: allRecords, totalMinutesInRange: totalMinutes };
         }
         
         const filteredData = allRecords.filter(record => 
             isWithinInterval(new Date(record.date), { start: dateRange.from!, end: dateRange.to! })
         );
 
-        const totalMinutes = filteredData.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
+        const totalMinutesInRange = filteredData.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
         
-        return { chartData: filteredData, totalMinutes };
+        return { chartData: filteredData, totalMinutesInRange };
 
     }, [allRecords, dateRange]);
 
     const lifetimeTotals = useMemo(() => {
+        if (!allRecords) return { totalMinutes: 0, totalPomos: 0 };
         const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
         const totalPomos = allRecords.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
         return { totalMinutes, totalPomos };
@@ -59,36 +63,31 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
         return '';
     };
     
-    if (loading) return <Skeleton className="h-[350px] w-full" />;
+    if (loading && (!allRecords || allRecords.length === 0)) return <Skeleton className="h-[350px] w-full" />;
     
     return (
-        <>
+        <Card>
         <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                 <div>
                     <CardTitle>Overall Activity</CardTitle>
-                    <CardDescription>Filter your focus history by date range.</CardDescription>
+                    <CardDescription className='mt-2'>
+                        Lifetime Focus: <span className='font-semibold text-foreground'>{formatDuration(lifetimeTotals.totalMinutes)}</span>
+                        <span className='mx-2'>|</span>
+                        Lifetime Pomos: <span className='font-semibold text-foreground'>{lifetimeTotals.totalPomos}</span>
+                    </CardDescription>
                 </div>
-                <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+                <div className='space-y-2'>
+                    <DatePickerWithRange date={dateRange} setDate={setDateRange} />
+                    <p className='text-xs text-muted-foreground text-right'>
+                        Focus in range: <span className='font-semibold text-foreground'>{formatDuration(totalMinutesInRange)}</span>
+                    </p>
+                </div>
             </div>
         </CardHeader>
         <CardContent className="space-y-4">
-             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                <div className="rounded-lg border bg-card p-3">
-                    <p className="text-xs text-muted-foreground">Focus in Range</p>
-                    <p className="text-lg font-bold">{formatDuration(totalMinutes)}</p>
-                </div>
-                <div className="rounded-lg border bg-card p-3">
-                    <p className="text-xs text-muted-foreground">Lifetime Focus</p>
-                    <p className="text-lg font-bold">{formatDuration(lifetimeTotals.totalMinutes)}</p>
-                </div>
-                 <div className="rounded-lg border bg-card p-3">
-                    <p className="text-xs text-muted-foreground">Lifetime Pomos</p>
-                    <p className="text-lg font-bold">{lifetimeTotals.totalPomos}</p>
-                </div>
-            </div>
-
-            {chartData.length === 0 || chartData.every(d => d.totalFocusMinutes === 0) ? (
+            {loading && <Skeleton className="absolute inset-0 bg-card/50" />}
+            {chartData.length === 0 ? (
                  <div className="text-center p-4 text-muted-foreground h-[250px] flex items-center justify-center">No data for this period.</div>
             ): (
                  <ChartContainer config={{ totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-[250px]">
@@ -109,6 +108,6 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
                 </ChartContainer>
             )}
         </CardContent>
-        </>
+        </Card>
     );
 };

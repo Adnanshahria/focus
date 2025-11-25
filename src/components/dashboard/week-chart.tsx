@@ -22,6 +22,7 @@ export const WeekChart = ({ data, loading }: { data: any[], loading: boolean }) 
 
     const weeklyTotal = useMemo(() => {
         const { start, end } = dateRanges.week;
+        if (!data) return 0;
         return data
             .filter(record => isWithinInterval(new Date(record.date), { start, end }))
             .reduce((acc, record) => acc + record.totalFocusMinutes, 0);
@@ -30,7 +31,7 @@ export const WeekChart = ({ data, loading }: { data: any[], loading: boolean }) 
     return (
         <Card>
             <CardHeader>
-                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div>
                         <CardTitle>Weekly Activity</CardTitle>
                         <CardDescription>
@@ -38,7 +39,7 @@ export const WeekChart = ({ data, loading }: { data: any[], loading: boolean }) 
                         </CardDescription>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Label htmlFor='week-start' className='text-xs text-muted-foreground'>Week starts on</Label>
+                        <Label htmlFor='week-start' className='text-xs text-muted-foreground shrink-0'>Week starts on</Label>
                         <Select value={String(weekStartsOn)} onValueChange={(val) => setWeekStartsOn(Number(val) as WeekStartDay)}>
                             <SelectTrigger id='week-start' className='w-[120px] h-8 text-xs'>
                                 <SelectValue placeholder="Select day" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, useMemoFirebase, useCollection } from '@/firebase';
 import { useMemo } from 'react';
 import {
   ChartContainer,
@@ -12,7 +12,6 @@ import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CardDescription, Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Clock, Target } from 'lucide-react';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -64,37 +63,23 @@ export const TodayChart = () => {
 
     const isLoading = recordLoading || sessionsLoading;
 
-    if (isLoading) return <Skeleton className="h-[300px] w-full" />;
-
-    const hasData = hourlyChartData.some(d => d.minutes > 0);
+    if (isLoading && user && !user.isAnonymous) return <Skeleton className="h-[300px] w-full" />;
+    
     const totalMinutes = todayRecord?.totalFocusMinutes || 0;
     const totalPomos = todayRecord?.totalPomos || 0;
-
+    const hasData = hourlyChartData.some(d => d.minutes > 0);
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Today's Activity</CardTitle>
-                <CardDescription>Hourly Breakdown</CardDescription>
+                <CardDescription>
+                    Focus: <span className="font-semibold text-foreground">{formatDuration(totalMinutes)}</span>
+                    <span className='mx-2'>|</span>
+                    Pomos: <span className="font-semibold text-foreground">{totalPomos}</span>
+                </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="flex items-center p-3 rounded-lg border bg-card">
-                        <Clock className="w-5 h-5 mr-3 text-primary" />
-                        <div>
-                            <p className="text-xs text-muted-foreground">Focus</p>
-                            <p className="text-lg font-bold">{formatDuration(totalMinutes)}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-center p-3 rounded-lg border bg-card">
-                        <Target className="w-5 h-5 mr-3 text-primary" />
-                        <div>
-                            <p className="text-xs text-muted-foreground">Pomos</p>
-                            <p className="text-lg font-bold">{totalPomos}</p>
-                        </div>
-                    </div>
-                </div>
-                
+            <CardContent>
                 <div className="h-[200px] w-full">
                     {hasData ? (
                         <ChartContainer config={{ minutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
