@@ -23,20 +23,31 @@ export function Header() {
     // Reset loading state when navigation completes
     setLoading(false);
   }, [pathname]);
+  
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && pathname === '/deep-focus') {
+        router.push('/');
+      }
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [pathname, router]);
 
   const handleDeepFocusClick = async () => {
     setLoading('deep-focus');
     try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        router.push('/');
-      } else {
-        await document.documentElement.requestFullscreen();
-        router.push('/deep-focus');
-      }
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+            router.push('/deep-focus');
+        } else {
+            await document.exitFullscreen();
+        }
     } catch (error) {
         console.error("Could not toggle fullscreen:", error);
-        setLoading(false); // Reset loading on error
+    } finally {
+        setLoading(false);
     }
   };
   
