@@ -10,7 +10,7 @@ import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { format } from 'date-fns';
-import { useUserPreferences, WeekStartDay } from '@/hooks/use-user-preferences.tsx';
+import { useUserPreferences, WeekStartDay } from '@/hooks/use-user-preferences';
 
 function formatDuration(minutes: number) {
   if (isNaN(minutes) || minutes < 0) return '0h 0m';

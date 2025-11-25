@@ -3,7 +3,7 @@
 import React, { createContext, useContext, ReactNode, useMemo } from 'react';
 import { FirebaseApp } from 'firebase/app';
 import { Firestore } from 'firebase/firestore';
-import { Auth, User } from 'firebase/auth';
+import { Auth } from 'firebase/auth';
 import { useUser as useUserHook, UserAuthState } from './hooks/use-user';
 
 // Combined state for the Firebase context
@@ -12,7 +12,7 @@ export interface FirebaseContextState {
   firebaseApp: FirebaseApp | null;
   firestore: Firestore | null;
   auth: Auth | null;
-  user: User | null;
+  user: UserAuthState['user'];
   isUserLoading: boolean;
   userError: Error | null;
 }

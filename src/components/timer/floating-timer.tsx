@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 import { useTimer } from '@/hooks/use-timer';
 import { useTimerStore } from '@/store/timer-store';
