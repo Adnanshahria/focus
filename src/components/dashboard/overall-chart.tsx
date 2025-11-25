@@ -1,35 +1,21 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { Bar, ComposedChart, CartesianGrid, XAxis, YAxis, Scatter } from 'recharts';
-import { format, parseISO, isWithinInterval, subMonths } from 'date-fns';
-import { DateRange } from 'react-day-picker';
-import { DatePickerWithRange } from '../ui/date-picker';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
-
-type ChartData = {
-  date: string;
-  totalFocusMinutes: number;
-  totalPomos: number;
-}
-
-function formatDuration(minutes: number) {
-  if (isNaN(minutes) || minutes < 0) return '0h 0m';
-  const hours = Math.floor(minutes / 60);
-  const mins = Math.round(minutes % 60);
-  return `${hours}h ${mins}m`;
-}
+import { DateRange } from 'react-day-picker';
+import { subMonths } from 'date-fns';
+import { isWithinInterval } from 'date-fns';
+import { Card } from '../ui/card';
+import { OverallChartHeader } from './overall-chart-header';
+import { OverallChartContent } from './overall-chart-content';
+import { ChartData } from './overall-chart-utils';
 
 export const OverallChart = () => {
     const { user } = useUser();
     const firestore = useFirestore();
-    const today = new Date();
     const [dateRange, setDateRange] = useState<DateRange | undefined>({
-      from: subMonths(today, 1),
-      to: today,
+      from: subMonths(new Date(), 1),
+      to: new Date(),
     });
     
     const allRecordsQuery = useMemoFirebase(() => {
@@ -40,16 +26,15 @@ export const OverallChart = () => {
         );
     }, [user, firestore]);
 
-    const { data: allRecords, isLoading: loading } = useCollection(allRecordsQuery);
+    const { data: allRecords, isLoading: loading } = useCollection<ChartData>(allRecordsQuery);
 
     const { chartData, totalMinutesInRange, totalPomosInRange } = useMemo(() => {
-        if (!allRecords) {
-            return { chartData: [], totalMinutesInRange: 0, totalPomosInRange: 0 };
-        }
+        if (!allRecords) return { chartData: [], totalMinutesInRange: 0, totalPomosInRange: 0 };
+        
         if (!dateRange || !dateRange.from || !dateRange.to) {
-             const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
-             const totalPomos = allRecords.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
-             return { chartData: allRecords, totalMinutesInRange: totalMinutes, totalPomosInRange: totalPomos };
+            const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
+            const totalPomos = allRecords.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
+            return { chartData: allRecords, totalMinutesInRange: totalMinutes, totalPomosInRange: totalPomos };
         }
         
         const filteredData = allRecords.filter(record => 
@@ -60,7 +45,6 @@ export const OverallChart = () => {
         const totalPomosInRange = filteredData.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
         
         return { chartData: filteredData, totalMinutesInRange, totalPomosInRange };
-
     }, [allRecords, dateRange]);
 
     const lifetimeTotals = useMemo(() => {
@@ -69,72 +53,20 @@ export const OverallChart = () => {
         const totalPomos = allRecords.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
         return { totalMinutes, totalPomos };
     }, [allRecords]);
-
-    const tickFormatter = (val: string, index: number) => {
-        const date = parseISO(val);
-        const dayOfMonth = date.getDate();
-        if (dayOfMonth === 1 || index === 0 || index % 7 === 0) {
-            return format(date, 'MMM d');
-        }
-        return '';
-    };
-    
-    if (loading && (!allRecords || allRecords.length === 0)) return <Skeleton className="h-[350px] w-full" />;
     
     return (
         <Card>
-        <CardHeader>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                <div>
-                    <CardTitle>Overall Activity</CardTitle>
-                    <CardDescription className='mt-2'>
-                        Lifetime Focus: <span className='font-semibold text-foreground'>{formatDuration(lifetimeTotals.totalMinutes)}</span>
-                        <span className='mx-2'>|</span>
-                        Lifetime Pomos: <span className='font-semibold text-foreground'>{lifetimeTotals.totalPomos}</span>
-                    </CardDescription>
-                </div>
-                <div className='space-y-2'>
-                    <DatePickerWithRange date={dateRange} setDate={setDateRange} />
-                     <p className='text-xs text-muted-foreground text-right'>
-                        Focus in range: <span className='font-semibold text-foreground'>{formatDuration(totalMinutesInRange)}</span>
-                        <span className='mx-2'>|</span>
-                        Pomos: <span className='font-semibold text-foreground'>{totalPomosInRange}</span>
-                    </p>
-                </div>
-            </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            {loading && <Skeleton className="absolute inset-0 bg-card/50" />}
-            {chartData.length === 0 ? (
-                 <div className="text-center p-4 text-muted-foreground h-[250px] flex items-center justify-center">No data for this period.</div>
-            ): (
-                 <ChartContainer 
-                    config={{ 
-                        totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' },
-                        totalPomos: { label: 'Pomos', color: 'hsl(var(--secondary))' }
-                    }} 
-                    className="w-full h-[250px]"
-                 >
-                    <ComposedChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
-                        <CartesianGrid vertical={false} stroke="hsl(var(--border) / 0.5)" strokeDasharray="3 3" />
-                        <XAxis 
-                            dataKey="date" 
-                            tickFormatter={tickFormatter}
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            interval="preserveStartEnd"
-                        />
-                        <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-                        <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" tickLine={false} axisLine={false} />
-                        <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                        <ChartLegend content={<ChartLegendContent />} />
-                        <Bar yAxisId="left" dataKey="totalFocusMinutes" fill="var(--color-totalFocusMinutes)" radius={4} />
-                        <Scatter yAxisId="right" dataKey="totalPomos" fill="var(--color-totalPomos)" />
-                    </ComposedChart>
-                </ChartContainer>
-            )}
-        </CardContent>
+            <OverallChartHeader 
+                lifetimeTotals={lifetimeTotals}
+                dateRange={dateRange}
+                setDateRange={setDateRange}
+                totalMinutesInRange={totalMinutesInRange}
+                totalPomosInRange={totalPomosInRange}
+            />
+            <OverallChartContent
+                loading={loading}
+                chartData={chartData}
+            />
         </Card>
     );
 };

@@ -10,35 +10,9 @@ import {
 } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { WithId, Memoized, UseDocResult } from './types';
 
-/** Utility type to add an 'id' field to a given type T. */
-type WithId<T> = T & { id: string };
 
-/**
- * Interface for the return value of the useDoc hook.
- * @template T Type of the document data.
- */
-export interface UseDocResult<T> {
-  data: WithId<T> | null; // Document data with ID, or null.
-  isLoading: boolean;       // True if loading.
-  error: FirestoreError | Error | null; // Error object, or null.
-}
-
-// This is a dev-only type to help enforce correct usage of useMemoFirebase.
-type Memoized<T> = T & { __memo?: true };
-
-/**
- * React hook to subscribe to a single Firestore document in real-time.
- * Handles nullable references.
- *
- * IMPORTANT! YOU MUST MEMOIZE the inputted docRef using useMemoFirebase,
- * or it will cause infinite render loops.
- *
- * @template T Optional type for document data. Defaults to any.
- * @param {DocumentReference<DocumentData> | null | undefined} docRef -
- * The Firestore DocumentReference. Must be memoized with useMemoFirebase. Waits if null/undefined.
- * @returns {UseDocResult<T>} Object with data, isLoading, error.
- */
 export function useDoc<T = any>(
   memoizedDocRef: Memoized<DocumentReference<DocumentData>> | null | undefined,
 ): UseDocResult<T> {
@@ -48,10 +22,9 @@ export function useDoc<T = any>(
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
 
-  // Dev-only check to enforce memoization
   if (process.env.NODE_ENV === 'development') {
     if (memoizedDocRef && !memoizedDocRef.__memo) {
-        console.error('useDoc Error: The document reference passed to useDoc must be memoized with useMemoFirebase to prevent infinite loops. The object that was not memoized is:', memoizedDocRef);
+        console.error('useDoc Error: The document reference must be memoized with useMemoFirebase.');
     }
   }
 
@@ -78,15 +51,10 @@ export function useDoc<T = any>(
         setIsLoading(false);
       },
       (error: FirestoreError) => {
-        const contextualError = new FirestorePermissionError({
-          operation: 'get',
-          path: memoizedDocRef.path,
-        })
-
-        setError(contextualError)
-        setData(null)
-        setIsLoading(false)
-
+        const contextualError = new FirestorePermissionError({ operation: 'get', path: memoizedDocRef.path });
+        setError(contextualError);
+        setData(null);
+        setIsLoading(false);
         errorEmitter.emit('permission-error', contextualError);
       }
     );
