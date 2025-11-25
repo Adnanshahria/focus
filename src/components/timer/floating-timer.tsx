@@ -129,11 +129,15 @@ export function FloatingTimer() {
       
       // Check if we are still in a deep focus state before going back
       if (window.history.state?.deepFocus) {
-          window.history.back();
+          try {
+            window.history.back();
+          } catch(e) {
+            // Can fail if the history stack is empty
+          }
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSupported, request, release, showControls, handleExit]);
+  }, []);
 
 
   useEffect(() => {
