@@ -29,20 +29,6 @@ export default function DeepFocusPage() {
         }
     }, [user, isUserLoading, auth]);
 
-    // Automatically enter fullscreen when the component mounts
-    useEffect(() => {
-        enterFullScreen();
-    }, []);
-
-    // Exit fullscreen when the component unmounts
-    useEffect(() => {
-        return () => {
-            if (document.fullscreenElement && document.exitFullscreen) {
-                 document.exitFullscreen();
-            }
-        };
-    }, []);
-
 
     if (isUserLoading || !user) {
         return <div className="fixed inset-0 bg-black flex items-center justify-center"><Skeleton className="w-full h-full" /></div>

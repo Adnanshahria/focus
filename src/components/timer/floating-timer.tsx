@@ -84,16 +84,19 @@ export function FloatingTimer() {
   const handleAddTime = (e: React.MouseEvent) => {
     e.stopPropagation();
     addTime(3 * 60);
+    showControls();
   }
 
   const handleSubtractTime = (e: React.MouseEvent) => {
     e.stopPropagation();
     subtractTime(3 * 60);
+    showControls();
   }
 
   const handleEndAndSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     endAndSaveSession();
+    showControls();
   }
 
   useEffect(() => {
@@ -115,6 +118,7 @@ export function FloatingTimer() {
       if (dimTimeoutRef.current) clearTimeout(dimTimeoutRef.current);
       window.removeEventListener('popstate', handlePopState);
       
+      // Check if we are still in a deep focus state before going back
       if (window.history.state?.deepFocus) {
           window.history.back();
       }
@@ -241,6 +245,7 @@ export function FloatingTimer() {
           onClick={e => {
             e.stopPropagation();
             isActive ? pause() : start();
+            showControls();
           }}
           variant="ghost"
           size="icon"
