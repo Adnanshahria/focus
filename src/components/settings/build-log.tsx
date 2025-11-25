@@ -42,7 +42,7 @@ const TelegramIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export function BuildLog() {
-  const [language, setLanguage] = useState&lt;'en' | 'bn'&gt;('en');
+  const [language, setLanguage] = useState<'en' | 'bn'>('en');
   const content = contentData[language];
   const developerEmail = "adnanshahria2006@gmail.com";
   const whatsappLink = "https://wa.me/8801853452264";
