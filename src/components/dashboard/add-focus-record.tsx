@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format, set } from 'date-fns';
+import { format, set, isFuture } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -37,7 +37,21 @@ const addRecordSchema = z.object({
     .number()
     .min(1, 'Duration must be at least 1 minute.')
     .max(1440, 'Duration cannot exceed 24 hours.'),
+}).refine(data => {
+  let hour24 = data.hour;
+  if (data.ampm === 'pm' && data.hour < 12) {
+    hour24 += 12;
+  }
+  if (data.ampm === 'am' && data.hour === 12) {
+    hour24 = 0;
+  }
+  const selectedDateTime = set(data.date, { hours: hour24, minutes: data.minute });
+  return !isFuture(selectedDateTime);
+}, {
+  message: 'Start time cannot be in the future.',
+  path: ['hour'], // You can associate the error with a specific field
 });
+
 
 type AddRecordFormValues = z.infer<typeof addRecordSchema>;
 
@@ -204,7 +218,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
           
           <div>
             <Label>Start Time</Label>
-            <div className="grid grid-cols-3 gap-2 items-center mt-2">
+            <div className="grid grid-cols-3 gap-2 mt-2">
                  <Controller
                     control={control}
                     name="hour"
@@ -244,12 +258,12 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
                         <RadioGroup 
                             onValueChange={field.onChange} 
                             value={field.value} 
-                            className="flex items-center space-x-1 bg-secondary text-secondary-foreground p-1 rounded-md"
+                            className="flex items-center space-x-1 bg-secondary p-1 rounded-md"
                         >
                             <RadioGroupItem value="am" id="am" className="sr-only" />
-                            <Label htmlFor="am" className="flex-1 text-center py-1.5 text-xs rounded-sm cursor-pointer data-[state=checked]:bg-background data-[state=checked]:text-foreground">AM</Label>
+                            <Label htmlFor="am" className="flex-1 text-center text-xs py-1.5 rounded-[5px] cursor-pointer transition-colors data-[state=checked]:bg-background data-[state=checked]:text-foreground data-[state=checked]:shadow-sm">AM</Label>
                             <RadioGroupItem value="pm" id="pm" className="sr-only" />
-                            <Label htmlFor="pm" className="flex-1 text-center py-1.5 text-xs rounded-sm cursor-pointer data-[state=checked]:bg-background data-[state=checked]:text-foreground">PM</Label>
+                            <Label htmlFor="pm" className="flex-1 text-center text-xs py-1.5 rounded-[5px] cursor-pointer transition-colors data-[state=checked]:bg-background data-[state=checked]:text-foreground data-[state=checked]:shadow-sm">PM</Label>
                         </RadioGroup>
                     )}
                  />
