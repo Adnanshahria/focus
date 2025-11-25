@@ -47,8 +47,8 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     router.push('/');
   }, [router]);
   
-  const handleEventAndShowControls = (e: React.MouseEvent, action?: () => void) => {
-    e.stopPropagation();
+  const handleEventAndShowControls = (event: React.MouseEvent, action?: () => void) => {
+    event.stopPropagation();
     action?.();
     showControls();
   };
@@ -106,18 +106,18 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
       </motion.div>
       <FloatingTimerControls
         theme={theme}
-        controlsAnimation={controlsAnimation}
+        controlsAnimationProps={controlsAnimation}
         controlsVisible={controlsVisible}
         isActive={isActive}
         isPristine={timeLeft === sessionDuration && !isActive}
         isSaving={isSaving}
-        handleExit={(e) => handleEventAndShowControls(e, handleExit)}
-        handleSubtractTime={(e) => handleEventAndShowControls(e, () => subtractTime(3 * 60))}
-        handleTogglePlay={(e) => handleEventAndShowControls(e, isActive ? pause : start)}
-        handleAddTime={(e) => handleEventAndShowControls(e, () => addTime(3 * 60))}
-        handleCancel={(e) => handleEventAndShowControls(e, resetSession)}
-        handleEndAndSave={(e) => handleEventAndShowControls(e, endAndSaveSession)}
-        handleToggleTheme={(e) => handleEventAndShowControls(e, toggleTheme)}
+        onExit={(e) => handleEventAndShowControls(e, handleExit)}
+        onSubtractTime={(e) => handleEventAndShowControls(e, () => subtractTime(3 * 60))}
+        onTogglePlay={(e) => handleEventAndShowControls(e, isActive ? pause : start)}
+        onAddTime={(e) => handleEventAndShowControls(e, () => addTime(3 * 60))}
+        onCancel={(e) => handleEventAndShowControls(e, resetSession)}
+        onEndAndSave={(e) => handleEventAndShowControls(e, endAndSaveSession)}
+        onToggleTheme={(e) => handleEventAndShowControls(e, toggleTheme)}
       />
     </div>
   );

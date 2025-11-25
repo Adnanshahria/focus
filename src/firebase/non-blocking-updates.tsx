@@ -28,7 +28,7 @@ export function setDocumentNonBlocking(docRef: DocumentReference, data: WithFiel
  * Initiates an addDoc operation for a collection reference.
  * Does NOT await the write operation internally.
  */
-export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
+export function addDocumentNonBlocking(colRef: CollectionReference, data: WithFieldValue<DocumentData>) {
   addDoc(colRef, data).catch(error => {
     console.error("Firestore non-blocking add failed:", error);
   })
@@ -39,7 +39,7 @@ export function addDocumentNonBlocking(colRef: CollectionReference, data: any) {
  * Initiates an updateDoc operation for a document reference.
  * Does NOT await the write operation internally.
  */
-export function updateDocumentNonBlocking(docRef: DocumentReference, data: any) {
+export function updateDocumentNonBlocking(docRef: DocumentReference, data: WithFieldValue<DocumentData>) {
   updateDoc(docRef, data)
     .catch(error => {
       console.error("Firestore non-blocking update failed:", error);

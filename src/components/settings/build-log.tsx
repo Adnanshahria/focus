@@ -8,6 +8,12 @@ const content = {
     contactLabel: "Contact:"
 };
 
+const contactInfo = {
+    email: "adnanshahria2006@gmail.com",
+    whatsapp: "https://wa.me/8801853452264",
+    telegram: "https://t.me/adnanshahria",
+};
+
 const FormattedContent = ({ text }: { text: string }) => {
     return (
         <div className="text-sm text-muted-foreground leading-relaxed">
@@ -29,13 +35,7 @@ const TelegramIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-
 export function BuildLog() {
-  const developerEmail = "adnanshahria2006@gmail.com";
-  const whatsappLink = "https://wa.me/8801853452264";
-  const telegramLink = "https://t.me/adnanshahria";
-
-
   return (
     <div className="space-y-4">
         <div className="space-y-2 text-sm">
@@ -44,13 +44,13 @@ export function BuildLog() {
             <div className="flex items-center gap-4 text-muted-foreground pt-2">
                 <span className='font-semibold text-foreground'>{content.contactLabel}</span>
                 <div className="flex items-center gap-3">
-                    <a href={`mailto:${developerEmail}`} className="text-primary hover:opacity-80" aria-label="Email Developer">
+                    <a href={`mailto:${contactInfo.email}`} className="text-primary hover:opacity-80" aria-label="Email Developer">
                         <Mail className="h-6 w-6" />
                     </a>
-                    <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:opacity-80" aria-label="Contact on WhatsApp">
+                    <a href={contactInfo.whatsapp} target="_blank" rel="noopener noreferrer" className="text-primary hover:opacity-80" aria-label="Contact on WhatsApp">
                         <WhatsAppIcon className="h-6 w-6" />
                     </a>
-                    <a href={telegramLink} target="_blank" rel="noopener noreferrer" className="text-primary hover:opacity-80" aria-label="Contact on Telegram">
+                    <a href={contactInfo.telegram} target="_blank" rel="noopener noreferrer" className="text-primary hover:opacity-80" aria-label="Contact on Telegram">
                         <TelegramIcon className="h-6 w-6" />
                     </a>
                 </div>

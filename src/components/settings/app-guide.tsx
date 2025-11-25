@@ -9,7 +9,6 @@ import { guideContent } from './app-guide-content';
 
 export function AppGuide() {
   const [language, setLanguage] = useState<'en' | 'bn'>('en');
-  const content = guideContent[language];
 
   return (
     <div className="space-y-4">
@@ -28,13 +27,13 @@ export function AppGuide() {
 
       <Accordion type="single" collapsible="true" className="w-full">
         <AccordionItem value="features">
-          <AccordionTrigger>{content.features.title}</AccordionTrigger>
+          <AccordionTrigger>{guideContent[language].features.title}</AccordionTrigger>
           <AccordionContent className="space-y-3 pl-4 border-l">
             <Accordion type="multiple" className="w-full">
-              {Object.entries(content.features.items).map(([key, item]) => (
-                <AccordionItem key={key} value={key} className={key === 'offline' ? 'border-b-0' : ''}>
+              {Object.entries(guideContent[language].features.items).map(([featureKey, item]) => (
+                <AccordionItem key={featureKey} value={featureKey}>
                   <AccordionTrigger className="py-2 text-sm">{item.title}</AccordionTrigger>
-                  <AccordionContent className={key === 'offline' ? 'pt-2 pb-0' : 'pt-2'}>
+                  <AccordionContent className="pt-2">
                     <FormattedContent text={item.content} />
                   </AccordionContent>
                 </AccordionItem>
@@ -43,11 +42,11 @@ export function AppGuide() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="settings">
-          <AccordionTrigger>{content.settings.title}</AccordionTrigger>
+          <AccordionTrigger>{guideContent[language].settings.title}</AccordionTrigger>
           <AccordionContent className="space-y-3 pl-4 border-l">
-             <FormattedContent text={content.settings.profile} />
-             <FormattedContent text={content.settings.appearance} />
-             <FormattedContent text={content.settings.timer} />
+             <FormattedContent text={guideContent[language].settings.profile} />
+             <FormattedContent text={guideContent[language].settings.appearance} />
+             <FormattedContent text={guideContent[language].settings.timer} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
