@@ -27,7 +27,7 @@ function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-type WeekStartDay = 0 | 1;
+type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -127,8 +127,13 @@ export default function DashboardPage() {
                         <SelectValue placeholder="Select day" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="1">Monday</SelectItem>
                         <SelectItem value="0">Sunday</SelectItem>
+                        <SelectItem value="1">Monday</SelectItem>
+                        <SelectItem value="2">Tuesday</SelectItem>
+                        <SelectItem value="3">Wednesday</SelectItem>
+                        <SelectItem value="4">Thursday</SelectItem>
+                        <SelectItem value="5">Friday</SelectItem>
+                        <SelectItem value="6">Saturday</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

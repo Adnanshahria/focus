@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { startOfDay, endOfWeek, startOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
-export function useDateRanges(weekStartsOn: 0 | 1 = 1) {
+export function useDateRanges(weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 1) {
     // Memoize `today` to prevent it from being recalculated on every render,
     // which could cause downstream infinite loops in effects.
     const today = useMemo(() => startOfDay(new Date()), []);
