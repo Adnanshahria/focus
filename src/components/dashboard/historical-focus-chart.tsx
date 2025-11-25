@@ -8,7 +8,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { format, parseISO, eachDayOfInterval, startOfMonth, endOfMonth, startOfWeek, endOfWeek, isSameDay } from 'date-fns';
+import { format, parseISO, eachDayOfInterval } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 
 type ChartData = {
@@ -60,7 +60,7 @@ export const HistoricalFocusChart = ({ data, loading, timeRange, weekStartsOn }:
   return (
     <ChartContainer config={{ totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-[250px]">
       <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
-        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+        <CartesianGrid vertical={false} stroke="hsl(var(--border) / 0.5)" strokeDasharray="3 3" />
         <XAxis
           dataKey="date"
           tickFormatter={tickFormatter}

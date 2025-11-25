@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { format, parseISO, eachDayOfInterval, subMonths } from 'date-fns';
+import { format, parseISO, eachDayOfInterval, subMonths, isWithinInterval } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { DatePickerWithRange } from '../ui/date-picker';
 import { CardDescription } from '../ui/card';
@@ -28,42 +28,32 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
       to: today,
     });
 
-    const { chartData, totalMinutes, totalPomos } = useMemo(() => {
+    const { chartData, totalMinutes } = useMemo(() => {
         if (!dateRange || !dateRange.from || !dateRange.to) {
              const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
-             const totalPomos = allRecords.reduce((acc, r) => acc + r.totalPomos, 0);
-             return { chartData: allRecords, totalMinutes, totalPomos };
+             return { chartData: allRecords, totalMinutes };
         }
         
-        const interval = eachDayOfInterval({ start: dateRange.from, end: dateRange.to });
-        const dataMap = new Map(allRecords.map(d => [d.date, { totalFocusMinutes: d.totalFocusMinutes, totalPomos: d.totalPomos }]));
-
-        const filteredData = interval.map(day => {
-            const dateStr = format(day, 'yyyy-MM-dd');
-            const record = dataMap.get(dateStr) || { totalFocusMinutes: 0, totalPomos: 0 };
-            return {
-                date: dateStr,
-                ...record
-            }
-        });
+        const filteredData = allRecords.filter(record => 
+            isWithinInterval(new Date(record.date), { start: dateRange.from!, end: dateRange.to! })
+        );
 
         const totalMinutes = filteredData.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
-        const totalPomos = filteredData.reduce((acc, r) => acc + r.totalPomos, 0);
         
-        return { chartData: filteredData, totalMinutes, totalPomos };
+        return { chartData: filteredData, totalMinutes };
 
     }, [allRecords, dateRange]);
 
     const lifetimeTotals = useMemo(() => {
         const totalMinutes = allRecords.reduce((acc, r) => acc + r.totalFocusMinutes, 0);
-        const totalPomos = allRecords.reduce((acc, r) => acc + r.totalPomos, 0);
+        const totalPomos = allRecords.reduce((acc, r) => acc + (r.totalPomos || 0), 0);
         return { totalMinutes, totalPomos };
     }, [allRecords]);
 
     const tickFormatter = (val: string, index: number) => {
         const date = parseISO(val);
         const dayOfMonth = date.getDate();
-        if (dayOfMonth === 1 || index % 7 === 0) {
+        if (dayOfMonth === 1 || index === 0 || index % 7 === 0) {
             return format(date, 'MMM d');
         }
         return '';
@@ -78,12 +68,16 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
                 <DatePickerWithRange date={dateRange} setDate={setDateRange} />
             </div>
 
-             <div className="grid grid-cols-2 gap-4 text-center">
-                <div className="rounded-lg border p-3">
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                <div className="rounded-lg border bg-card p-3">
+                    <p className="text-xs text-muted-foreground">Focus in Range</p>
+                    <p className="text-lg font-bold">{formatDuration(totalMinutes)}</p>
+                </div>
+                <div className="rounded-lg border bg-card p-3">
                     <p className="text-xs text-muted-foreground">Lifetime Focus</p>
                     <p className="text-lg font-bold">{formatDuration(lifetimeTotals.totalMinutes)}</p>
                 </div>
-                 <div className="rounded-lg border p-3">
+                 <div className="rounded-lg border bg-card p-3">
                     <p className="text-xs text-muted-foreground">Lifetime Pomos</p>
                     <p className="text-lg font-bold">{lifetimeTotals.totalPomos}</p>
                 </div>
@@ -94,7 +88,7 @@ export const OverallChart = ({ allRecords, loading }: { allRecords: ChartData[],
             ): (
                  <ChartContainer config={{ totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-[250px]">
                     <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
-                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                        <CartesianGrid vertical={false} stroke="hsl(var(--border) / 0.5)" strokeDasharray="3 3" />
                         <XAxis 
                             dataKey="date" 
                             tickFormatter={tickFormatter}
