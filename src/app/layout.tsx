@@ -47,7 +47,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content={APP_NAME} />
         <meta name="theme-color" content="#000000" />
-        <link rel="icon" href={basePath ? `${basePath}/favicon.ico` : '/favicon.ico'} />
+        <link rel="icon" type="image/png" href={basePath ? `${basePath}/icon-192.png` : '/icon-192.png'} />
         <link rel="apple-touch-icon" href={basePath ? `${basePath}/icon-192.png` : '/icon-192.png'} />
         <link rel="manifest" href={basePath ? `${basePath}/manifest.json` : '/manifest.json'} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
