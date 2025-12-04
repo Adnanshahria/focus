@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { useAuth } from '@/firebase/provider';
+import { User, onAuthStateChanged, Auth } from 'firebase/auth';
 
 export interface UserAuthState {
   user: User | null;
@@ -10,8 +9,7 @@ export interface UserAuthState {
   userError: Error | null;
 }
 
-export const useUser = (): UserAuthState => {
-  const auth = useAuth();
+export const useUserLogic = (auth: Auth | null): UserAuthState => {
   const [userAuthState, setUserAuthState] = useState<UserAuthState>({
     user: auth?.currentUser || null,
     isUserLoading: true,
@@ -23,7 +21,7 @@ export const useUser = (): UserAuthState => {
       setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not available.") });
       return;
     };
-    
+
     // Set loading to true whenever the auth instance changes.
     // This ensures we always fetch the latest user state.
     setUserAuthState(prevState => ({ ...prevState, isUserLoading: true }));
@@ -39,8 +37,8 @@ export const useUser = (): UserAuthState => {
       }
     );
     return () => unsubscribe();
-  // The dependency on `auth` is crucial.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // The dependency on `auth` is crucial.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
   return userAuthState;

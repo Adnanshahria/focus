@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { AnimationControls } from 'framer-motion';
 import { useWakeLock } from './use-wakelock';
 
 export const useFloatingTimer = (controlsAnimation: AnimationControls) => {
-    const router = useRouter();
     const [controlsVisible, setControlsVisible] = useState(false);
     const [isDimmed, setIsDimmed] = useState(false);
     const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -33,8 +31,10 @@ export const useFloatingTimer = (controlsAnimation: AnimationControls) => {
         if (document.fullscreenElement) {
             document.exitFullscreen().catch(err => console.error(err));
         }
-        router.replace('/');
-    }, [router]);
+        // No need for router.replace('/') - the fullscreenchange event listener
+        // in page.tsx already handles setting isDeepFocus to false, which
+        // unmounts FloatingTimer and shows the regular Timer component.
+    }, []);
 
     useEffect(() => {
         if (isWakeLockSupported) requestWakeLock();

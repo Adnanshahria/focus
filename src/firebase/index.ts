@@ -1,8 +1,5 @@
-
-'use client';
-
 export * from './init';
-export { FirebaseProvider, FirebaseContext } from './provider';
+export { FirebaseProvider, FirebaseContext, useUser } from './provider';
 export type { FirebaseContextState } from './provider';
 export * from './client-provider';
 export * from './firestore/use-collection';
