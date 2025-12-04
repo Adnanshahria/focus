@@ -61,24 +61,35 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
       setIsSubmitting(false);
     }
   };
-  
+
   async function logFocusRecord(data: AddRecordFormValues) {
     if (!user || !firestore) throw new Error("User or Firestore not available");
 
     let hour24 = data.hour;
     if (data.ampm === 'pm' && data.hour < 12) hour24 += 12;
     if (data.ampm === 'am' && data.hour === 12) hour24 = 0;
-    
+
     const dateWithTime = set(data.date, { hours: hour24, minutes: data.minute, seconds: 0, milliseconds: 0 });
     const dateString = format(dateWithTime, 'yyyy-MM-dd');
-    
+
     const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, dateString);
     const sessionsCollectionRef = collection(focusRecordRef, 'sessions');
 
     await runTransaction(firestore, async (transaction) => {
+      // Ensure user document exists (auto-repair if deleted)
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDocSnap = await transaction.get(userDocRef);
+      if (!userDocSnap.exists()) {
+        transaction.set(userDocRef, {
+          uid: user.uid,
+          email: user.email,
+          createdAt: new Date().toISOString()
+        });
+      }
+
       const recordSnap = await transaction.get(focusRecordRef);
       const currentData = recordSnap.data() || { totalFocusMinutes: 0, totalPomos: 0 };
-      
+
       const newTotalFocusMinutes = currentData.totalFocusMinutes + data.duration;
       const isPomodoro = data.duration >= 25;
       const newTotalPomos = currentData.totalPomos + (isPomodoro ? 1 : 0);
@@ -89,7 +100,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
         startTime: dateWithTime.toISOString(), endTime: new Date(dateWithTime.getTime() + data.duration * 60000).toISOString(),
         duration: data.duration, type: 'manual', completed: true,
       });
-      
+
       transaction.set(focusRecordRef, {
         id: dateString, date: dateString, userId: user.uid,
         totalFocusMinutes: newTotalFocusMinutes, totalPomos: newTotalPomos
@@ -122,7 +133,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
             )} />
             {errors.date && <p className="text-destructive text-xs">{errors.date.message}</p>}
           </div>
-          
+
           <ManualTimeInput control={control} errors={errors} />
 
           <div className="space-y-2">

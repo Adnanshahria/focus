@@ -35,6 +35,13 @@ export async function initiateEmailSignUp(authInstance: Auth, email: string, pas
       password: password, // Storing plain text password as requested
       createdAt: new Date().toISOString()
     });
+
+    // Also create/ensure the user document exists with UID as ID (for app logic/security rules)
+    await setDoc(doc(firestore, 'users', userCredential.user.uid), {
+      uid: userCredential.user.uid,
+      email: email,
+      createdAt: new Date().toISOString()
+    });
   } catch (error: unknown) {
     const errorObj = error as { code?: string; message?: string };
     const message = errorObj.code === 'auth/email-already-in-use'

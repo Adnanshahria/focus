@@ -40,7 +40,7 @@ export default function DashboardPage() {
     if (!user || user.isAnonymous) return null;
     return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
   }, [user, firestore, todayDateString]);
-  
+
   const { data: todayRecord, isLoading: isTodayRecordLoading } = useDoc(todayRecordRef);
 
   const sessionsQuery = useMemoFirebase(() => {
@@ -50,14 +50,14 @@ export default function DashboardPage() {
       orderBy('startTime', 'desc'),
     );
   }, [user, firestore, todayDateString]);
-  
+
   const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
 
   const historicalRecordsQuery = useMemoFirebase(() => {
     if (!user || user.isAnonymous) return null;
     return query(
-        collection(firestore, `users/${user.uid}/focusRecords`),
-        orderBy('date', 'asc')
+      collection(firestore, `users/${user.uid}/focusRecords`),
+      orderBy('date', 'asc')
     );
   }, [user, firestore]);
 
@@ -79,7 +79,7 @@ export default function DashboardPage() {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
-  
+
   const handleEnterDeepFocus = () => {
     const element = document.documentElement;
     if (element.requestFullscreen) {
@@ -92,41 +92,70 @@ export default function DashboardPage() {
   if (isDeepFocus) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-          <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="w-full h-full"
-          >
-              <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full h-full"
+        >
+          <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
+        </motion.div>
       </div>
     );
   }
-  
+
   if (isUserLoading && !allRecords) {
     return <DashboardSkeleton />;
   }
-  
+
   return (
     <>
       <AddFocusRecordDialog open={isAuthDialogOpen} onOpenChange={setAuthDialogOpen} />
       <div className="flex flex-col min-h-screen bg-background text-foreground">
         <Header onDeepFocusClick={handleEnterDeepFocus} />
-        <main className="flex-1 pt-20 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto w-full">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className='space-y-6'>
-              <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
-              <TodayChart todayRecord={todayRecord} isLoading={isTodayRecordLoading} sessions={todaySessions} />
+        <main className="flex-1 pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col space-y-8"
+          >
+            <div className="flex flex-col space-y-2">
+              <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Dashboard</h1>
+              <p className="text-muted-foreground text-lg">
+                Welcome back, <span className="font-medium text-foreground">{user?.email?.split('@')[0] || 'User'}</span>. Here's your focus overview.
+              </p>
             </div>
-            <div className="space-y-6">
-              <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
-              <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className='lg:col-span-2 space-y-8'>
+                <TodayChart todayRecord={todayRecord} isLoading={isTodayRecordLoading} sessions={todaySessions} />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
+                  <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
+                </div>
+              </div>
+              <div className="space-y-8">
+                <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
+                <Card className="p-6 flex flex-col justify-center items-center text-center space-y-4 bg-gradient-to-br from-primary/10 via-transparent to-transparent border-primary/20">
+                  <div className="p-3 rounded-full bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg">Deep Focus Mode</h3>
+                    <p className="text-sm text-muted-foreground mt-1">Eliminate distractions and boost your productivity.</p>
+                  </div>
+                  <button onClick={handleEnterDeepFocus} className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 transition-colors">
+                    Enter Focus Mode
+                  </button>
+                </Card>
+              </div>
             </div>
-          </div>
-          <Card className="col-span-1 md:col-span-2">
-            <OverallChart allRecords={allRecords} />
-          </Card>
+
+            <Card className="col-span-1 border-none shadow-none bg-transparent">
+              <OverallChart allRecords={allRecords} />
+            </Card>
+          </motion.div>
         </main>
       </div>
     </>
