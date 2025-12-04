@@ -35,10 +35,10 @@ export const useTimer = () => {
       await recordSession(sessionStartTime, mode, false); // Record partial session
       endAndSaveAction(); // Then reset the state
     } finally {
-        setSaving(false);
+      setSaving(false);
     }
   }, [isSaving, sessionStartTime, recordSession, mode, endAndSaveAction, setSaving]);
-  
+
   useEffect(() => {
     if (!isActive) {
       lastTickTimeRef.current = null;
@@ -46,7 +46,7 @@ export const useTimer = () => {
       frameIdRef.current = null;
       return;
     }
-    
+
     const runTick = (timestamp: number) => {
       if (!lastTickTimeRef.current) lastTickTimeRef.current = timestamp;
       const elapsed = timestamp - lastTickTimeRef.current;
@@ -67,20 +67,20 @@ export const useTimer = () => {
     else lastTickTimeRef.current = null;
 
     return () => { if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current); };
-  }, [isActive, timeLeft, tick]);
+  }, [isActive, tick]);
 
   useEffect(() => {
     const handleTimerEnd = async () => {
-        if (timeLeft <= 0 && isActive) {
-            playBeep();
-            setSaving(true);
-            try {
-                await recordSession(sessionStartTime, mode, true);
-                completeCycle();
-            } finally {
-                setSaving(false);
-            }
+      if (timeLeft <= 0 && isActive) {
+        playBeep();
+        setSaving(true);
+        try {
+          await recordSession(sessionStartTime, mode, true);
+          completeCycle();
+        } finally {
+          setSaving(false);
         }
+      }
     }
     handleTimerEnd();
   }, [timeLeft, isActive, playBeep, recordSession, mode, sessionStartTime, completeCycle, setSaving]);
