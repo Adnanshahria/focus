@@ -25,28 +25,25 @@ export function initiateAnonymousSignIn(authInstance: Auth): void {
 export async function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
   try {
     const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+    const uid = userCredential.user.uid;
 
-    // Create user document with email as ID and plain text password (INSECURE - requested by user)
-    // We use the email as the document ID so it's easily readable in the console, replacing "garbage values" (UIDs)
+    // Create user document with UID as ID (required by security rules)
+    // Security rules require: request.resource.data.id == userId
     const firestore = getFirestore(authInstance.app);
-    await setDoc(doc(firestore, 'users', email), {
-      uid: userCredential.user.uid,
-      email: email,
-      password: password, // Storing plain text password as requested
-      createdAt: new Date().toISOString()
-    });
-
-    // Also create/ensure the user document exists with UID as ID (for app logic/security rules)
-    await setDoc(doc(firestore, 'users', userCredential.user.uid), {
-      uid: userCredential.user.uid,
+    await setDoc(doc(firestore, 'users', uid), {
+      id: uid, // Required by security rules
+      uid: uid,
       email: email,
       createdAt: new Date().toISOString()
     });
   } catch (error: unknown) {
     const errorObj = error as { code?: string; message?: string };
+    console.error("Sign up error:", errorObj.code, errorObj.message);
     const message = errorObj.code === 'auth/email-already-in-use'
       ? 'This email address is already in use.'
-      : 'An unexpected error occurred. Please try again.';
+      : errorObj.code === 'auth/weak-password'
+        ? 'Password is too weak. Please use at least 6 characters.'
+        : 'An unexpected error occurred. Please try again.';
     throw new Error(message);
   }
 }

@@ -81,6 +81,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
       const userDocSnap = await transaction.get(userDocRef);
       if (!userDocSnap.exists()) {
         transaction.set(userDocRef, {
+          id: user.uid, // Required by security rules
           uid: user.uid,
           email: user.email,
           createdAt: new Date().toISOString()
