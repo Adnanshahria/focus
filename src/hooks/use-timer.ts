@@ -57,7 +57,8 @@ export const useTimer = () => {
         lastTickTimeRef.current = timestamp - (elapsed % 1000);
       }
 
-      if (useTimerStore.getState().timeLeft > 0 && useTimerStore.getState().isActive) {
+      const state = useTimerStore.getState();
+      if (state.timeLeft > 0 && state.isActive) {
         frameIdRef.current = requestAnimationFrame(runTick);
       }
     };
@@ -82,8 +83,7 @@ export const useTimer = () => {
         }
     }
     handleTimerEnd();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, isActive, playBeep]);
+  }, [timeLeft, isActive, playBeep, recordSession, mode, sessionStartTime, completeCycle, setSaving]);
 
   return { ...store, start, pause, resetSession, addTime, subtractTime, endAndSaveSession };
 };

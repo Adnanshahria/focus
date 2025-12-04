@@ -24,8 +24,9 @@ export function initiateAnonymousSignIn(authInstance: Auth): void {
 export async function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
   try {
     await createUserWithEmailAndPassword(authInstance, email, password);
-  } catch (error: any) {
-    const message = error.code === 'auth/email-already-in-use'
+  } catch (error: unknown) {
+    const errorObj = error as { code?: string; message?: string };
+    const message = errorObj.code === 'auth/email-already-in-use'
       ? 'This email address is already in use.'
       : 'An unexpected error occurred. Please try again.';
     throw new Error(message);
@@ -38,9 +39,9 @@ export async function initiateEmailSignUp(authInstance: Auth, email: string, pas
 export async function initiateEmailSignIn(authInstance: Auth, email: string, password: string): Promise<void> {
   try {
     await signInWithEmailAndPassword(authInstance, email, password);
-  } catch (error: any) {
-    // Consolidate common auth errors into a single, user-friendly message.
-    const message = (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password')
+  } catch (error: unknown) {
+    const errorObj = error as { code?: string; message?: string };
+    const message = (errorObj.code === 'auth/invalid-credential' || errorObj.code === 'auth/user-not-found' || errorObj.code === 'auth/wrong-password')
       ? 'Invalid email or password. Please check your credentials and try again.'
       : 'An unexpected error occurred during sign-in. Please try again later.';
     throw new Error(message);

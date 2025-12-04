@@ -20,7 +20,8 @@ export default function Home() {
   const [isDeepFocus, setDeepFocus] = useState(false);
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
   };
 
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="w-full h-full"
           >
-              <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
+              <FloatingTimer theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'} toggleTheme={toggleTheme} />
           </motion.div>
       </div>
     );
