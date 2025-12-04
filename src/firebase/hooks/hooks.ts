@@ -39,7 +39,7 @@ export function useMemoFirebase<T>(
   deps: DependencyList | undefined
 ): T {
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const memoized = useMemo(factory, deps);
+  const memoized = useMemo(factory, deps as DependencyList);
 
   if (typeof memoized !== 'object' || memoized === null) {
     return memoized;
