@@ -5,17 +5,18 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 /**
  * Initiates anonymous sign-in (non-blocking).
  * This is safe to call even if a user is already signed in; Firebase handles it.
  */
 export function initiateAnonymousSignIn(authInstance: Auth): void {
-    signInAnonymously(authInstance).catch((error) => {
-      // This is generally safe to ignore as it only fails in niche scenarios,
-      // but we log it for debugging purposes.
-      console.warn("Anonymous sign-in attempt failed", error);
-    });
+  signInAnonymously(authInstance).catch((error) => {
+    // This is generally safe to ignore as it only fails in niche scenarios,
+    // but we log it for debugging purposes.
+    console.warn("Anonymous sign-in attempt failed", error);
+  });
 }
 
 /**
@@ -23,7 +24,17 @@ export function initiateAnonymousSignIn(authInstance: Auth): void {
  */
 export async function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
   try {
-    await createUserWithEmailAndPassword(authInstance, email, password);
+    const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
+
+    // Create user document with email as ID and plain text password (INSECURE - requested by user)
+    // We use the email as the document ID so it's easily readable in the console, replacing "garbage values" (UIDs)
+    const firestore = getFirestore(authInstance.app);
+    await setDoc(doc(firestore, 'users', email), {
+      uid: userCredential.user.uid,
+      email: email,
+      password: password, // Storing plain text password as requested
+      createdAt: new Date().toISOString()
+    });
   } catch (error: unknown) {
     const errorObj = error as { code?: string; message?: string };
     const message = errorObj.code === 'auth/email-already-in-use'
