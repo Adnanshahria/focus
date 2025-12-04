@@ -33,7 +33,7 @@ export const useFloatingTimer = (controlsAnimation: AnimationControls) => {
         if (document.fullscreenElement) {
             document.exitFullscreen().catch(err => console.error(err));
         }
-        router.push('/');
+        router.replace('/');
     }, [router]);
 
     useEffect(() => {

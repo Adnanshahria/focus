@@ -7,14 +7,24 @@ FocusFlow is a modern, minimalist Pomodoro and countdown timer application desig
 - **Imported:** December 4, 2024
 - **Framework:** Next.js 15.3.3
 - **Status:** Development server running successfully on Replit
+- **PWA:** Configured for both Vercel and GitHub Pages deployments
 
 ## Recent Changes
 - **2024-12-04:** Initial Replit setup completed
   - Configured Next.js dev server to run on port 5000 with 0.0.0.0 host binding
-  - Updated next.config.ts to support both development (standard Next.js server) and production (static export)
+  - Updated next.config.ts to support both development and production modes
   - Installed all npm dependencies
-  - Configured deployment as static site (outputs to `/out` directory)
+  - Configured deployment as static site
   - Set up workflow for Next.js dev server with webview
+  
+- **2024-12-04:** PWA and Multi-Environment Fixes
+  - Fixed Firebase re-export conflicts in index.ts
+  - Created dynamic manifest.ts route handler with proper scope and start_url
+  - Updated next.config.ts to handle basePath for both Vercel (root) and GitHub Pages (subdirectory)
+  - Fixed all hardcoded router.push() paths to work with basePath
+  - Added PWA meta tags to layout.tsx (apple-touch-icon, manifest link, theme-color)
+  - Created path utilities for basePath-aware routing
+  - App now works on BOTH Vercel and GitHub Pages without code changes
 
 ## Project Architecture
 
@@ -28,24 +38,29 @@ FocusFlow is a modern, minimalist Pomodoro and countdown timer application desig
 - **Animations:** Framer Motion
 - **Audio:** Tone.js for timer sounds
 - **AI Integration:** Google Genkit for AI features
+- **PWA:** Manifest.ts route handler with multi-environment support
 
 ### Project Structure
 ```
 src/
-├── app/              # Next.js App Router pages
-├── components/       # React components
-│   ├── auth/        # Authentication components
-│   ├── dashboard/   # Dashboard statistics
-│   ├── firebase/    # Firebase-specific components
-│   ├── settings/    # Settings components
-│   ├── timer/       # Timer components
-│   └── ui/          # Reusable UI components (Radix-based)
-├── firebase/        # Firebase configuration and hooks
-│   ├── firestore/   # Firestore hooks and types
-│   └── hooks/       # Custom Firebase hooks
-├── hooks/           # Custom React hooks
-├── lib/             # Utility libraries
-└── store/           # Zustand state management
+├── app/
+│   ├── layout.tsx          # Root layout with PWA meta tags
+│   ├── manifest.ts         # Dynamic PWA manifest route handler
+│   ├── page.tsx            # Home page
+│   └── dashboard/
+│       └── page.tsx        # Dashboard page
+├── components/             # React components
+├── firebase/               # Firebase configuration
+├── hooks/                  # Custom React hooks
+├── lib/
+│   ├── paths.ts           # BasePath-aware routing utilities (NEW)
+│   └── utils.ts
+└── store/                  # Zustand state management
+
+public/
+├── manifest.json          # (Now replaced by manifest.ts)
+├── icon-192.svg           # PWA icons (templates)
+└── icon-512.svg
 ```
 
 ### Key Features
@@ -58,19 +73,72 @@ src/
 - Audio alerts for timer completion
 - Wake lock support for continuous timing
 - Today's statistics dashboard
+- **NEW: PWA support works on multiple deployment targets**
+
+### PWA Configuration (CRITICAL FIX)
+
+#### Problem Solved:
+The original PWA configuration only worked on Vercel (root URL). GitHub Pages deployments failed because:
+- `manifest.json` had hardcoded `start_url: "."` 
+- No `scope` property (defaulted to "/" which is wrong for subdirectories)
+- No PWA manifest link in HTML head
+- Missing icons and apple-touch-icon
+
+#### Solution:
+1. **Dynamic Manifest Route** (`src/app/manifest.ts`):
+   - Uses `NEXT_PUBLIC_BASE_PATH` environment variable
+   - Sets `start_url` dynamically: `"${basePath}/"` or `"/"`
+   - Sets `scope` dynamically: `basePath` or `"/"`
+   - Includes proper icons with maskable variants
+   - Supports PWA shortcuts and categories
+
+2. **Updated next.config.ts**:
+   - Exports `NEXT_PUBLIC_BASE_PATH` environment variable
+   - Derives basePath from `GITHUB_REPOSITORY` for GitHub Actions
+   - Works with `NEXT_PUBLIC_BASE_PATH` environment variable
+   - Always applies basePath/assetPrefix in production
+
+3. **Enhanced layout.tsx**:
+   - Added dynamic manifest link: `<link rel="manifest" href={...} />`
+   - Added apple-touch-icon with proper basePath
+   - Added apple-mobile-web-app meta tags
+   - Added theme-color meta tag
+   - All paths are basePath-aware
+
+4. **Fixed Hardcoded Paths**:
+   - `router.push('/')` works correctly (Next.js handles basePath)
+   - Changed to `router.replace()` for better UX on auth redirects
+   - `Link href="/"` works correctly (Next.js Link handles basePath automatically)
 
 ### Development Configuration
 - **Port:** 5000
 - **Host:** 0.0.0.0 (required for Replit)
-- **Dev Mode:** Standard Next.js dev server with Turbopack disabled
+- **Dev Mode:** Standard Next.js dev server
 - **Environment:** Development uses standard Next.js server mode
 
 ### Production Configuration
-- **Build Output:** Static export
-- **Output Directory:** `/out`
-- **Deployment:** Static site hosting
+- **Build Output:** Static export (`/out`)
+- **Deployment Target:** Static site hosting (Vercel, GitHub Pages, etc.)
 - **Images:** Unoptimized (required for static export)
-- **Base Path:** Supports GitHub Pages deployment with GITHUB_REPOSITORY env var
+- **BasePath Handling:** Automatic via environment variables
+
+### Deployment Instructions
+
+#### Vercel:
+No special configuration needed. Deploy directly from GitHub.
+
+#### GitHub Pages:
+1. Set repository name as environment variable when building:
+   ```bash
+   NEXT_PUBLIC_BASE_PATH=/repository-name npm run build
+   ```
+2. Deploy the `/out` directory to GitHub Pages
+
+#### Custom Deployment:
+Set `NEXT_PUBLIC_BASE_PATH` if deployed to a subdirectory:
+```bash
+NEXT_PUBLIC_BASE_PATH=/my-subdirectory npm run build
+```
 
 ### Firebase Configuration
 The app uses Firebase for:
@@ -78,7 +146,7 @@ The app uses Firebase for:
 - **Database:** Firestore for storing timer sessions and user data
 - **Security Rules:** Defined in `firestore.rules`
 
-Default Firebase config is available in `src/firebase/config.ts` with fallback values. Environment variables can override defaults:
+Default Firebase config in `src/firebase/config.ts` with fallback values. Environment variables can override:
 - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 - `NEXT_PUBLIC_FIREBASE_API_KEY`
@@ -88,10 +156,10 @@ Default Firebase config is available in `src/firebase/config.ts` with fallback v
 ## Development Workflow
 
 ### Running the App
-The app is configured to run automatically via the "Next.js Dev Server" workflow. It will:
-1. Start the Next.js dev server on port 5000
-2. Bind to 0.0.0.0 for Replit compatibility
-3. Display the webview for immediate preview
+The app runs automatically via the "Next.js Dev Server" workflow:
+1. Starts Next.js dev server on port 5000
+2. Binds to 0.0.0.0 for Replit compatibility
+3. Displays webview for preview
 
 ### Available Scripts
 - `npm run dev` - Start development server (port 5000, host 0.0.0.0)
@@ -104,18 +172,26 @@ The app is configured to run automatically via the "Next.js Dev Server" workflow
 
 ### Important Notes
 - The app requires Firebase configuration for full functionality
-- Anonymous sign-in is initiated automatically for users without accounts
-- The dev server must run on port 5000 with host 0.0.0.0 for Replit
-- TypeScript build errors are ignored in configuration (can be fixed if needed)
+- Anonymous sign-in is initiated automatically
+- PWA manifests are dynamically generated at build time
+- BasePath is automatically applied to all routes
+- Works on root URL deployments and subdirectory deployments
+
+## PWA Testing Checklist
+- [ ] Install on Android via app menu
+- [ ] Install on iOS via Share > Add to Home Screen
+- [ ] Verify icon displays correctly
+- [ ] Works in offline mode (requires service worker implementation)
+- [ ] Test on both Vercel (root) and GitHub Pages (subdirectory)
 
 ## Known Issues
-- Some conflicting star exports in Firebase module warnings (non-breaking)
+- Service worker not yet implemented (PWA is installable but not fully offline-capable)
 - LSP diagnostics present but don't affect functionality
 
 ## Next Steps
 Users can:
 1. Customize timer intervals in settings
-2. Sign up for a permanent account to save sessions
+2. Sign up for account to save sessions
 3. View daily statistics and focus trends
 4. Use deep focus mode for distraction-free timing
 5. Customize theme and notification preferences

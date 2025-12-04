@@ -66,7 +66,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isUserLoading && (!user || user.isAnonymous)) {
-      router.push('/');
+      router.replace('/');
     }
   }, [user, isUserLoading, router]);
 

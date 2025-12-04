@@ -39,10 +39,10 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
         e.preventDefault();
         setAuthFeatureName('view your record');
         setAuthDialogOpen(true);
-        setLoading(false); // Reset loading state if auth is required
+        setLoading(false);
     } else {
         setLoading('dashboard');
-        router.push(`/dashboard`);
+        router.push('/dashboard');
     }
   }
 
