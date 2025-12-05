@@ -4,6 +4,16 @@ import { Plus, Clock, Calendar } from 'lucide-react';
 import { formatDistanceToNow, parseISO } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
 
+// Helper to safely parse dates that could be strings, Date objects, or Firestore Timestamps
+function safeParseDate(date: any): Date {
+  if (!date) return new Date();
+  if (date instanceof Date) return date;
+  if (typeof date === 'string') return parseISO(date);
+  if (date.toDate && typeof date.toDate === 'function') return date.toDate();
+  if (date.seconds) return new Date(date.seconds * 1000);
+  return new Date();
+}
+
 interface RecentActivityCardProps {
   onLogClick: () => void;
   sessions: any[] | null | undefined;
@@ -46,7 +56,7 @@ export const RecentActivityCard = ({ onLogClick, sessions, isLoading }: RecentAc
                     </p>
                     <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
-                      {formatDistanceToNow(parseISO(session.startTime), { addSuffix: true })}
+                      {formatDistanceToNow(safeParseDate(session.startTime), { addSuffix: true })}
                     </p>
                   </div>
                 </div>

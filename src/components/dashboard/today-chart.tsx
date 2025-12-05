@@ -7,10 +7,20 @@ import { DailyFocusChart } from './daily-focus-chart';
 import { Skeleton } from '../ui/skeleton';
 
 function formatDuration(minutes: number) {
-  if (isNaN(minutes) || minutes < 0) return '0h 0m';
-  const hours = Math.floor(minutes / 60);
-  const mins = Math.round(minutes % 60);
-  return `${hours}h ${mins}m`;
+    if (isNaN(minutes) || minutes < 0) return '0h 0m';
+    const hours = Math.floor(minutes / 60);
+    const mins = Math.round(minutes % 60);
+    return `${hours}h ${mins}m`;
+}
+
+// Helper to safely parse dates that could be strings, Date objects, or Firestore Timestamps
+function safeParseDate(date: any): Date {
+    if (!date) return new Date();
+    if (date instanceof Date) return date;
+    if (typeof date === 'string') return parseISO(date);
+    if (date.toDate && typeof date.toDate === 'function') return date.toDate();
+    if (date.seconds) return new Date(date.seconds * 1000);
+    return new Date();
 }
 
 interface TodayChartProps {
@@ -29,15 +39,19 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
         if (sessions) {
             sessions.forEach(session => {
                 if (session.startTime && typeof session.duration === 'number') {
-                    const start = parseISO(session.startTime);
-                    const hour = start.getHours();
-                    hourlyFocus[hour].minutes += session.duration;
+                    try {
+                        const start = safeParseDate(session.startTime);
+                        const hour = start.getHours();
+                        hourlyFocus[hour].minutes += session.duration;
+                    } catch (e) {
+                        console.error("Error parsing session date:", e);
+                    }
                 }
             });
         }
         return hourlyFocus;
     }, [sessions]);
-    
+
     const totalMinutes = todayRecord?.totalFocusMinutes || 0;
     const totalPomos = todayRecord?.totalPomos || 0;
 
@@ -45,7 +59,7 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
         <Card>
             <CardHeader>
                 <CardTitle>Today's Activity</CardTitle>
-                 {isLoading ? (
+                {isLoading ? (
                     <Skeleton className="h-5 w-32 mt-1" />
                 ) : (
                     <CardDescription>
