@@ -43,27 +43,27 @@ export default function Home() {
   const handleEnterDeepFocus = () => {
     const element = document.documentElement;
     if (element.requestFullscreen) {
-        element.requestFullscreen()
-            .then(() => {
-                setDeepFocus(true);
-            })
-            .catch(err => {
-                console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-            });
+      element.requestFullscreen()
+        .then(() => {
+          setDeepFocus(true);
+        })
+        .catch(err => {
+          console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
     }
   };
 
   if (isDeepFocus) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-background">
-          <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5 }}
-              className="w-full h-full"
-          >
-              <FloatingTimer theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'} toggleTheme={toggleTheme} />
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="w-full h-full"
+        >
+          <FloatingTimer theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'} toggleTheme={toggleTheme} />
+        </motion.div>
       </div>
     );
   }
@@ -79,7 +79,7 @@ export default function Home() {
         ) : (
           <>
             <Timer />
-            {user && !user.isAnonymous && <TodayStats userId={user.uid} />}
+            {user && !user.isAnonymous && user.email && <TodayStats userId={user.email.split('@')[0]} />}
           </>
         )}
       </main>

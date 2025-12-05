@@ -16,6 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
+import { getEmailUsername } from '@/firebase/non-blocking-login';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 import { ManualTimeInput } from './manual-time-input';
 
@@ -63,7 +64,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
   };
 
   async function logFocusRecord(data: AddRecordFormValues) {
-    if (!user || !firestore) throw new Error("User or Firestore not available");
+    if (!user || !user.email || !firestore) throw new Error("User or Firestore not available");
 
     let hour24 = data.hour;
     if (data.ampm === 'pm' && data.hour < 12) hour24 += 12;
@@ -72,16 +73,17 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     const dateWithTime = set(data.date, { hours: hour24, minutes: data.minute, seconds: 0, milliseconds: 0 });
     const dateString = format(dateWithTime, 'yyyy-MM-dd');
 
-    const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, dateString);
+    const emailUsername = getEmailUsername(user.email);
+    const focusRecordRef = doc(firestore, `users/${emailUsername}/focusRecords`, dateString);
     const sessionsCollectionRef = collection(focusRecordRef, 'sessions');
 
     await runTransaction(firestore, async (transaction) => {
       // Ensure user document exists (auto-repair if deleted)
-      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDocRef = doc(firestore, 'users', emailUsername);
       const userDocSnap = await transaction.get(userDocRef);
       if (!userDocSnap.exists()) {
         transaction.set(userDocRef, {
-          id: user.uid, // Required by security rules
+          id: emailUsername,
           uid: user.uid,
           email: user.email,
           createdAt: new Date().toISOString()
@@ -103,7 +105,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
       });
 
       transaction.set(focusRecordRef, {
-        id: dateString, date: dateString, userId: user.uid,
+        id: dateString, date: dateString, userId: emailUsername,
         totalFocusMinutes: newTotalFocusMinutes, totalPomos: newTotalPomos
       }, { merge: true });
     });

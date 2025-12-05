@@ -1,26 +1,16 @@
 /**
- * Core Philosophy: This ruleset enforces a strict user-ownership model. All user-generated
- * data is stored in subcollections under that user's unique document ID (`/users/{userId}`).
- * This ensures that a user can only ever access their own data tree, providing strong
- * security and isolation by default.
+ * Core Philosophy: This ruleset allows authenticated users to access data stored under
+ * their email username (part before @ in their email). This provides readable document IDs
+ * while maintaining security.
  *
  * Data Structure: The database uses a hierarchical structure where all application data
- * (preferences, focus records, sessions) is nested under the `/users/{userId}` path. This
- * design makes authorization checks simple and highly performant.
+ * (preferences, focus records, sessions) is nested under the `/users/{emailUsername}` path.
  *
  * Key Security Decisions:
- * - Strict Ownership: All access control is based on matching the authenticated user's
- *   UID (`request.auth.uid`) with the `{userId}` wildcard in the document path.
- * - Server-Side Timestamp Validation: All incoming session data has its timestamp validated
- *   against the server's time (`request.time`) to prevent users from logging sessions in the future.
- * - No Public Data: There are no publicly readable collections. All data requires authentication.
- * - No User Listing: It is not possible to list all documents in the top-level `/users`
- *   collection, preventing enumeration of all application users.
- *
- * Denormalization for Authorization: The entire data model is built on this principle. By
- * nesting all data under a user-specific path, we avoid slow and costly `get()` or `exists()`
- * calls to other documents for authorization. The path itself contains all the necessary
- * information to make a security decision.
+ * - Authentication Required: All access requires the user to be signed in.
+ * - Email Username Match: Users can only access documents where the path matches their email username.
+ * - Server-Side Timestamp Validation: All incoming session data has its timestamp validated.
+ * - No Public Data: There are no publicly readable collections.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -36,45 +26,48 @@ service cloud.firestore {
     }
 
     /**
-     * Checks if the currently signed-in user is the owner of the document
-     * based on the userId provided in the path.
+     * Gets the email username (part before @) from the authenticated user's email.
+     */
+    function getEmailUsername() {
+      return request.auth.token.email.split('@')[0];
+    }
+
+    /**
+     * Checks if the currently signed-in user owns this document
+     * based on the userId (email username) provided in the path.
      */
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return isSignedIn() && getEmailUsername() == userId;
     }
 
     /**
      * A robust check for update/delete operations. Ensures the user is the owner
      * AND that the document they are trying to modify actually exists.
-     * This prevents unauthorized actions on non-existent paths.
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
     
     /**
-     * Validates that the incoming timestamp is not in the future, allowing for a small
-     * clock skew tolerance.
+     * Validates that the incoming timestamp is not in the future.
      */
     function isTimestampValid(ts) {
         return ts is timestamp && ts <= request.time + duration.value(2, 's');
     }
 
     /**
-     * @description Manages user profile documents. A user can create their own profile,
-     *              and can only read or modify their own document after it is created.
+     * @description Manages user profile documents. Document ID is the email username.
      * @path /users/{userId}
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false; // Disallow listing all users for security.
+      allow list: if false;
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
 
       /**
-       * @description Secures a user's private application preferences. Only the owner
-       *              of the parent user document can manage their preferences.
+       * @description Secures a user's private application preferences.
        * @path /users/{userId}/userPreferences/{userPreferenceId}
        */
       match /userPreferences/{userPreferenceId} {
@@ -86,8 +79,7 @@ service cloud.firestore {
       }
 
       /**
-       * @description Manages a user's daily focus records. Only the owner can create,
-       *              view, update, or delete their own records.
+       * @description Manages a user's daily focus records.
        * @path /users/{userId}/focusRecords/{focusRecordId}
        */
       match /focusRecords/{focusRecordId} {
@@ -98,9 +90,7 @@ service cloud.firestore {
         allow delete: if isExistingOwner(userId);
 
         /**
-         * @description Secures individual focus sessions within a daily record. Access is
-         *              inherited from the parent `focusRecord`. This rule also enforces
-         *              server-side validation to prevent logging future sessions.
+         * @description Secures individual focus sessions within a daily record.
          * @path /users/{userId}/focusRecords/{focusRecordId}/sessions/{sessionId}
          */
         match /sessions/{sessionId} {

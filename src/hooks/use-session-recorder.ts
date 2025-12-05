@@ -3,6 +3,7 @@
 import { useCallback } from 'react';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
+import { getEmailUsername } from '@/firebase/non-blocking-login';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 import { TimerMode } from '@/store/timer-state';
 
@@ -16,14 +17,15 @@ export const useSessionRecorder = () => {
         isCompletion: boolean
     ) => {
         // Only record sessions for logged-in (non-anonymous) users.
-        if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
+        if (!user || user.isAnonymous || !user.email || !firestore || !sessionStartTime) return false;
 
         const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
         // Do not record very short, likely accidental, sessions.
         if (durationInMinutes < 0.1) return false;
 
+        const emailUsername = getEmailUsername(user.email);
         const today = new Date().toISOString().split('T')[0];
-        const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
+        const focusRecordRef = doc(firestore, `users/${emailUsername}/focusRecords`, today);
         const sessionsCollection = collection(focusRecordRef, 'sessions');
         const newSessionRef = doc(sessionsCollection);
 
@@ -31,7 +33,7 @@ export const useSessionRecorder = () => {
             await runTransaction(firestore, async (transaction) => {
                 const recordSnap = await transaction.get(focusRecordRef);
                 const currentData = recordSnap.data() || { totalFocusMinutes: 0, totalPomos: 0 };
-                
+
                 let newTotalFocusMinutes = currentData.totalFocusMinutes;
                 let newTotalPomos = currentData.totalPomos;
 
@@ -44,10 +46,10 @@ export const useSessionRecorder = () => {
                 }
 
                 const focusRecordUpdate = {
-                    id: today, date: today, userId: user.uid,
+                    id: today, date: today, userId: emailUsername,
                     totalFocusMinutes: newTotalFocusMinutes, totalPomos: newTotalPomos,
                 };
-                
+
                 // Record all session types (pomodoro, shortBreak, longBreak)
                 transaction.set(newSessionRef, {
                     id: newSessionRef.id, focusRecordId: focusRecordRef.id,

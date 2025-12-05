@@ -8,20 +8,27 @@ import {
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 /**
+ * Extracts username from email (part before @)
+ */
+export function getEmailUsername(email: string): string {
+  return email.split('@')[0];
+}
+
+/**
  * Ensures a user document exists in Firestore. Creates one if it doesn't exist.
- * Document ID is the Firebase UID (required for subcollections like focusRecords).
- * Email is stored as a readable field.
+ * Document ID is the email username (e.g., "adnanshahria2006" from "adnanshahria2006@gmail.com")
  */
 async function ensureUserDocument(authInstance: Auth, uid: string, email: string): Promise<void> {
   const firestore = getFirestore(authInstance.app);
-  const userDocRef = doc(firestore, 'users', uid);
+  const emailUsername = getEmailUsername(email);
+  const userDocRef = doc(firestore, 'users', emailUsername);
 
   const userDoc = await getDoc(userDocRef);
   if (!userDoc.exists()) {
     await setDoc(userDocRef, {
-      id: uid,
+      id: emailUsername,
       uid: uid,
-      email: email,  // User's readable email address
+      email: email,
       createdAt: new Date().toISOString()
     });
   }
