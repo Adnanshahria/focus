@@ -4,7 +4,8 @@ import { useState, ChangeEvent } from 'react';
 import { motion, AnimationProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun, Loader2, Clock } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun, Clock } from 'lucide-react';
+import { Loader } from '@/components/ui/loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -125,7 +126,7 @@ export const FloatingTimerControls = ({
           </Button>
 
           <Button variant="ghost" size="icon" onClick={onEndAndSave} disabled={isPristine || isSaving} className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)} style={{ color: uiColor }}>
-            {isSaving ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}><Loader2 className="w-6 h-6" /></motion.div> : <CheckCircle className="w-6 h-6" />}
+            {isSaving ? <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}><Loader className="w-6 h-6" /></motion.div> : <CheckCircle className="w-6 h-6" />}
           </Button>
         </>
       )}

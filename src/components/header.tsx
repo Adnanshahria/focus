@@ -1,6 +1,7 @@
 
 'use client';
-import { Loader2, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { Loader } from "@/components/ui/loader";
 import { Settings } from "@/components/settings";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/firebase";
@@ -86,7 +87,7 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
               aria-label="Deep Focus"
               disabled={loading === 'deepfocus'}
             >
-              <Loader2 className="animate-spin absolute h-4 w-4 hidden group-disabled:block" />
+              <Loader className="animate-spin absolute h-4 w-4 hidden group-disabled:block" />
               <span className="group-disabled:opacity-0">Deep Focus</span>
             </Button>
             <Button
@@ -97,7 +98,7 @@ export function Header({ onDeepFocusClick }: HeaderProps) {
               aria-label="Record"
               disabled={loading === 'dashboard'}
             >
-              <Loader2 className="animate-spin absolute h-4 w-4 hidden group-disabled:block" />
+              <Loader className="animate-spin absolute h-4 w-4 hidden group-disabled:block" />
               <span className="group-disabled:opacity-0">Record</span>
             </Button>
           </div>

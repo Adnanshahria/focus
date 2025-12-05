@@ -2,7 +2,8 @@
 
 import { useTimer } from "@/hooks/use-timer";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, Loader2, Clock, Plus, Minus } from "lucide-react";
+import { Play, Pause, Clock, Plus, Minus } from "lucide-react";
+import { Loader } from "@/components/ui/loader";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -118,7 +119,7 @@ export function TimerControls() {
           <div className="h-4 w-px bg-border" />
 
           <Button onClick={handleEndAndSave} size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground" disabled={isPristine || isSaving}>
-            {isSaving ? <><Loader2 className="animate-spin mr-2 w-4 h-4" /> Saving...</> : 'End & Save'}
+            {isSaving ? <><Loader className="animate-spin mr-2 w-4 h-4" /> Saving...</> : 'End & Save'}
           </Button>
 
           <div className="h-4 w-px bg-border" />
@@ -131,7 +132,7 @@ export function TimerControls() {
 
       {isActive && (
         <Button onClick={handleEndAndSave} size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground mt-2" disabled={isSaving}>
-          {isSaving ? <><Loader2 className="animate-spin mr-2 w-4 h-4" /> Saving...</> : 'End Session'}
+          {isSaving ? <><Loader className="animate-spin mr-2 w-4 h-4" /> Saving...</> : 'End Session'}
         </Button>
       )}
     </div>
