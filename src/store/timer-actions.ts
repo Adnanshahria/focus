@@ -16,6 +16,7 @@ export type TimerActions = {
   subtractTime: (seconds: number) => void;
   endAndSaveSession: () => void;
   setSaving: (isSaving: boolean) => void;
+  setSessionTime: (seconds: number) => void;
 };
 
 const getInitialTime = (mode: TimerMode, durations?: Partial<TimerDurations>) => {
