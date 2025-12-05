@@ -9,8 +9,10 @@ import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 /**
  * Ensures a user document exists in Firestore. Creates one if it doesn't exist.
+ * Document ID is the Firebase UID (required for subcollections like focusRecords).
+ * Email is stored as a readable field.
  */
-async function ensureUserDocument(authInstance: Auth, uid: string, email?: string | null): Promise<void> {
+async function ensureUserDocument(authInstance: Auth, uid: string, email: string): Promise<void> {
   const firestore = getFirestore(authInstance.app);
   const userDocRef = doc(firestore, 'users', uid);
 
@@ -19,7 +21,7 @@ async function ensureUserDocument(authInstance: Auth, uid: string, email?: strin
     await setDoc(userDocRef, {
       id: uid,
       uid: uid,
-      email: email || null,
+      email: email,  // User's readable email address
       createdAt: new Date().toISOString()
     });
   }
