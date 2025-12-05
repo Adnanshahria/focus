@@ -3,11 +3,11 @@
 // Your Firestore security rules are the primary mechanism for securing your data.
 
 export const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyA1MJ1qUOzXJCJ104Rcgtj3zQ9xZ0MWJbo",
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "studio-6366847068-87a24.firebaseapp.com",
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "studio-6366847068-87a24",
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "studio-6366847068-87a24.firebasestorage.app",
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "468674344394",
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:468674344394:web:7f3bd015860729771a0b33",
-  measurementId: "",
+  apiKey: "AIzaSyAkJJk_uA3JQ9tIA6z7f6NpN-USBBE_zmo",
+  authDomain: "management-fd361.firebaseapp.com",
+  projectId: "management-fd361",
+  storageBucket: "management-fd361.firebasestorage.app",
+  messagingSenderId: "308481171739",
+  appId: "1:308481171739:web:82e278da89f98d4f0673be",
+  measurementId: "G-4CQR52RFC4",
 };
