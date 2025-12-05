@@ -41,6 +41,9 @@ export function Settings() {
             <Section icon={User} title="User Profile">
               <UserProfile />
             </Section>
+            <Section icon={Palette} title="Appearance">
+              <VisualSettings />
+            </Section>
             <Section icon={Info} title="App Guide">
               <AppGuide />
             </Section>
