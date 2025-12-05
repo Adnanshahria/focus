@@ -47,49 +47,51 @@ export function TimerSettings() {
       shortBreakDuration: data.shortBreakDuration * 60,
       longBreakDuration: data.longBreakDuration * 60,
     };
-    
+
     // updatePreferences will trigger the useEffect in useUserPreferences
     // which in turn updates the Zustand store.
     updatePreferences(newDurationsInSeconds);
-    
+
     toast({
       title: 'Settings Saved',
       description: 'Your timer durations have been updated.',
     });
     reset(data); // Resets the dirty state of the form
   };
-  
+
   if (isLoading) {
-      return (
-        <div className="space-y-4">
-            <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
-            <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
-            <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
-            <Skeleton className="h-10 w-full" />
-        </div>
-      );
+    return (
+      <div className="space-y-4">
+        <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
+        <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
+        <div className="space-y-2"> <Skeleton className="h-4 w-24" /> <Skeleton className="h-10 w-full" /> </div>
+        <Skeleton className="h-10 w-full" />
+      </div>
+    );
   }
 
   return (
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="pomodoroDuration">Pomodoro (minutes)</Label>
+          <Label htmlFor="pomodoroDuration">Pomodoro (min)</Label>
           <Input id="pomodoroDuration" type="number" {...register('pomodoroDuration')} />
           {errors.pomodoroDuration && <p className="text-destructive text-xs">{errors.pomodoroDuration.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="shortBreakDuration">Short Break (minutes)</Label>
+          <Label htmlFor="shortBreakDuration">Short Break (min)</Label>
           <Input id="shortBreakDuration" type="number" {...register('shortBreakDuration')} />
           {errors.shortBreakDuration && <p className="text-destructive text-xs">{errors.shortBreakDuration.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="longBreakDuration">Long Break (minutes)</Label>
+          <Label htmlFor="longBreakDuration">Long Break (min)</Label>
           <Input id="longBreakDuration" type="number" {...register('longBreakDuration')} />
           {errors.longBreakDuration && <p className="text-destructive text-xs">{errors.longBreakDuration.message}</p>}
         </div>
-        <Button type="submit" disabled={isSubmitting || !isDirty} className="w-full">
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
-        </Button>
-      </form>
+      </div>
+      <Button type="submit" disabled={isSubmitting || !isDirty} className="w-full">
+        {isSubmitting ? 'Saving...' : 'Save Changes'}
+      </Button>
+    </form>
   );
 }

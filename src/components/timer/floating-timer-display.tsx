@@ -3,6 +3,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+import { StatsCards } from '@/components/dashboard/stats-cards';
+
 const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -24,13 +26,6 @@ interface FloatingTimerDisplayProps {
     dailyGoal?: number;
 }
 
-const formatDuration = (minutes: number) => {
-    if (isNaN(minutes) || minutes < 0) return '0h 0m';
-    const hours = Math.floor(minutes / 60);
-    const mins = Math.round(minutes % 60);
-    return `${hours}h ${mins}m`;
-};
-
 export const FloatingTimerDisplay = ({ theme, timeLeft, sessionDuration, isActive, todayRecord, dailyGoal }: FloatingTimerDisplayProps) => {
     const [pathLength, setPathLength] = useState(0);
     const pathRef = useRef<SVGPathElement>(null);
@@ -44,10 +39,6 @@ export const FloatingTimerDisplay = ({ theme, timeLeft, sessionDuration, isActiv
 
     const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
     const strokeDashoffset = pathLength * (1 - progress);
-
-    const totalMinutes = todayRecord?.totalFocusMinutes || 0;
-    const goal = dailyGoal || 120;
-    const goalProgress = Math.min((totalMinutes / goal) * 100, 100);
 
     return (
         <div className="flex flex-col items-center gap-8">

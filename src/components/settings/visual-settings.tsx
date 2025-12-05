@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Sun, Moon } from 'lucide-react';
 import { Skeleton } from '../ui/skeleton';
 import { useUserPreferences } from '@/hooks/use-user-preferences.tsx';
+import { cn } from '@/lib/utils';
 
 type VisualSettingsFormValues = {
   theme: 'light' | 'dark';
@@ -37,20 +38,20 @@ export function VisualSettings() {
       }
     }
   }, [preferences, reset, theme, setTheme]);
-  
+
   useEffect(() => {
     if (theme) setValue('theme', theme as 'light' | 'dark');
   }, [theme, setValue]);
 
   const handleSettingsChange = (data: Partial<VisualSettingsFormValues>) => {
     if (data.theme && data.theme !== theme) setTheme(data.theme);
-    
+
     updatePreferences(data);
-    
+
     toast({ title: 'Settings Updated' });
     reset({ ...watchedValues, ...data });
   };
-  
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -64,25 +65,35 @@ export function VisualSettings() {
   }
 
   return (
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <Label>Theme</Label>
-          <RadioGroup value={watchedValues.theme} className="grid grid-cols-2 gap-2" onValueChange={(value: 'light' | 'dark') => handleSettingsChange({ theme: value })}>
-            <Label className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary">
-              <Sun className="h-5 w-5"/><RadioGroupItem value="light" id="theme-light" className="sr-only"/><span>Light</span>
-            </Label>
-            <Label className="flex flex-col items-center justify-center gap-2 border rounded-md p-4 cursor-pointer hover:border-primary has-[input:checked]:border-primary">
-              <Moon className="h-5 w-5"/><RadioGroupItem value="dark" id="theme-dark" className="sr-only"/><span>Dark</span>
-            </Label>
-          </RadioGroup>
-        </div>
-        <div className="flex items-center justify-between rounded-lg border p-3">
-          <div className="space-y-0.5">
-            <Label htmlFor="antiBurnIn">Anti-Burn</Label>
-            <p className="text-xs text-muted-foreground">Moves timer in deep focus mode to save OLED screens.</p>
-          </div>
-          <Switch id="antiBurnIn" checked={watchedValues.antiBurnIn} onCheckedChange={(checked) => handleSettingsChange({ antiBurnIn: checked })}/>
-        </div>
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <Label>Theme</Label>
+        <RadioGroup value={watchedValues.theme} className="grid grid-cols-2 gap-4" onValueChange={(value: 'light' | 'dark') => handleSettingsChange({ theme: value })}>
+          <Label className={cn(
+            "flex flex-col items-center justify-center gap-3 border-2 rounded-xl p-4 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-all",
+            watchedValues.theme === 'light' ? "border-primary bg-primary/5" : "border-muted"
+          )}>
+            <Sun className={cn("h-6 w-6", watchedValues.theme === 'light' ? "text-primary" : "text-muted-foreground")} />
+            <RadioGroupItem value="light" id="theme-light" className="sr-only" />
+            <span className="font-medium">Light</span>
+          </Label>
+          <Label className={cn(
+            "flex flex-col items-center justify-center gap-3 border-2 rounded-xl p-4 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-all",
+            watchedValues.theme === 'dark' ? "border-primary bg-primary/5" : "border-muted"
+          )}>
+            <Moon className={cn("h-6 w-6", watchedValues.theme === 'dark' ? "text-primary" : "text-muted-foreground")} />
+            <RadioGroupItem value="dark" id="theme-dark" className="sr-only" />
+            <span className="font-medium">Dark</span>
+          </Label>
+        </RadioGroup>
       </div>
+      <div className="flex items-center justify-between rounded-lg border p-3">
+        <div className="space-y-0.5">
+          <Label htmlFor="antiBurnIn">Anti-Burn</Label>
+          <p className="text-xs text-muted-foreground">Moves timer in deep focus mode to save OLED screens.</p>
+        </div>
+        <Switch id="antiBurnIn" checked={watchedValues.antiBurnIn} onCheckedChange={(checked) => handleSettingsChange({ antiBurnIn: checked })} />
+      </div>
+    </div>
   );
 }
