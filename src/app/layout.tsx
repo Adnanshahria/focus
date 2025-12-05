@@ -57,7 +57,7 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <PwaRegister />
         <FirebaseClientProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
             {children}
           </ThemeProvider>
         </FirebaseClientProvider>
