@@ -12,10 +12,12 @@ import { FloatingTimerControls } from './floating-timer-controls';
 interface FloatingTimerProps {
   theme: 'dark' | 'light';
   toggleTheme: () => void;
+  todayRecord?: any;
+  dailyGoal?: number;
 }
 
-export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
-  const { timeLeft, isActive, start, pause, addTime, subtractTime, sessionDuration, endAndSaveSession, resetSession, isSaving } = useTimer();
+export function FloatingTimer({ theme, toggleTheme, todayRecord, dailyGoal }: FloatingTimerProps) {
+  const { timeLeft, isActive, start, pause, addTime, subtractTime, setSessionTime, sessionDuration, endAndSaveSession, resetSession, isSaving } = useTimer();
   const { antiBurnIn } = useTimerStore();
   const controlsAnimation = useAnimation();
   const pixelShiftControls = useAnimation();
@@ -53,7 +55,14 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-black" onClick={showControls}>
       <motion.div animate={pixelShiftControls} className={cn('relative flex flex-col items-center justify-center gap-8 transition-opacity duration-1000', isDimmed ? 'opacity-30' : 'opacity-100')}>
-        <FloatingTimerDisplay theme={theme} timeLeft={timeLeft} sessionDuration={sessionDuration} isActive={isActive} />
+        <FloatingTimerDisplay
+          theme={theme}
+          timeLeft={timeLeft}
+          sessionDuration={sessionDuration}
+          isActive={isActive}
+          todayRecord={todayRecord}
+          dailyGoal={dailyGoal}
+        />
       </motion.div>
       <FloatingTimerControls
         theme={theme}
@@ -69,6 +78,7 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
         onCancel={(e) => handleEventAndShowControls(e, resetSession)}
         onEndAndSave={(e) => handleEventAndShowControls(e, endAndSaveSession)}
         onToggleTheme={(e) => handleEventAndShowControls(e, toggleTheme)}
+        onSetSessionTime={(seconds) => setSessionTime(seconds)}
       />
     </div>
   );

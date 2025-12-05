@@ -98,7 +98,12 @@ export default function DashboardPage() {
           transition={{ duration: 0.5 }}
           className="w-full h-full"
         >
-          <FloatingTimer theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'} toggleTheme={toggleTheme} />
+          <FloatingTimer
+            theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'}
+            toggleTheme={toggleTheme}
+            todayRecord={todayRecord}
+            dailyGoal={preferences?.dailyGoalMinutes ?? 120}
+          />
         </motion.div>
       </div>
     );

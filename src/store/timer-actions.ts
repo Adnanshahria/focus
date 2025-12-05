@@ -69,4 +69,5 @@ export const createTimerActions: StateCreator<TimerState & TimerActions, [], [],
   addTime: seconds => set(state => ({ timeLeft: state.timeLeft + seconds, sessionDuration: state.sessionDuration + seconds })),
   subtractTime: seconds => set(state => ({ timeLeft: Math.max(0, state.timeLeft - seconds), sessionDuration: Math.max(0, state.sessionDuration - seconds) })),
   setSaving: isSaving => set({ isSaving }),
+  setSessionTime: seconds => set({ timeLeft: seconds, sessionDuration: seconds }),
 });

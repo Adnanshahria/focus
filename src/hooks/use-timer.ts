@@ -10,7 +10,7 @@ export const useTimer = () => {
   const {
     isActive, timeLeft, tick, completeCycle,
     start: startAction, pause: pauseAction, reset: resetAction,
-    mode, sessionStartTime, addTime, subtractTime,
+    mode, sessionStartTime, addTime, subtractTime, setSessionTime,
     endAndSaveSession: endAndSaveAction, isSaving, setSaving,
   } = store;
 
@@ -88,5 +88,5 @@ export const useTimer = () => {
     handleTimerEnd();
   }, [timeLeft, isActive, playBeep, recordSession, mode, sessionStartTime, completeCycle, setSaving]);
 
-  return { ...store, start, pause, resetSession, addTime, subtractTime, endAndSaveSession };
+  return { ...store, start, pause, resetSession, addTime, subtractTime, setSessionTime, endAndSaveSession };
 };
