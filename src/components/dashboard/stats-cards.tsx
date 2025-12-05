@@ -37,7 +37,7 @@ export const StatsCards = ({ todayRecord, dailyGoal, theme = 'dark', allRecords 
     }, 0);
 
     const StatItem = ({ icon: Icon, label, value, colorClass, bgClass }: any) => (
-        <div className="flex items-center gap-3 p-3 rounded-xl bg-background/40 border border-border/50 backdrop-blur-sm shadow-sm transition-all hover:bg-background/60 hover:shadow-md">
+        <div className="flex items-center gap-3 p-3 rounded-xl bg-background/40 border border-border/70 backdrop-blur-sm shadow-sm transition-all hover:bg-background/60 hover:shadow-md">
             <div className={cn("p-2 rounded-lg shrink-0", bgClass)}>
                 <Icon className={cn("w-4 h-4", colorClass)} />
             </div>
