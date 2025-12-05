@@ -3,7 +3,6 @@
 import { useCallback } from 'react';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
-import { getEmailUsername } from '@/firebase/non-blocking-login';
 import { doc, collection, runTransaction } from 'firebase/firestore';
 import { TimerMode } from '@/store/timer-state';
 
@@ -17,15 +16,14 @@ export const useSessionRecorder = () => {
         isCompletion: boolean
     ) => {
         // Only record sessions for logged-in (non-anonymous) users.
-        if (!user || user.isAnonymous || !user.email || !firestore || !sessionStartTime) return false;
+        if (!user || user.isAnonymous || !firestore || !sessionStartTime) return false;
 
         const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
         // Do not record very short, likely accidental, sessions.
         if (durationInMinutes < 0.1) return false;
 
-        const emailUsername = getEmailUsername(user.email);
         const today = new Date().toISOString().split('T')[0];
-        const focusRecordRef = doc(firestore, `users/${emailUsername}/focusRecords`, today);
+        const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
         const sessionsCollection = collection(focusRecordRef, 'sessions');
         const newSessionRef = doc(sessionsCollection);
 
@@ -46,7 +44,7 @@ export const useSessionRecorder = () => {
                 }
 
                 const focusRecordUpdate = {
-                    id: today, date: today, userId: emailUsername,
+                    id: today, date: today, userId: user.uid,
                     totalFocusMinutes: newTotalFocusMinutes, totalPomos: newTotalPomos,
                 };
 

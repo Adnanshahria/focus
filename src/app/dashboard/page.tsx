@@ -14,7 +14,6 @@ import { Card } from '@/components/ui/card';
 import { DashboardSkeleton } from '@/components/dashboard/dashboard-skeleton';
 import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
 import { useCollection, useDoc } from '@/firebase';
-import { getEmailUsername } from '@/firebase/non-blocking-login';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { format } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
@@ -38,18 +37,16 @@ export default function DashboardPage() {
 
   // --- Start of Optimized Data Fetching ---
   const todayRecordRef = useMemoFirebase(() => {
-    if (!user || user.isAnonymous || !user.email) return null;
-    const emailUsername = getEmailUsername(user.email);
-    return doc(firestore, `users/${emailUsername}/focusRecords`, todayDateString);
+    if (!user || user.isAnonymous) return null;
+    return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
   }, [user, firestore, todayDateString]);
 
   const { data: todayRecord, isLoading: isTodayRecordLoading } = useDoc(todayRecordRef);
 
   const sessionsQuery = useMemoFirebase(() => {
-    if (!user || user.isAnonymous || !user.email) return null;
-    const emailUsername = getEmailUsername(user.email);
+    if (!user || user.isAnonymous) return null;
     return query(
-      collection(firestore, `users/${emailUsername}/focusRecords/${todayDateString}/sessions`),
+      collection(firestore, `users/${user.uid}/focusRecords/${todayDateString}/sessions`),
       orderBy('startTime', 'desc'),
     );
   }, [user, firestore, todayDateString]);
@@ -57,10 +54,9 @@ export default function DashboardPage() {
   const { data: todaySessions, isLoading: areSessionsLoading } = useCollection(sessionsQuery);
 
   const historicalRecordsQuery = useMemoFirebase(() => {
-    if (!user || user.isAnonymous || !user.email) return null;
-    const emailUsername = getEmailUsername(user.email);
+    if (!user || user.isAnonymous) return null;
     return query(
-      collection(firestore, `users/${emailUsername}/focusRecords`),
+      collection(firestore, `users/${user.uid}/focusRecords`),
       orderBy('date', 'asc')
     );
   }, [user, firestore]);

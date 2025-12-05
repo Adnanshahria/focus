@@ -4,7 +4,6 @@ import { useUser } from '@/firebase';
 import { useFirestore, useMemoFirebase } from '@/firebase/hooks/hooks';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { setDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-import { getEmailUsername } from '@/firebase/non-blocking-login';
 import { doc, collection } from 'firebase/firestore';
 import { AuthRequiredDialog } from '@/components/auth/auth-required-dialog';
 import { useTimerStore } from '@/store/timer-store';
@@ -29,10 +28,9 @@ export function useUserPreferences() {
 
 
     const userPreferencesRef = useMemoFirebase(() => {
-        if (!user || user.isAnonymous || !user.email) return null;
-        const emailUsername = getEmailUsername(user.email);
+        if (!user || user.isAnonymous) return null;
         // All user preferences are stored in a single document named 'main' for simplicity.
-        return doc(collection(firestore, `users/${emailUsername}/userPreferences`), 'main');
+        return doc(collection(firestore, `users/${user.uid}/userPreferences`), 'main');
     }, [user, firestore]);
 
     const { data: preferences, isLoading: isPreferencesLoading } = useDoc<UserPreferences>(userPreferencesRef);

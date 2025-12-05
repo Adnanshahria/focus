@@ -79,7 +79,7 @@ export default function Home() {
         ) : (
           <>
             <Timer />
-            {user && !user.isAnonymous && user.email && <TodayStats userId={user.email.split('@')[0]} />}
+            {user && !user.isAnonymous && <TodayStats userId={user.uid} />}
           </>
         )}
       </main>
