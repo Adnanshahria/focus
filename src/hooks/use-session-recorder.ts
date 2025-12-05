@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
-import { doc, collection, runTransaction } from 'firebase/firestore';
+import { doc, collection, runTransaction, Timestamp } from 'firebase/firestore';
 import { TimerMode } from '@/store/timer-state';
 
 export const useSessionRecorder = () => {
@@ -51,7 +51,8 @@ export const useSessionRecorder = () => {
                 // Record all session types (pomodoro, shortBreak, longBreak)
                 transaction.set(newSessionRef, {
                     id: newSessionRef.id, focusRecordId: focusRecordRef.id,
-                    startTime: new Date(sessionStartTime).toISOString(), endTime: new Date().toISOString(),
+                    startTime: Timestamp.fromDate(new Date(sessionStartTime)),
+                    endTime: Timestamp.fromDate(new Date()),
                     duration: durationInMinutes, type: mode, completed: isCompletion,
                 });
 

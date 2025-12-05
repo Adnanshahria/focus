@@ -7,8 +7,8 @@
  * - OptimalBreakTimeOutput - The return type for the getOptimalBreakTime function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const OptimalBreakTimeInputSchema = z.object({
   focusHistory: z
@@ -46,8 +46,8 @@ export async function getOptimalBreakTime(
 
 const prompt = ai.definePrompt({
   name: 'optimalBreakTimePrompt',
-  input: {schema: OptimalBreakTimeInputSchema},
-  output: {schema: OptimalBreakTimeOutputSchema},
+  input: { schema: OptimalBreakTimeInputSchema },
+  output: { schema: OptimalBreakTimeOutputSchema },
   prompt: `You are an AI assistant that recommends optimal break durations for users based on their focus history and current activity.
 
   Analyze the following information to determine the best break duration:
@@ -72,7 +72,15 @@ const optimalBreakTimeFlow = ai.defineFlow(
     outputSchema: OptimalBreakTimeOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const { output } = await prompt(input);
+      if (!output) {
+        throw new Error("AI failed to generate a recommendation.");
+      }
+      return output;
+    } catch (error) {
+      console.error("Error in optimalBreakTimeFlow:", error);
+      throw new Error("Failed to generate break recommendation. Please try again.");
+    }
   }
 );

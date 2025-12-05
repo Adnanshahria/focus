@@ -16,7 +16,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
-import { doc, collection, runTransaction } from 'firebase/firestore';
+import { doc, collection, runTransaction, Timestamp } from 'firebase/firestore';
 import { ManualTimeInput } from './manual-time-input';
 
 interface AddFocusRecordDialogProps {
@@ -100,7 +100,8 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
       const newSessionRef = doc(sessionsCollectionRef);
       transaction.set(newSessionRef, {
         id: newSessionRef.id, focusRecordId: focusRecordRef.id,
-        startTime: dateWithTime.toISOString(), endTime: new Date(dateWithTime.getTime() + data.duration * 60000).toISOString(),
+        startTime: Timestamp.fromDate(dateWithTime),
+        endTime: Timestamp.fromDate(new Date(dateWithTime.getTime() + data.duration * 60000)),
         duration: data.duration, type: 'manual', completed: true,
       });
 
