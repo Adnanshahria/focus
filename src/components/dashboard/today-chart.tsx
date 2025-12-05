@@ -86,8 +86,9 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
     return (
         <Card className="overflow-hidden">
             {/* Gradient Header */}
+            {/* Gradient Header */}
             <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 pb-4">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-4 gap-4 sm:gap-0">
                     <div>
                         <h3 className="text-lg font-semibold tracking-tight">Today's Activity</h3>
                         <p className="text-sm text-muted-foreground">Track your daily focus progress</p>
@@ -95,12 +96,14 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
                     <Popover open={isOpen} onOpenChange={setIsOpen}>
                         <PopoverTrigger asChild>
                             <div
-                                className="flex items-center gap-2 text-sm cursor-pointer hover:bg-background/50 p-2 rounded-md transition-colors border border-transparent hover:border-border/50"
+                                className="flex items-center gap-2 text-sm cursor-pointer hover:bg-background/50 p-2 rounded-md transition-colors border border-transparent hover:border-border/50 w-full sm:w-auto justify-between sm:justify-start"
                                 role="button"
                                 title="Click to set daily goal"
                             >
-                                <Target className="w-4 h-4 text-primary" />
-                                <span className="text-muted-foreground">Goal:</span>
+                                <div className="flex items-center gap-2">
+                                    <Target className="w-4 h-4 text-primary" />
+                                    <span className="text-muted-foreground">Goal:</span>
+                                </div>
                                 <span className="font-medium">{formatDuration(dailyGoal)}</span>
                             </div>
                         </PopoverTrigger>
@@ -143,7 +146,7 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
                 </div>
 
                 {/* Stat Cards */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {/* Focus Time Card */}
                     <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 border border-border/50 shadow-sm">
                         {isLoading ? (
