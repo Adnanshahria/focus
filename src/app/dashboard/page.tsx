@@ -151,6 +151,7 @@ export default function DashboardPage() {
                   <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
                   <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
                 </div>
+                <OverallChart allRecords={allRecords} />
               </div>
               <div className="space-y-6">
                 <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />
@@ -176,10 +177,6 @@ export default function DashboardPage() {
                 </Card>
               </div>
             </div>
-
-            <Card className="border-none shadow-none bg-transparent">
-              <OverallChart allRecords={allRecords} />
-            </Card>
           </motion.div>
         </main>
       </div>
