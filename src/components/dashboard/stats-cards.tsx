@@ -40,24 +40,24 @@ export const StatsCards = ({ todayRecord, dailyGoal, theme = 'dark', allRecords 
 
     // Modern Card Component
     const ModernCard = ({ title, value, icon: Icon, colorClass, bgClass, borderClass }: any) => (
-        <div className={`group relative overflow-hidden rounded-2xl border border-white/5 bg-black/20 p-5 transition-all duration-300 hover:bg-white/5 hover:shadow-lg hover:-translate-y-1 ${borderClass}`}>
+        <div className={`group relative overflow-hidden rounded-xl border border-white/5 bg-black/20 p-4 transition-all duration-300 hover:bg-white/5 hover:shadow-lg hover:-translate-y-1 ${borderClass}`}>
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            <div className="relative z-10 flex flex-col justify-between h-full">
-                <div className="flex items-center justify-between mb-4">
-                    <div className={`p-2.5 rounded-xl ${bgClass} ring-1 ring-inset ring-white/10`}>
-                        <Icon className={`w-5 h-5 ${colorClass}`} />
+            <div className="relative z-10 flex flex-col justify-between h-full gap-2">
+                <div className="flex items-center justify-between">
+                    <div className={`p-2 rounded-lg ${bgClass} ring-1 ring-inset ring-white/10`}>
+                        <Icon className={`w-4 h-4 ${colorClass}`} />
                     </div>
                 </div>
                 <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{title}</p>
-                    <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">{title}</p>
+                    <p className="text-xl font-bold text-white tracking-tight">{value}</p>
                 </div>
             </div>
         </div>
     );
 
     return (
-        <div className="grid grid-cols-2 gap-4 w-full max-w-md px-4">
+        <div className="grid grid-cols-2 gap-3 w-full max-w-[340px] px-0">
             <ModernCard
                 title="Today's Focus"
                 value={formatDuration(totalMinutes)}
@@ -84,20 +84,20 @@ export const StatsCards = ({ todayRecord, dailyGoal, theme = 'dark', allRecords 
             />
 
             {/* Accomplishment Card */}
-            <div className="group relative overflow-hidden rounded-2xl border border-white/5 bg-black/20 p-5 transition-all duration-300 hover:bg-white/5 hover:shadow-lg hover:-translate-y-1 hover:border-amber-500/20">
+            <div className="group relative overflow-hidden rounded-xl border border-white/5 bg-black/20 p-4 transition-all duration-300 hover:bg-white/5 hover:shadow-lg hover:-translate-y-1 hover:border-amber-500/20">
                 <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between mb-4">
-                        <div className="p-2.5 rounded-xl bg-amber-500/10 ring-1 ring-inset ring-white/10">
-                            <Trophy className="w-5 h-5 text-amber-400" />
+                <div className="relative z-10 flex flex-col justify-between h-full gap-2">
+                    <div className="flex items-center justify-between">
+                        <div className="p-2 rounded-lg bg-amber-500/10 ring-1 ring-inset ring-white/10">
+                            <Trophy className="w-4 h-4 text-amber-400" />
                         </div>
-                        <div className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                        <div className="text-[10px] font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
                             {Math.round(goalProgress)}%
                         </div>
                     </div>
                     <div>
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Accomplishment</p>
-                        <div className="mt-3 h-2 w-full rounded-full bg-white/5 overflow-hidden ring-1 ring-white/5">
+                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Accomplishment</p>
+                        <div className="mt-2 h-1.5 w-full rounded-full bg-white/5 overflow-hidden ring-1 ring-white/5">
                             <div
                                 className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(251,191,36,0.3)]"
                                 style={{ width: `${goalProgress}%` }}
