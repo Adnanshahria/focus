@@ -1,12 +1,16 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { parseISO } from 'date-fns';
 import { Card, CardContent } from '../ui/card';
 import { DailyFocusChart } from './daily-focus-chart';
 import { Skeleton } from '../ui/skeleton';
 import { Clock, Flame, Target } from 'lucide-react';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 function formatDuration(minutes: number) {
     if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -32,8 +36,26 @@ interface TodayChartProps {
 }
 
 export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps) => {
-    const { preferences } = useUserPreferences();
+    const { preferences, updatePreferences } = useUserPreferences();
     const dailyGoal = preferences?.dailyGoalMinutes ?? 120; // Default 2 hours
+
+    const [goalHours, setGoalHours] = useState(Math.floor(dailyGoal / 60));
+    const [goalMinutes, setGoalMinutes] = useState(dailyGoal % 60);
+    const [isOpen, setIsOpen] = useState(false);
+
+    // Sync local state with preferences when not editing
+    useEffect(() => {
+        if (!isOpen) {
+            setGoalHours(Math.floor(dailyGoal / 60));
+            setGoalMinutes(dailyGoal % 60);
+        }
+    }, [dailyGoal, isOpen]);
+
+    const handleSaveGoal = () => {
+        const totalMinutes = (Number(goalHours) || 0) * 60 + (Number(goalMinutes) || 0);
+        updatePreferences({ dailyGoalMinutes: totalMinutes });
+        setIsOpen(false);
+    };
 
     const hourlyChartData = useMemo(() => {
         const hourlyFocus = Array.from({ length: 24 }, (_, i) => ({
@@ -70,13 +92,54 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
                         <h3 className="text-lg font-semibold tracking-tight">Today's Activity</h3>
                         <p className="text-sm text-muted-foreground">Track your daily focus progress</p>
                     </div>
-                    {dailyGoal > 0 && (
-                        <div className="flex items-center gap-2 text-sm">
-                            <Target className="w-4 h-4 text-primary" />
-                            <span className="text-muted-foreground">Goal:</span>
-                            <span className="font-medium">{formatDuration(dailyGoal)}</span>
-                        </div>
-                    )}
+                    <Popover open={isOpen} onOpenChange={setIsOpen}>
+                        <PopoverTrigger asChild>
+                            <div
+                                className="flex items-center gap-2 text-sm cursor-pointer hover:bg-background/50 p-2 rounded-md transition-colors border border-transparent hover:border-border/50"
+                                role="button"
+                                title="Click to set daily goal"
+                            >
+                                <Target className="w-4 h-4 text-primary" />
+                                <span className="text-muted-foreground">Goal:</span>
+                                <span className="font-medium">{formatDuration(dailyGoal)}</span>
+                            </div>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80" align="end">
+                            <div className="grid gap-4">
+                                <div className="space-y-2">
+                                    <h4 className="font-medium leading-none">Set Daily Goal</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                        Set your daily focus target.
+                                    </p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="grid gap-2 flex-1">
+                                        <Label htmlFor="hours">Hours</Label>
+                                        <Input
+                                            id="hours"
+                                            type="number"
+                                            min="0"
+                                            max="24"
+                                            value={goalHours}
+                                            onChange={(e: any) => setGoalHours(Number(e.target.value))}
+                                        />
+                                    </div>
+                                    <div className="grid gap-2 flex-1">
+                                        <Label htmlFor="minutes">Minutes</Label>
+                                        <Input
+                                            id="minutes"
+                                            type="number"
+                                            min="0"
+                                            max="59"
+                                            value={goalMinutes}
+                                            onChange={(e: any) => setGoalMinutes(Number(e.target.value))}
+                                        />
+                                    </div>
+                                </div>
+                                <Button onClick={handleSaveGoal} className="w-full">Save Goal</Button>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
                 </div>
 
                 {/* Stat Cards */}
