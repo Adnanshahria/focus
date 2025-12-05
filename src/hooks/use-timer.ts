@@ -76,8 +76,11 @@ export const useTimer = () => {
         setSaving(true);
         try {
           await recordSession(sessionStartTime, mode, true);
-          completeCycle();
+        } catch (error) {
+          console.error("Failed to record session:", error);
+          // Still complete the cycle to avoid stuck state
         } finally {
+          completeCycle();
           setSaving(false);
         }
       }

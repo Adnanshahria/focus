@@ -98,7 +98,7 @@ export default function DashboardPage() {
           transition={{ duration: 0.5 }}
           className="w-full h-full"
         >
-          <FloatingTimer theme={theme as 'dark' | 'light' || 'dark'} toggleTheme={toggleTheme} />
+          <FloatingTimer theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'} toggleTheme={toggleTheme} />
         </motion.div>
       </div>
     );
