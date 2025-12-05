@@ -19,6 +19,7 @@ export type UserPreferences = {
     shortBreakDuration?: number;
     longBreakDuration?: number;
     weekStartsOn?: WeekStartDay;
+    dailyGoalMinutes?: number; // Daily focus goal in minutes (default: 120 = 2 hours)
 }
 
 export function useUserPreferences() {
