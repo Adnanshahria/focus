@@ -143,7 +143,6 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <div className='lg:col-span-2 space-y-8'>
-                <StatsCards todayRecord={todayRecord} dailyGoal={preferences?.dailyGoalMinutes ?? 120} theme={theme as 'dark' | 'light'} allRecords={allRecords} />
                 <TodayChart todayRecord={todayRecord} isLoading={isTodayRecordLoading} sessions={todaySessions} />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />

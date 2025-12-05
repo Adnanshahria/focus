@@ -13,11 +13,27 @@ import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 
 
+import { useUserPreferences } from "@/hooks/use-user-preferences";
+import { useFirestore, useMemoFirebase, useDoc } from "@/firebase";
+import { doc } from "firebase/firestore";
+import { format } from "date-fns";
+
 export default function Home() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const { theme, setTheme } = useTheme();
   const [isDeepFocus, setDeepFocus] = useState(false);
+  const { preferences } = useUserPreferences();
+  const firestore = useFirestore();
+
+  const todayDateString = format(new Date(), 'yyyy-MM-dd');
+
+  const todayRecordRef = useMemoFirebase(() => {
+    if (!user || user.isAnonymous || !firestore) return null;
+    return doc(firestore, `users/${user.uid}/focusRecords`, todayDateString);
+  }, [user, firestore, todayDateString]);
+
+  const { data: todayRecord } = useDoc(todayRecordRef);
 
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
@@ -49,7 +65,10 @@ export default function Home() {
         })
         .catch(err => {
           console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+          setDeepFocus(true); // Fallback
         });
+    } else {
+      setDeepFocus(true);
     }
   };
 
@@ -62,7 +81,13 @@ export default function Home() {
           transition={{ duration: 0.5 }}
           className="w-full h-full"
         >
-          <FloatingTimer theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'} toggleTheme={toggleTheme} />
+          <FloatingTimer
+            theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'}
+            toggleTheme={toggleTheme}
+            todayRecord={todayRecord}
+            dailyGoal={preferences?.dailyGoalMinutes ?? 120}
+            onExit={() => setDeepFocus(false)}
+          />
         </motion.div>
       </div>
     );
