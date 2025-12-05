@@ -95,7 +95,7 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
     // Let's check 'TodayStats' to see what it passes.
 
     return (
-        <Card className="overflow-hidden border-none shadow-none bg-transparent">
+        <Card className="overflow-hidden border border-border/50 rounded-xl p-6 bg-card/30 backdrop-blur-sm">
             {/* Header with Goal Setting */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div>

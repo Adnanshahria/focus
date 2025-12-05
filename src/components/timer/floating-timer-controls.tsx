@@ -4,14 +4,12 @@ import { useState, ChangeEvent } from 'react';
 import { motion, AnimationProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun, Clock } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Clock } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 interface FloatingTimerControlsProps {
-  theme: 'dark' | 'light';
   controlsAnimationProps: AnimationProps;
   controlsVisible: boolean;
   isActive: boolean;
@@ -23,12 +21,10 @@ interface FloatingTimerControlsProps {
   onAddTime: (event: React.MouseEvent) => void;
   onCancel: (event: React.MouseEvent) => void;
   onEndAndSave: (event: React.MouseEvent) => void;
-  onToggleTheme: (event: React.MouseEvent) => void;
   onSetSessionTime: (seconds: number) => void;
 }
 
 export const FloatingTimerControls = ({
-  theme,
   controlsAnimationProps,
   controlsVisible,
   isActive,
@@ -40,11 +36,10 @@ export const FloatingTimerControls = ({
   onAddTime,
   onCancel,
   onEndAndSave,
-  onToggleTheme,
   onSetSessionTime,
 }: FloatingTimerControlsProps) => {
-  const uiColor = theme === 'dark' ? 'white' : 'hsl(var(--primary))';
-  const bgColorClass = theme === 'dark' ? 'bg-white/10 hover:bg-white/20' : 'bg-primary/10 hover:bg-primary/20';
+  const uiColor = 'white';
+  const bgColorClass = 'bg-white/10 hover:bg-white/20';
 
   const [isTimePopupOpen, setIsTimePopupOpen] = useState(false);
   const [customMinutes, setCustomMinutes] = useState(25);
@@ -75,7 +70,7 @@ export const FloatingTimerControls = ({
           <Button variant="ghost" size="icon" onClick={onSubtractTime} className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)} style={{ color: uiColor }}>
             <Minus className="w-7 h-7" />
           </Button>
-          <Button onClick={onTogglePlay} variant="ghost" size="icon" className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')} style={{ color: uiColor }}>
+          <Button onClick={onTogglePlay} variant="ghost" size="icon" className={cn("w-16 h-16 rounded-full backdrop-blur-sm bg-white/20 hover:bg-white/30")} style={{ color: uiColor }}>
             <Pause className="w-9 h-9" />
           </Button>
           <Button variant="ghost" size="icon" onClick={onAddTime} className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)} style={{ color: uiColor }}>
@@ -88,7 +83,7 @@ export const FloatingTimerControls = ({
             <XCircle className="w-6 h-6" />
           </Button>
 
-          {/* Minus Button for Custom Time */}
+          {/* Custom Time Button */}
           <Popover open={isTimePopupOpen} onOpenChange={setIsTimePopupOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" onClick={handleOpenPopup} className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)} style={{ color: uiColor }}>
@@ -116,7 +111,7 @@ export const FloatingTimerControls = ({
             </PopoverContent>
           </Popover>
 
-          <Button onClick={onTogglePlay} variant="ghost" size="icon" className={cn("w-16 h-16 rounded-full backdrop-blur-sm", theme === 'dark' ? 'bg-white/20 hover:bg-white/30' : 'bg-primary/20 hover:bg-primary/30')} style={{ color: uiColor }}>
+          <Button onClick={onTogglePlay} variant="ghost" size="icon" className={cn("w-16 h-16 rounded-full backdrop-blur-sm bg-white/20 hover:bg-white/30")} style={{ color: uiColor }}>
             <Play className="w-9 h-9 ml-1" />
           </Button>
 
@@ -130,10 +125,6 @@ export const FloatingTimerControls = ({
           </Button>
         </>
       )}
-
-      <Button variant="ghost" size="icon" onClick={onToggleTheme} className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)} style={{ color: uiColor }}>
-        {theme === 'dark' ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
-      </Button>
     </motion.div>
   );
 };

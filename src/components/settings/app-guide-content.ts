@@ -37,7 +37,7 @@ export const guideContent = {
     settings: {
       title: "Settings Explained",
       profile: "**User Profile:** Sign up to save your preferences and track your progress across devices. Anonymous users' data is stored locally and is temporary.",
-      appearance: "**Appearance:** Switch between light and dark modes. Enable 'Anti-Burn' to protect OLED screens by subtly moving the timer in Deep Focus mode.",
+      appearance: "**Appearance:** Enable 'Anti-Burn Protection' to protect OLED screens by subtly moving the timer in Deep Focus mode. The app uses dark mode for optimal focus experience.",
       timer: "**Timer Durations:** Customize the length of your Pomodoro, short break, and long break sessions. Changes are saved automatically for registered users.",
     },
   },

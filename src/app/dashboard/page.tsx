@@ -34,9 +34,7 @@ export default function DashboardPage() {
   const { theme, setTheme } = useTheme();
   const { preferences } = useUserPreferences();
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+
 
   // --- Start of Optimized Data Fetching ---
   const todayRecordRef = useMemoFirebase(() => {
@@ -107,8 +105,6 @@ export default function DashboardPage() {
           className="w-full h-full"
         >
           <FloatingTimer
-            theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'}
-            toggleTheme={toggleTheme}
             todayRecord={todayRecord}
             dailyGoal={preferences?.dailyGoalMinutes ?? 120}
             onExit={() => setDeepFocus(false)}

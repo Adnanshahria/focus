@@ -35,10 +35,7 @@ export default function Home() {
 
   const { data: todayRecord } = useDoc(todayRecordRef);
 
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-  };
+
 
   useEffect(() => {
     if (!isUserLoading && !user && auth) {
@@ -82,8 +79,6 @@ export default function Home() {
           className="w-full h-full"
         >
           <FloatingTimer
-            theme={(theme === 'dark' || theme === 'light') ? theme : 'dark'}
-            toggleTheme={toggleTheme}
             todayRecord={todayRecord}
             dailyGoal={preferences?.dailyGoalMinutes ?? 120}
             onExit={() => setDeepFocus(false)}

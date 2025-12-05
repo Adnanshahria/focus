@@ -3,8 +3,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-import { StatsCards } from '@/components/dashboard/stats-cards';
-
 const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -18,7 +16,6 @@ const formatTime = (seconds: number) => {
 };
 
 interface FloatingTimerDisplayProps {
-    theme: 'dark' | 'light';
     timeLeft: number;
     sessionDuration: number;
     isActive: boolean;
@@ -26,10 +23,10 @@ interface FloatingTimerDisplayProps {
     dailyGoal?: number;
 }
 
-export const FloatingTimerDisplay = ({ theme, timeLeft, sessionDuration, isActive, todayRecord, dailyGoal }: FloatingTimerDisplayProps) => {
+export const FloatingTimerDisplay = ({ timeLeft, sessionDuration, isActive, todayRecord, dailyGoal }: FloatingTimerDisplayProps) => {
     const [pathLength, setPathLength] = useState(0);
     const pathRef = useRef<SVGPathElement>(null);
-    const uiColor = theme === 'dark' ? 'white' : 'hsl(var(--primary))';
+    const uiColor = 'white';
     const [isGoalVisible, setIsGoalVisible] = useState(true);
 
     // Accomplishment Logic
