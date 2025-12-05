@@ -63,20 +63,7 @@ export const FloatingTimerDisplay = ({ theme, timeLeft, sessionDuration, isActiv
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 w-full max-w-md px-4">
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <p className="text-xs text-muted-foreground mb-1" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.5)' : undefined }}>Today's Focus</p>
-                    <p className="text-2xl font-bold" style={{ color: uiColor }}>{formatDuration(totalMinutes)}</p>
-                    <p className="text-xs text-muted-foreground mt-1" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.5)' : undefined }}>Goal: {formatDuration(goal)}</p>
-                </div>
-                <div className="bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
-                    <p className="text-xs text-muted-foreground mb-1" style={{ color: theme === 'dark' ? 'rgba(255,255,255,0.5)' : undefined }}>Accomplishment</p>
-                    <p className="text-2xl font-bold" style={{ color: uiColor }}>{Math.round(goalProgress)}%</p>
-                    <div className="w-full bg-white/10 h-1 mt-2 rounded-full overflow-hidden">
-                        <div className="h-full transition-all duration-500" style={{ width: `${goalProgress}%`, backgroundColor: uiColor }} />
-                    </div>
-                </div>
-            </div>
+            <StatsCards todayRecord={todayRecord} dailyGoal={dailyGoal} theme={theme} />
         </div>
     );
 };

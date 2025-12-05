@@ -14,14 +14,20 @@ interface FloatingTimerProps {
   toggleTheme: () => void;
   todayRecord?: any;
   dailyGoal?: number;
+  onExit?: () => void;
 }
 
-export function FloatingTimer({ theme, toggleTheme, todayRecord, dailyGoal }: FloatingTimerProps) {
+export function FloatingTimer({ theme, toggleTheme, todayRecord, dailyGoal, onExit }: FloatingTimerProps) {
   const { timeLeft, isActive, start, pause, addTime, subtractTime, setSessionTime, sessionDuration, endAndSaveSession, resetSession, isSaving } = useTimer();
   const { antiBurnIn } = useTimerStore();
   const controlsAnimation = useAnimation();
   const pixelShiftControls = useAnimation();
-  const { controlsVisible, isDimmed, showControls, handleExit } = useFloatingTimer(controlsAnimation);
+  const { controlsVisible, isDimmed, showControls, handleExit: exitFullscreen } = useFloatingTimer(controlsAnimation);
+
+  const handleExitWrapper = () => {
+    exitFullscreen();
+    onExit?.();
+  };
 
   const handleEventAndShowControls = (event: React.MouseEvent, action?: () => void) => {
     event.stopPropagation();
@@ -46,11 +52,11 @@ export function FloatingTimer({ theme, toggleTheme, todayRecord, dailyGoal }: Fl
     const handleKeyDown = (e: KeyboardEvent) => {
       showControls();
       if (e.key === ' ') { e.preventDefault(); isActive ? pause() : start(); }
-      if (e.key === 'Escape') { handleExit(); }
+      if (e.key === 'Escape') { handleExitWrapper(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [showControls, isActive, pause, start, handleExit]);
+  }, [showControls, isActive, pause, start, exitFullscreen, onExit]);
 
   return (
     <div className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-black" onClick={showControls}>
@@ -71,7 +77,7 @@ export function FloatingTimer({ theme, toggleTheme, todayRecord, dailyGoal }: Fl
         isActive={isActive}
         isPristine={timeLeft === sessionDuration && !isActive}
         isSaving={isSaving}
-        onExit={(e) => handleEventAndShowControls(e, handleExit)}
+        onExit={(e) => handleEventAndShowControls(e, handleExitWrapper)}
         onSubtractTime={(e) => handleEventAndShowControls(e, () => subtractTime(3 * 60))}
         onTogglePlay={(e) => handleEventAndShowControls(e, isActive ? pause : start)}
         onAddTime={(e) => handleEventAndShowControls(e, () => addTime(3 * 60))}

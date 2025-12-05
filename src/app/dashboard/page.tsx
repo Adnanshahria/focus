@@ -20,6 +20,8 @@ import { useDateRanges } from '@/hooks/use-date-ranges';
 import { motion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { FloatingTimer } from '@/components/timer/floating-timer';
+import { StatsCards } from '@/components/dashboard/stats-cards';
+import { useUserPreferences } from '@/hooks/use-user-preferences';
 
 export default function DashboardPage() {
   const { user, isUserLoading } = useUser();
@@ -30,6 +32,7 @@ export default function DashboardPage() {
   const todayDateString = format(today, 'yyyy-MM-dd');
   const [isDeepFocus, setDeepFocus] = useState(false);
   const { theme, setTheme } = useTheme();
+  const { preferences } = useUserPreferences();
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -85,7 +88,12 @@ export default function DashboardPage() {
     if (element.requestFullscreen) {
       element.requestFullscreen()
         .then(() => setDeepFocus(true))
-        .catch(err => console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`));
+        .catch(err => {
+          console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+          setDeepFocus(true);
+        });
+    } else {
+      setDeepFocus(true);
     }
   };
 
@@ -103,6 +111,7 @@ export default function DashboardPage() {
             toggleTheme={toggleTheme}
             todayRecord={todayRecord}
             dailyGoal={preferences?.dailyGoalMinutes ?? 120}
+            onExit={() => setDeepFocus(false)}
           />
         </motion.div>
       </div>
@@ -139,6 +148,8 @@ export default function DashboardPage() {
                   <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
                   <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
                 </div>
+                <StatsCards todayRecord={todayRecord} dailyGoal={preferences?.dailyGoalMinutes ?? 120} theme={theme as 'dark' | 'light'} />
+
               </div>
               <div className="space-y-8">
                 <RecentActivityCard sessions={todaySessions} isLoading={areSessionsLoading} onLogClick={() => setAuthDialogOpen(true)} />

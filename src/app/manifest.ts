@@ -20,25 +20,25 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: 'portrait-primary',
     icons: [
       {
-        src: '/icon-192.png',
+        src: `${basePath}/icon-192.png`,
         sizes: '192x192',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icon-512.png',
+        src: `${basePath}/icon-512.png`,
         sizes: '512x512',
         type: 'image/png',
         purpose: 'any',
       },
       {
-        src: '/icon-192-maskable.png',
+        src: `${basePath}/icon-192-maskable.png`,
         sizes: '192x192',
         type: 'image/png',
         purpose: 'maskable',
       },
       {
-        src: '/icon-512-maskable.png',
+        src: `${basePath}/icon-512-maskable.png`,
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',
@@ -46,13 +46,13 @@ export default function manifest(): MetadataRoute.Manifest {
     ],
     screenshots: [
       {
-        src: '/screenshot-540x720.png',
+        src: `${basePath}/screenshot-540x720.png`,
         sizes: '540x720',
         type: 'image/png',
         form_factor: 'narrow',
       },
       {
-        src: '/screenshot-1280x720.png',
+        src: `${basePath}/screenshot-1280x720.png`,
         sizes: '1280x720',
         type: 'image/png',
         form_factor: 'wide',
@@ -67,7 +67,7 @@ export default function manifest(): MetadataRoute.Manifest {
         url: startUrl,
         icons: [
           {
-            src: '/icon-96.png',
+            src: `${basePath}/icon-96.png`,
             sizes: '96x96',
           },
         ],
