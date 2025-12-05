@@ -10,8 +10,8 @@ import { FloatingTimerDisplay } from './floating-timer-display';
 import { FloatingTimerControls } from './floating-timer-controls';
 
 interface FloatingTimerProps {
-    theme: 'dark' | 'light';
-    toggleTheme: () => void;
+  theme: 'dark' | 'light';
+  toggleTheme: () => void;
 }
 
 export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
@@ -39,19 +39,19 @@ export function FloatingTimer({ theme, toggleTheme }: FloatingTimerProps) {
     const intervalId = setInterval(shiftPixel, 60000);
     return () => clearInterval(intervalId);
   }, [pixelShiftControls, antiBurnIn]);
-  
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       showControls();
       if (e.key === ' ') { e.preventDefault(); isActive ? pause() : start(); }
-      if(e.key === 'Escape') { handleExit(); }
+      if (e.key === 'Escape') { handleExit(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [showControls, isActive, pause, start, handleExit]);
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center cursor-pointer" onClick={showControls}>
+    <div className="w-full h-full flex flex-col items-center justify-center cursor-pointer bg-black" onClick={showControls}>
       <motion.div animate={pixelShiftControls} className={cn('relative flex flex-col items-center justify-center gap-8 transition-opacity duration-1000', isDimmed ? 'opacity-30' : 'opacity-100')}>
         <FloatingTimerDisplay theme={theme} timeLeft={timeLeft} sessionDuration={sessionDuration} isActive={isActive} />
       </motion.div>

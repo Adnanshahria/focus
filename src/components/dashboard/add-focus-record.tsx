@@ -78,9 +78,13 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
     const sessionsCollectionRef = collection(focusRecordRef, 'sessions');
 
     await runTransaction(firestore, async (transaction) => {
-      // Ensure user document exists (auto-repair if deleted)
+      // ===== ALL READS FIRST =====
       const userDocRef = doc(firestore, 'users', emailUsername);
       const userDocSnap = await transaction.get(userDocRef);
+      const recordSnap = await transaction.get(focusRecordRef);
+
+      // ===== THEN ALL WRITES =====
+      // Ensure user document exists (auto-repair if deleted)
       if (!userDocSnap.exists()) {
         transaction.set(userDocRef, {
           id: emailUsername,
@@ -90,9 +94,7 @@ export function AddFocusRecordDialog({ open, onOpenChange }: AddFocusRecordDialo
         });
       }
 
-      const recordSnap = await transaction.get(focusRecordRef);
       const currentData = recordSnap.data() || { totalFocusMinutes: 0, totalPomos: 0 };
-
       const newTotalFocusMinutes = currentData.totalFocusMinutes + data.duration;
       const isPomodoro = data.duration >= 25;
       const newTotalPomos = currentData.totalPomos + (isPomodoro ? 1 : 0);

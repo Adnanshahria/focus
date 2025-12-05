@@ -55,7 +55,7 @@ export default function Home() {
 
   if (isDeepFocus) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-black">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
