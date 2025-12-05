@@ -22,14 +22,23 @@ export function VisualSettings() {
   const { theme, setTheme } = useTheme();
   const { preferences, isLoading, updatePreferences } = useUserPreferences();
 
-  const { watch, reset, setValue } = useForm<VisualSettingsFormValues>();
+  const { watch, reset, setValue } = useForm<VisualSettingsFormValues>({
+    defaultValues: {
+      theme: 'dark',
+      antiBurnIn: true,
+    }
+  });
 
   const watchedValues = watch();
+
+  // Safe getters with fallbacks
+  const currentTheme = watchedValues.theme || theme || 'dark';
+  const currentAntiBurnIn = watchedValues.antiBurnIn ?? true;
 
   useEffect(() => {
     if (preferences) {
       const newValues = {
-        theme: preferences.theme || 'dark',
+        theme: (preferences.theme || 'dark') as 'light' | 'dark',
         antiBurnIn: preferences.antiBurnIn ?? true,
       };
       reset(newValues);
@@ -40,7 +49,9 @@ export function VisualSettings() {
   }, [preferences, reset, theme, setTheme]);
 
   useEffect(() => {
-    if (theme) setValue('theme', theme as 'light' | 'dark');
+    if (theme && (theme === 'light' || theme === 'dark')) {
+      setValue('theme', theme);
+    }
   }, [theme, setValue]);
 
   const handleSettingsChange = (data: Partial<VisualSettingsFormValues>) => {
@@ -68,20 +79,20 @@ export function VisualSettings() {
     <div className="space-y-6">
       <div className="space-y-2">
         <Label>Theme</Label>
-        <RadioGroup value={watchedValues.theme} className="grid grid-cols-2 gap-4" onValueChange={(value: 'light' | 'dark') => handleSettingsChange({ theme: value })}>
+        <RadioGroup value={currentTheme} className="grid grid-cols-2 gap-4" onValueChange={(value: 'light' | 'dark') => handleSettingsChange({ theme: value })}>
           <Label className={cn(
             "flex flex-col items-center justify-center gap-3 border-2 rounded-xl p-4 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-all",
-            watchedValues.theme === 'light' ? "border-primary bg-primary/5" : "border-muted"
+            currentTheme === 'light' ? "border-primary bg-primary/5" : "border-muted"
           )}>
-            <Sun className={cn("h-6 w-6", watchedValues.theme === 'light' ? "text-primary" : "text-muted-foreground")} />
+            <Sun className={cn("h-6 w-6", currentTheme === 'light' ? "text-primary" : "text-muted-foreground")} />
             <RadioGroupItem value="light" id="theme-light" className="sr-only" />
             <span className="font-medium">Light</span>
           </Label>
           <Label className={cn(
             "flex flex-col items-center justify-center gap-3 border-2 rounded-xl p-4 cursor-pointer hover:bg-accent hover:text-accent-foreground transition-all",
-            watchedValues.theme === 'dark' ? "border-primary bg-primary/5" : "border-muted"
+            currentTheme === 'dark' ? "border-primary bg-primary/5" : "border-muted"
           )}>
-            <Moon className={cn("h-6 w-6", watchedValues.theme === 'dark' ? "text-primary" : "text-muted-foreground")} />
+            <Moon className={cn("h-6 w-6", currentTheme === 'dark' ? "text-primary" : "text-muted-foreground")} />
             <RadioGroupItem value="dark" id="theme-dark" className="sr-only" />
             <span className="font-medium">Dark</span>
           </Label>
@@ -92,7 +103,7 @@ export function VisualSettings() {
           <Label htmlFor="antiBurnIn">Anti-Burn</Label>
           <p className="text-xs text-muted-foreground">Moves timer in deep focus mode to save OLED screens.</p>
         </div>
-        <Switch id="antiBurnIn" checked={watchedValues.antiBurnIn} onCheckedChange={(checked) => handleSettingsChange({ antiBurnIn: checked })} />
+        <Switch id="antiBurnIn" checked={currentAntiBurnIn} onCheckedChange={(checked) => handleSettingsChange({ antiBurnIn: checked })} />
       </div>
     </div>
   );
