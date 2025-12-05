@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, ChangeEvent } from 'react';
 import { motion, AnimationProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
@@ -107,7 +107,7 @@ export const FloatingTimerControls = ({
                     type="number"
                     min="1"
                     value={customMinutes}
-                    onChange={(e) => setCustomMinutes(Number(e.target.value))}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomMinutes(Number(e.target.value))}
                   />
                   <Button onClick={handleSetTime}>Set</Button>
                 </div>

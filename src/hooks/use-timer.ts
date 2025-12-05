@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { useTimerStore } from '@/store/timer-store';
 import { useSessionRecorder } from './use-session-recorder';
 import { useAudioAlert } from './use-audio-alert';

@@ -26,23 +26,23 @@ const getInitialTime = (mode: TimerMode, durations?: Partial<TimerDurations>) =>
   }
 };
 
-export const createTimerActions: StateCreator<TimerState & TimerActions, [], [], TimerActions> = (set, get) => ({
-  setMode: mode => {
+export const createTimerActions: StateCreator<TimerState & TimerActions, [], [], TimerActions> = (set: any, get: any) => ({
+  setMode: (mode: TimerMode) => {
     const initialTime = getInitialTime(mode, get());
     set({ mode, isActive: false, timeLeft: initialTime, sessionDuration: initialTime, sessionStartTime: null });
   },
-  start: startTime => set(state => ({ isActive: true, sessionStartTime: state.sessionStartTime ?? startTime })),
+  start: (startTime: number) => set((state: any) => ({ isActive: true, sessionStartTime: state.sessionStartTime ?? startTime })),
   pause: () => set({ isActive: false }),
-  reset: () => set(state => {
+  reset: () => set((state: any) => {
     const initialTime = getInitialTime(state.mode, state);
     return { isActive: false, timeLeft: initialTime, sessionDuration: initialTime, sessionStartTime: null };
   }),
-  endAndSaveSession: () => set(state => {
+  endAndSaveSession: () => set((state: any) => {
     const initialTime = getInitialTime(state.mode, state);
     return { isActive: false, timeLeft: initialTime, sessionDuration: initialTime, sessionStartTime: null };
   }),
-  tick: decrement => {
-    set(state => {
+  tick: (decrement: number) => {
+    set((state: any) => {
       const newTimeLeft = Math.max(0, state.timeLeft - decrement);
       return { timeLeft: newTimeLeft };
     });
@@ -58,16 +58,16 @@ export const createTimerActions: StateCreator<TimerState & TimerActions, [], [],
       get().setMode('pomodoro');
     }
   },
-  setDurations: (durations) => {
+  setDurations: (durations: Partial<TimerDurations>) => {
     set(durations);
     if (!get().isActive) {
       const newInitialTime = getInitialTime(get().mode, get());
       set({ timeLeft: newInitialTime, sessionDuration: newInitialTime });
     }
   },
-  setVisuals: visuals => set(visuals),
-  addTime: seconds => set(state => ({ timeLeft: state.timeLeft + seconds, sessionDuration: state.sessionDuration + seconds })),
-  subtractTime: seconds => set(state => ({ timeLeft: Math.max(0, state.timeLeft - seconds), sessionDuration: Math.max(0, state.sessionDuration - seconds) })),
-  setSaving: isSaving => set({ isSaving }),
-  setSessionTime: seconds => set({ timeLeft: seconds, sessionDuration: seconds }),
+  setVisuals: (visuals: Partial<VisualSettings>) => set(visuals),
+  addTime: (seconds: number) => set((state: any) => ({ timeLeft: state.timeLeft + seconds, sessionDuration: state.sessionDuration + seconds })),
+  subtractTime: (seconds: number) => set((state: any) => ({ timeLeft: Math.max(0, state.timeLeft - seconds), sessionDuration: Math.max(0, state.sessionDuration - seconds) })),
+  setSaving: (isSaving: boolean) => set({ isSaving }),
+  setSessionTime: (seconds: number) => set({ timeLeft: seconds, sessionDuration: seconds }),
 });
