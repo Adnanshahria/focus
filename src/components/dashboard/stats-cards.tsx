@@ -37,38 +37,72 @@ export const StatsCards = ({ todayRecord, dailyGoal, theme = 'dark', allRecords 
 
     // Determine colors based on theme
     const isDark = theme === 'dark';
-    const textColor = isDark ? 'white' : 'hsl(var(--foreground))';
-    const subTextColor = isDark ? 'rgba(255,255,255,0.5)' : 'hsl(var(--muted-foreground))';
-    const bgColor = isDark ? 'bg-white/5 border-white/10' : 'bg-card border-border shadow-sm';
-    const iconColor = isDark ? 'text-white/70' : 'text-primary';
 
-    const Card = ({ title, value, icon: Icon, subValue }: { title: string, value: string, icon: any, subValue?: string }) => (
-        <div className={`${bgColor} backdrop-blur-sm rounded-xl p-4 border flex flex-col justify-between h-full`}>
-            <div className="flex items-center gap-2 mb-2">
-                <Icon className={`w-4 h-4 ${iconColor}`} />
-                <p className="text-xs font-medium" style={{ color: subTextColor }}>{title}</p>
-            </div>
-            <div>
-                <p className="text-2xl font-bold" style={{ color: textColor }}>{value}</p>
-                {subValue && <p className="text-xs mt-1" style={{ color: subTextColor }}>{subValue}</p>}
+    // Modern Card Component
+    const ModernCard = ({ title, value, icon: Icon, colorClass, bgClass, borderClass }: any) => (
+        <div className={`group relative overflow-hidden rounded-2xl border border-white/5 bg-black/20 p-5 transition-all duration-300 hover:bg-white/5 hover:shadow-lg hover:-translate-y-1 ${borderClass}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="relative z-10 flex flex-col justify-between h-full">
+                <div className="flex items-center justify-between mb-4">
+                    <div className={`p-2.5 rounded-xl ${bgClass} ring-1 ring-inset ring-white/10`}>
+                        <Icon className={`w-5 h-5 ${colorClass}`} />
+                    </div>
+                </div>
+                <div>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">{title}</p>
+                    <p className="text-2xl font-bold text-white tracking-tight">{value}</p>
+                </div>
             </div>
         </div>
     );
 
     return (
         <div className="grid grid-cols-2 gap-4 w-full max-w-md px-4">
-            <Card title="Today's Focus" value={formatDuration(totalMinutes)} icon={Clock} />
-            <Card title="Weekly Focus" value={formatDuration(weeklyMinutes)} icon={Calendar} />
-            <Card title="Focus Goal" value={formatDuration(goal)} icon={Target} />
-            <div className={`${bgColor} backdrop-blur-sm rounded-xl p-4 border flex flex-col justify-between h-full`}>
-                <div className="flex items-center gap-2 mb-2">
-                    <Trophy className={`w-4 h-4 ${iconColor}`} />
-                    <p className="text-xs font-medium" style={{ color: subTextColor }}>Accomplishment</p>
-                </div>
-                <div>
-                    <p className="text-2xl font-bold" style={{ color: textColor }}>{Math.round(goalProgress)}%</p>
-                    <div className="w-full bg-primary/10 h-1 mt-2 rounded-full overflow-hidden">
-                        <div className="h-full transition-all duration-500" style={{ width: `${goalProgress}%`, backgroundColor: isDark ? 'white' : 'hsl(var(--primary))' }} />
+            <ModernCard
+                title="Today's Focus"
+                value={formatDuration(totalMinutes)}
+                icon={Clock}
+                colorClass="text-blue-400"
+                bgClass="bg-blue-500/10"
+                borderClass="hover:border-blue-500/20"
+            />
+            <ModernCard
+                title="Weekly Focus"
+                value={formatDuration(weeklyMinutes)}
+                icon={Calendar}
+                colorClass="text-purple-400"
+                bgClass="bg-purple-500/10"
+                borderClass="hover:border-purple-500/20"
+            />
+            <ModernCard
+                title="Focus Goal"
+                value={formatDuration(goal)}
+                icon={Target}
+                colorClass="text-emerald-400"
+                bgClass="bg-emerald-500/10"
+                borderClass="hover:border-emerald-500/20"
+            />
+
+            {/* Accomplishment Card */}
+            <div className="group relative overflow-hidden rounded-2xl border border-white/5 bg-black/20 p-5 transition-all duration-300 hover:bg-white/5 hover:shadow-lg hover:-translate-y-1 hover:border-amber-500/20">
+                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col justify-between h-full">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="p-2.5 rounded-xl bg-amber-500/10 ring-1 ring-inset ring-white/10">
+                            <Trophy className="w-5 h-5 text-amber-400" />
+                        </div>
+                        <div className="text-xs font-bold text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-full border border-amber-500/20">
+                            {Math.round(goalProgress)}%
+                        </div>
+                    </div>
+                    <div>
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Accomplishment</p>
+                        <div className="mt-3 h-2 w-full rounded-full bg-white/5 overflow-hidden ring-1 ring-white/5">
+                            <div
+                                className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(251,191,36,0.3)]"
+                                style={{ width: `${goalProgress}%` }}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
