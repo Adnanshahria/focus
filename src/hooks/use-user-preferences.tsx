@@ -12,17 +12,6 @@ export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 const WEEK_START_KEY = 'focusflow_weekStartsOn';
 
-// Get initial weekStartsOn from localStorage (for instant loading)
-function getInitialWeekStart(): WeekStartDay {
-    if (typeof window === 'undefined') return 1;
-    const stored = localStorage.getItem(WEEK_START_KEY);
-    if (stored !== null) {
-        const parsed = parseInt(stored, 10);
-        if (parsed >= 0 && parsed <= 6) return parsed as WeekStartDay;
-    }
-    return 1; // Default to Monday
-}
-
 export type UserPreferences = {
     theme?: 'light' | 'dark';
     antiBurnIn?: boolean;
@@ -36,9 +25,20 @@ export function useUserPreferences() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
-    const [localWeekStart, setLocalWeekStart] = useState<WeekStartDay>(getInitialWeekStart);
+    const [localWeekStart, setLocalWeekStart] = useState<WeekStartDay>(1); // Default to Monday
     const setTimerStoreDurations = useTimerStore(state => state.setDurations);
     const setTimerStoreVisuals = useTimerStore(state => state.setVisuals);
+
+    // Load from localStorage after mount (avoids hydration mismatch)
+    useEffect(() => {
+        const stored = localStorage.getItem(WEEK_START_KEY);
+        if (stored !== null) {
+            const parsed = parseInt(stored, 10);
+            if (parsed >= 0 && parsed <= 6) {
+                setLocalWeekStart(parsed as WeekStartDay);
+            }
+        }
+    }, []);
 
 
     const userPreferencesRef = useMemoFirebase(() => {
