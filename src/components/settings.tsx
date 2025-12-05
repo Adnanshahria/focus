@@ -22,29 +22,28 @@ export function Settings() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
+        <Button variant="ghost" size="icon" className="h-9 w-9 flex-shrink-0 rounded-full hover:bg-primary/10 transition-colors">
           <Cog className="h-5 w-5" />
           <span className="sr-only">Settings</span>
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full max-w-sm flex flex-col">
-        <SheetHeader className="pr-6">
-          <SheetTitle>Settings</SheetTitle>
-          <SheetDescription>
+      <SheetContent className="w-full max-w-md flex flex-col border-l border-border/50">
+        <SheetHeader className="pr-6 pb-4 border-b border-border/50">
+          <SheetTitle className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+            Settings
+          </SheetTitle>
+          <SheetDescription className="text-sm">
             Manage your profile, preferences, and timer settings.
           </SheetDescription>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto py-6 pr-6">
-          <Accordion type="multiple" className="w-full space-y-4">
+        <div className="flex-1 overflow-y-auto py-6 pr-6 space-y-2">
+          <Accordion type="multiple" className="w-full space-y-3">
             <Section icon={User} title="User Profile">
               <UserProfile />
             </Section>
             <Section icon={Info} title="App Guide">
               <AppGuide />
             </Section>
-            {/* <Section icon={Palette} title="Appearance">
-                    <VisualSettings />
-                </Section> */}
             <Section icon={TimerIcon} title="Timer">
               <TimerSettings />
             </Section>

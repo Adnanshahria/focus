@@ -3,7 +3,7 @@
 import { useCallback } from 'react';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
-import { doc, collection, runTransaction, Timestamp } from 'firebase/firestore';
+import { doc, collection, Timestamp, writeBatch, increment } from 'firebase/firestore';
 import { TimerMode } from '@/store/timer-state';
 
 export const useSessionRecorder = () => {
@@ -28,40 +28,40 @@ export const useSessionRecorder = () => {
         const newSessionRef = doc(sessionsCollection);
 
         try {
-            await runTransaction(firestore, async (transaction) => {
-                const recordSnap = await transaction.get(focusRecordRef);
-                const currentData = recordSnap.data() || { totalFocusMinutes: 0, totalPomos: 0 };
+            const batch = writeBatch(firestore);
 
-                let newTotalFocusMinutes = currentData.totalFocusMinutes;
-                let newTotalPomos = currentData.totalPomos;
-
-                // Only add to totals if it's a pomodoro session
-                if (mode === 'pomodoro') {
-                    newTotalFocusMinutes += durationInMinutes;
-                    if (isCompletion) {
-                        newTotalPomos += 1;
-                    }
-                }
-
-                const focusRecordUpdate = {
-                    id: today, date: today, userId: user.uid,
-                    totalFocusMinutes: newTotalFocusMinutes, totalPomos: newTotalPomos,
-                };
-
-                // Record all session types (pomodoro, shortBreak, longBreak)
-                transaction.set(newSessionRef, {
-                    id: newSessionRef.id, focusRecordId: focusRecordRef.id,
-                    startTime: Timestamp.fromDate(new Date(sessionStartTime)),
-                    endTime: Timestamp.fromDate(new Date()),
-                    duration: durationInMinutes, type: mode, completed: isCompletion,
-                });
-
-                // Update the daily aggregate record
-                transaction.set(focusRecordRef, focusRecordUpdate, { merge: true });
+            // 1. Create the session document
+            batch.set(newSessionRef, {
+                id: newSessionRef.id,
+                focusRecordId: focusRecordRef.id,
+                startTime: Timestamp.fromDate(new Date(sessionStartTime)),
+                endTime: Timestamp.fromDate(new Date()),
+                duration: durationInMinutes,
+                type: mode,
+                completed: isCompletion,
             });
+
+            // 2. Update daily totals using atomic increment
+            // We use set with merge: true to ensure the document exists or is created
+            const updateData: any = {
+                id: today,
+                date: today,
+                userId: user.uid,
+            };
+
+            if (mode === 'pomodoro') {
+                updateData.totalFocusMinutes = increment(durationInMinutes);
+                if (isCompletion) {
+                    updateData.totalPomos = increment(1);
+                }
+            }
+
+            batch.set(focusRecordRef, updateData, { merge: true });
+
+            await batch.commit();
             return true;
         } catch (error) {
-            console.error("Transaction to record session failed: ", error);
+            console.error("Batch write to record session failed: ", error);
             return false;
         }
     }, [user, firestore]);

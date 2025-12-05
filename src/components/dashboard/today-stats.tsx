@@ -1,5 +1,4 @@
 import { useDoc, useFirestore, useMemoFirebase, useCollection } from "@/firebase";
-import { useMemo } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { doc, collection, query, where } from "firebase/firestore";
@@ -38,15 +37,16 @@ export const TodayStats = ({ userId }: { userId: string }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.3 }}
-      className="mt-6 flex flex-col gap-2 w-full items-center"
+      transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+      className="mt-8 w-full max-w-md px-4"
     >
       {isLoading ? (
-        <div className="flex flex-col gap-2 w-64">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-10 w-full" />
+        <div className="grid grid-cols-3 gap-3">
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
+          <Skeleton className="h-16 w-full rounded-xl" />
         </div>
       ) : (
         <StatsCards

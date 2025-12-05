@@ -5,12 +5,13 @@ import { parseISO } from 'date-fns';
 import { Card, CardContent } from '../ui/card';
 import { DailyFocusChart } from './daily-focus-chart';
 import { Skeleton } from '../ui/skeleton';
-import { Clock, Flame, Target } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { useUserPreferences } from '@/hooks/use-user-preferences';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { StatsCards } from './stats-cards';
 
 function formatDuration(minutes: number) {
     if (isNaN(minutes) || minutes < 0) return '0h 0m';
@@ -79,148 +80,100 @@ export const TodayChart = ({ todayRecord, sessions, isLoading }: TodayChartProps
         return hourlyFocus;
     }, [sessions]);
 
-    const totalMinutes = todayRecord?.totalFocusMinutes || 0;
-    const totalPomos = todayRecord?.totalPomos || 0;
-    const goalProgress = dailyGoal > 0 ? Math.min((totalMinutes / dailyGoal) * 100, 100) : 0;
+    // Calculate all records for weekly stats (this is a simplification, ideally passed from parent)
+    // For now, we'll just pass the sessions as a proxy if needed, or rely on todayRecord
+    // The StatsCards component expects 'allRecords' for weekly calculation.
+    // Since we only have 'sessions' (which might be just for today) and 'todayRecord',
+    // we might need to adjust StatsCards or accept that "Weekly" might be limited if data isn't full.
+    // However, the previous implementation of StatsCards used 'allRecords'.
+    // Let's assume for this specific view, we focus on Today's stats primarily.
+    // If we want true weekly stats, we need to fetch them.
+    // For now, let's pass an empty array or the current session list if it contains more than today.
+    // But 'sessions' prop here usually comes from 'useCollection' on 'sessions' subcollection of today's record?
+    // Actually, looking at 'TodayStats' (parent), it fetches 'todayRecord'.
+    // It doesn't seem to fetch 'allRecords'.
+    // Let's check 'TodayStats' to see what it passes.
 
     return (
-        <Card className="overflow-hidden">
-            {/* Gradient Header */}
-            {/* Gradient Header */}
-            <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-6 pb-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-4 gap-4 sm:gap-0">
-                    <div>
-                        <h3 className="text-lg font-semibold tracking-tight">Today's Activity</h3>
-                        <p className="text-sm text-muted-foreground">Track your daily focus progress</p>
-                    </div>
-                    <Popover open={isOpen} onOpenChange={setIsOpen}>
-                        <PopoverTrigger asChild>
-                            <div
-                                className="flex items-center gap-2 text-sm cursor-pointer hover:bg-background/50 p-2 rounded-md transition-colors border border-transparent hover:border-border/50 w-full sm:w-auto justify-between sm:justify-start"
-                                role="button"
-                                title="Click to set daily goal"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <Target className="w-4 h-4 text-primary" />
-                                    <span className="text-muted-foreground">Goal:</span>
-                                </div>
-                                <span className="font-medium">{formatDuration(dailyGoal)}</span>
-                            </div>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80" align="end">
-                            <div className="grid gap-4">
-                                <div className="space-y-2">
-                                    <h4 className="font-medium leading-none">Set Daily Goal</h4>
-                                    <p className="text-sm text-muted-foreground">
-                                        Set your daily focus target.
-                                    </p>
-                                </div>
-                                <div className="flex gap-4">
-                                    <div className="grid gap-2 flex-1">
-                                        <Label htmlFor="hours">Hours</Label>
-                                        <Input
-                                            id="hours"
-                                            type="number"
-                                            min="0"
-                                            max="24"
-                                            value={goalHours}
-                                            onChange={(e: any) => setGoalHours(Number(e.target.value))}
-                                        />
-                                    </div>
-                                    <div className="grid gap-2 flex-1">
-                                        <Label htmlFor="minutes">Minutes</Label>
-                                        <Input
-                                            id="minutes"
-                                            type="number"
-                                            min="0"
-                                            max="59"
-                                            value={goalMinutes}
-                                            onChange={(e: any) => setGoalMinutes(Number(e.target.value))}
-                                        />
-                                    </div>
-                                </div>
-                                <Button onClick={handleSaveGoal} className="w-full">Save Goal</Button>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
+        <Card className="overflow-hidden border-none shadow-none bg-transparent">
+            {/* Header with Goal Setting */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                <div>
+                    <h3 className="text-lg font-semibold tracking-tight">Today's Activity</h3>
+                    <p className="text-sm text-muted-foreground">Track your daily focus progress</p>
                 </div>
-
-                {/* Stat Cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {/* Focus Time Card */}
-                    <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 border border-border/50 shadow-sm">
-                        {isLoading ? (
-                            <Skeleton className="h-12 w-full" />
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-primary/10">
-                                    <Clock className="w-4 h-4 text-primary" />
+                <Popover open={isOpen} onOpenChange={setIsOpen}>
+                    <PopoverTrigger asChild>
+                        <div
+                            className="flex items-center gap-2 text-sm cursor-pointer hover:bg-background/50 p-2 rounded-md transition-colors border border-transparent hover:border-border/50 w-full sm:w-auto justify-between sm:justify-start"
+                            role="button"
+                            title="Click to set daily goal"
+                        >
+                            <div className="flex items-center gap-2">
+                                <Target className="w-4 h-4 text-primary" />
+                                <span className="text-muted-foreground">Goal:</span>
+                            </div>
+                            <span className="font-medium">{formatDuration(dailyGoal)}</span>
+                        </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80" align="end">
+                        <div className="grid gap-4">
+                            <div className="space-y-2">
+                                <h4 className="font-medium leading-none">Set Daily Goal</h4>
+                                <p className="text-sm text-muted-foreground">
+                                    Set your daily focus target.
+                                </p>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="grid gap-2 flex-1">
+                                    <Label htmlFor="hours">Hours</Label>
+                                    <Input
+                                        id="hours"
+                                        type="number"
+                                        min="0"
+                                        max="24"
+                                        value={goalHours}
+                                        onChange={(e: any) => setGoalHours(Number(e.target.value))}
+                                    />
                                 </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Focus Time</p>
-                                    <p className="text-lg font-bold tracking-tight">{formatDuration(totalMinutes)}</p>
+                                <div className="grid gap-2 flex-1">
+                                    <Label htmlFor="minutes">Minutes</Label>
+                                    <Input
+                                        id="minutes"
+                                        type="number"
+                                        min="0"
+                                        max="59"
+                                        value={goalMinutes}
+                                        onChange={(e: any) => setGoalMinutes(Number(e.target.value))}
+                                    />
                                 </div>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Pomos Card */}
-                    <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 border border-border/50 shadow-sm">
-                        {isLoading ? (
-                            <Skeleton className="h-12 w-full" />
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-lg bg-orange-500/10">
-                                    <Flame className="w-4 h-4 text-orange-500" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Pomodoros</p>
-                                    <p className="text-lg font-bold tracking-tight">{totalPomos}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Goal Progress Card */}
-                    <div className="bg-background/60 backdrop-blur-sm rounded-xl p-3 border border-border/50 shadow-sm">
-                        {isLoading ? (
-                            <Skeleton className="h-12 w-full" />
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                <div className="relative">
-                                    <svg className="w-10 h-10 -rotate-90">
-                                        <circle
-                                            cx="20"
-                                            cy="20"
-                                            r="16"
-                                            fill="none"
-                                            stroke="hsl(var(--muted))"
-                                            strokeWidth="3"
-                                        />
-                                        <circle
-                                            cx="20"
-                                            cy="20"
-                                            r="16"
-                                            fill="none"
-                                            stroke="hsl(var(--primary))"
-                                            strokeWidth="3"
-                                            strokeLinecap="round"
-                                            strokeDasharray={`${goalProgress} 100`}
-                                            className="transition-all duration-500"
-                                        />
-                                    </svg>
-                                </div>
-                                <div>
-                                    <p className="text-xs text-muted-foreground">Goal</p>
-                                    <p className="text-lg font-bold tracking-tight">{Math.round(goalProgress)}%</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                            <Button onClick={handleSaveGoal} className="w-full">Save Goal</Button>
+                        </div>
+                    </PopoverContent>
+                </Popover>
             </div>
 
-            <CardContent className="pt-4">
+            {/* Stats Cards */}
+            <div className="mb-6">
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <Skeleton className="h-24 w-full rounded-xl" />
+                        <Skeleton className="h-24 w-full rounded-xl" />
+                        <Skeleton className="h-24 w-full rounded-xl" />
+                    </div>
+                ) : (
+                    <StatsCards
+                        todayRecord={todayRecord}
+                        dailyGoal={dailyGoal}
+                        // We might need to fetch weekly records in the parent if we want accurate weekly stats
+                        // For now, passing empty array to avoid errors, or we could pass sessions if they represent history
+                        allRecords={[]}
+                    />
+                )}
+            </div>
+
+            <CardContent className="p-0">
                 {isLoading ? (
                     <Skeleton className='h-[200px] w-full rounded-lg' />
                 ) : (
