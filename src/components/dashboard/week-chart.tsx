@@ -9,10 +9,20 @@ import { isWithinInterval } from 'date-fns';
 import { useDateRanges } from '@/hooks/use-date-ranges';
 
 function formatDuration(minutes: number) {
-  if (isNaN(minutes) || minutes < 0) return '0h 0m';
-  const hours = Math.floor(minutes / 60);
-  const mins = Math.round(minutes % 60);
-  return `${hours}h ${mins}m`;
+    if (isNaN(minutes) || minutes < 0) return '0h 0m';
+    const hours = Math.floor(minutes / 60);
+    const mins = Math.round(minutes % 60);
+    return `${hours}h ${mins}m`;
+}
+
+// Helper to safely parse dates that could be strings, Date objects, or Firestore Timestamps
+function safeParseDate(date: any): Date {
+    if (!date) return new Date();
+    if (date instanceof Date) return date;
+    if (typeof date === 'string') return new Date(date);
+    if (date.toDate && typeof date.toDate === 'function') return date.toDate();
+    if (date.seconds) return new Date(date.seconds * 1000);
+    return new Date();
 }
 
 interface WeekChartProps {
@@ -27,18 +37,24 @@ export const WeekChart = ({ allRecords, isLoading }: WeekChartProps) => {
     const { dateRanges } = useDateRanges(weekStartsOn as WeekStartDay);
     const weeklyRecords = useMemo(() => {
         if (!allRecords) return [];
-        return allRecords.filter(r => isWithinInterval(new Date(r.date), dateRanges.week));
+        return allRecords.filter(r => {
+            try {
+                return isWithinInterval(safeParseDate(r.date), dateRanges.week);
+            } catch {
+                return false;
+            }
+        });
     }, [allRecords, dateRanges.week]);
-    
+
     const weeklyTotal = useMemo(() => {
         if (!weeklyRecords) return 0;
-        return weeklyRecords.reduce((acc, record) => acc + record.totalFocusMinutes, 0);
+        return weeklyRecords.reduce((acc, record) => acc + (record.totalFocusMinutes || 0), 0);
     }, [weeklyRecords]);
 
     return (
         <Card>
             <CardHeader>
-                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div>
                         <CardTitle>Weekly Activity</CardTitle>
                         <CardDescription>
@@ -65,9 +81,9 @@ export const WeekChart = ({ allRecords, isLoading }: WeekChartProps) => {
                 </div>
             </CardHeader>
             <CardContent>
-                <HistoricalFocusChart 
-                    data={weeklyRecords || []} 
-                    loading={isLoading} 
+                <HistoricalFocusChart
+                    data={weeklyRecords || []}
+                    loading={isLoading}
                     timeRange='week'
                     weekStartsOn={weekStartsOn as WeekStartDay}
                 />

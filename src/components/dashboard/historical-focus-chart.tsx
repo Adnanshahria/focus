@@ -23,15 +23,26 @@ type HistoricalFocusChartProps = {
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 };
 
+// Helper to safely get date string from various formats
+function safeDateString(date: any): string {
+  if (!date) return '';
+  if (typeof date === 'string') return date;
+  if (date instanceof Date) return format(date, 'yyyy-MM-dd');
+  if (date.toDate && typeof date.toDate === 'function') return format(date.toDate(), 'yyyy-MM-dd');
+  if (date.seconds) return format(new Date(date.seconds * 1000), 'yyyy-MM-dd');
+  return '';
+}
+
 export const HistoricalFocusChart = ({ data, loading, timeRange, weekStartsOn }: HistoricalFocusChartProps) => {
   const { dateRanges } = useDateRanges(weekStartsOn);
 
   const chartData = useMemo(() => {
     const { start, end } = dateRanges[timeRange];
     if (!data) return [];
-    
+
     const interval = eachDayOfInterval({ start, end });
-    const dataMap = new Map(data.map(d => [d.date, d.totalFocusMinutes]));
+    // Build map with safe date string conversion
+    const dataMap = new Map(data.map(d => [safeDateString(d.date), d.totalFocusMinutes || 0]));
 
     return interval.map(day => {
       const dateStr = format(day, 'yyyy-MM-dd');
@@ -54,14 +65,14 @@ export const HistoricalFocusChart = ({ data, loading, timeRange, weekStartsOn }:
   }
 
   if (loading && chartData.length === 0) return <Skeleton className="h-[200px] w-full" />;
-  
+
   if (chartData.length === 0 || chartData.every(d => d.totalFocusMinutes === 0)) {
     return <div className="text-center p-4 text-muted-foreground h-[200px] flex items-center justify-center">No data for this period.</div>;
   }
 
   return (
     <div className="h-[200px] w-full relative">
-       {loading && <Skeleton className="absolute inset-0 bg-card/50" />}
+      {loading && <Skeleton className="absolute inset-0 bg-card/50" />}
       <ChartContainer config={{ totalFocusMinutes: { label: 'Minutes', color: 'hsl(var(--primary))' } }} className="w-full h-full">
         <BarChart data={chartData} margin={{ top: 20, right: 20, bottom: 5, left: -10 }}>
           <CartesianGrid vertical={false} stroke="hsl(var(--border) / 0.5)" strokeDasharray="3 3" />
