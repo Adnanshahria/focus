@@ -35,23 +35,23 @@ export function Settings() {
           </SheetDescription>
         </SheetHeader>
         <div className="flex-1 overflow-y-auto py-6 pr-6">
-            <Accordion type="multiple" className="w-full space-y-4">
-                <Section icon={User} title="User Profile">
-                    <UserProfile />
-                </Section>
-                <Section icon={Info} title="App Guide">
-                    <AppGuide />
-                </Section>
-                <Section icon={Palette} title="Appearance">
+          <Accordion type="multiple" className="w-full space-y-4">
+            <Section icon={User} title="User Profile">
+              <UserProfile />
+            </Section>
+            <Section icon={Info} title="App Guide">
+              <AppGuide />
+            </Section>
+            {/* <Section icon={Palette} title="Appearance">
                     <VisualSettings />
-                </Section>
-                <Section icon={TimerIcon} title="Timer">
-                    <TimerSettings />
-                </Section>
-                 <Section icon={Code} title="Development">
-                    <BuildLog />
-                </Section>
-            </Accordion>
+                </Section> */}
+            <Section icon={TimerIcon} title="Timer">
+              <TimerSettings />
+            </Section>
+            <Section icon={Code} title="Development">
+              <BuildLog />
+            </Section>
+          </Accordion>
         </div>
       </SheetContent>
     </Sheet>

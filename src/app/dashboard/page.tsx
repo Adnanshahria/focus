@@ -148,7 +148,7 @@ export default function DashboardPage() {
                   <WeekChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
                   <MonthChart allRecords={allRecords} isLoading={areAllRecordsLoading} />
                 </div>
-                <StatsCards todayRecord={todayRecord} dailyGoal={preferences?.dailyGoalMinutes ?? 120} theme={theme as 'dark' | 'light'} />
+
 
               </div>
               <div className="space-y-8">

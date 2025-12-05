@@ -35,10 +35,10 @@ export const FloatingTimerDisplay = ({ theme, timeLeft, sessionDuration, isActiv
         if (pathRef.current) {
             setPathLength(pathRef.current.getTotalLength());
         }
-    }, []);
+    }, [sessionDuration, timeLeft]); // Update when duration changes
 
     const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
-    const strokeDashoffset = pathLength * (1 - progress);
+    const strokeDashoffset = pathLength > 0 ? pathLength * (1 - progress) : 0;
 
     return (
         <div className="flex flex-col items-center gap-8">

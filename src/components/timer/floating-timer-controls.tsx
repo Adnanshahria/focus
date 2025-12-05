@@ -4,7 +4,7 @@ import { useState, ChangeEvent } from 'react';
 import { motion, AnimationProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun, Loader } from 'lucide-react';
+import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Moon, Sun, Loader, Clock } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -91,7 +91,7 @@ export const FloatingTimerControls = ({
           <Popover open={isTimePopupOpen} onOpenChange={setIsTimePopupOpen}>
             <PopoverTrigger asChild>
               <Button variant="ghost" size="icon" onClick={handleOpenPopup} className={cn("w-12 h-12 rounded-full backdrop-blur-sm", bgColorClass)} style={{ color: uiColor }}>
-                <Minus className="w-7 h-7" />
+                <Clock className="w-7 h-7" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-60 p-4" side="top">
