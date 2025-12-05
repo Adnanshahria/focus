@@ -1,7 +1,7 @@
 'use client';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { ComposedChart, CartesianGrid, XAxis, YAxis, Bar, Scatter, ResponsiveContainer } from 'recharts';
+import { ComposedChart, CartesianGrid, XAxis, YAxis, Bar, Scatter } from 'recharts';
 import { ChartData, tickFormatter } from './overall-chart-utils';
 import { CardContent } from '../ui/card';
 
