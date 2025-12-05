@@ -44,27 +44,41 @@ export function ForgotPasswordDialog({ open, onOpenChange }: ForgotPasswordDialo
     resolver: zodResolver(forgotPasswordSchema),
   });
 
-  const onSubmit = (data: ForgotPasswordFormValues) => {
-    setIsSubmitting(true);
-    sendPasswordResetEmail(auth, data.email)
-      .then(() => {
-        toast({
-          title: 'Password Reset Email Sent',
-          description: 'Check your inbox for a link to reset your password.',
-        });
-        onOpenChange(false);
-        reset();
-      })
-      .catch((error: any) => {
-        toast({
-          variant: 'destructive',
-          title: 'Error Sending Email',
-          description: error.message || 'An unexpected error occurred. Please try again.',
-        });
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+  const onSubmit = async (data: ForgotPasswordFormValues) => {
+    if (!auth) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Authentication service not available. Please refresh the page.',
       });
+      return;
+    }
+    setIsSubmitting(true);
+    try {
+      await sendPasswordResetEmail(auth, data.email);
+      toast({
+        title: 'Password Reset Email Sent',
+        description: 'Check your inbox for a link to reset your password.',
+      });
+      onOpenChange(false);
+      reset();
+    } catch (error: any) {
+      let message = 'An unexpected error occurred. Please try again.';
+      if (error.code === 'auth/user-not-found') {
+        message = 'No account found with this email address.';
+      } else if (error.code === 'auth/invalid-email') {
+        message = 'Invalid email address format.';
+      } else if (error.code === 'auth/too-many-requests') {
+        message = 'Too many requests. Please wait a moment and try again.';
+      }
+      toast({
+        variant: 'destructive',
+        title: 'Error Sending Email',
+        description: message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

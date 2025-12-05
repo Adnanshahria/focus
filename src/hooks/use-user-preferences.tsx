@@ -10,6 +10,19 @@ import { useTimerStore } from '@/store/timer-store';
 
 export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
+const WEEK_START_KEY = 'focusflow_weekStartsOn';
+
+// Get initial weekStartsOn from localStorage (for instant loading)
+function getInitialWeekStart(): WeekStartDay {
+    if (typeof window === 'undefined') return 1;
+    const stored = localStorage.getItem(WEEK_START_KEY);
+    if (stored !== null) {
+        const parsed = parseInt(stored, 10);
+        if (parsed >= 0 && parsed <= 6) return parsed as WeekStartDay;
+    }
+    return 1; // Default to Monday
+}
+
 export type UserPreferences = {
     theme?: 'light' | 'dark';
     antiBurnIn?: boolean;
@@ -23,6 +36,7 @@ export function useUserPreferences() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
+    const [localWeekStart, setLocalWeekStart] = useState<WeekStartDay>(getInitialWeekStart);
     const setTimerStoreDurations = useTimerStore(state => state.setDurations);
     const setTimerStoreVisuals = useTimerStore(state => state.setVisuals);
 
@@ -34,6 +48,14 @@ export function useUserPreferences() {
     }, [user, firestore]);
 
     const { data: preferences, isLoading: isPreferencesLoading } = useDoc<UserPreferences>(userPreferencesRef);
+
+    // Sync Firestore preferences to localStorage and local state
+    useEffect(() => {
+        if (preferences?.weekStartsOn !== undefined) {
+            setLocalWeekStart(preferences.weekStartsOn);
+            localStorage.setItem(WEEK_START_KEY, String(preferences.weekStartsOn));
+        }
+    }, [preferences?.weekStartsOn]);
 
     // This effect is the single source of truth for synchronizing Firestore prefs with the Zustand store.
     useEffect(() => {
@@ -51,6 +73,12 @@ export function useUserPreferences() {
     }, [preferences, setTimerStoreDurations, setTimerStoreVisuals]);
 
     const updatePreferences = useCallback((newPrefs: Partial<UserPreferences>) => {
+        // Update localStorage immediately for weekStartsOn
+        if (newPrefs.weekStartsOn !== undefined) {
+            setLocalWeekStart(newPrefs.weekStartsOn);
+            localStorage.setItem(WEEK_START_KEY, String(newPrefs.weekStartsOn));
+        }
+
         if (!user || user.isAnonymous || !userPreferencesRef) {
             setAuthDialogOpen(true);
             return;
@@ -66,8 +94,14 @@ export function useUserPreferences() {
         />
     );
 
+    // Merge preferences with localStorage value for weekStartsOn (for instant loading)
+    const mergedPreferences = preferences ? {
+        ...preferences,
+        weekStartsOn: preferences.weekStartsOn ?? localWeekStart
+    } : { weekStartsOn: localWeekStart };
+
     return {
-        preferences,
+        preferences: mergedPreferences as UserPreferences,
         isLoading: isUserLoading || isPreferencesLoading,
         updatePreferences,
         AuthDialog,
