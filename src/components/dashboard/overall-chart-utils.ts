@@ -14,11 +14,27 @@ export function formatDuration(minutes: number) {
   return `${hours}h ${mins}m`;
 }
 
-export const tickFormatter = (val: string, index: number) => {
-    const date = parseISO(val);
+// Helper to safely get date string from various formats
+function safeDateString(date: any): string {
+  if (!date) return '';
+  if (typeof date === 'string') return date;
+  if (date instanceof Date) return format(date, 'yyyy-MM-dd');
+  if (date.toDate && typeof date.toDate === 'function') return format(date.toDate(), 'yyyy-MM-dd');
+  if (date.seconds) return format(new Date(date.seconds * 1000), 'yyyy-MM-dd');
+  return '';
+}
+
+export const tickFormatter = (val: any, index: number) => {
+  try {
+    const dateStr = safeDateString(val);
+    if (!dateStr) return '';
+    const date = parseISO(dateStr);
     const dayOfMonth = date.getDate();
     if (dayOfMonth === 1 || index === 0 || index % 7 === 0) {
-        return format(date, 'MMM d');
+      return format(date, 'MMM d');
     }
     return '';
+  } catch {
+    return '';
+  }
 };
