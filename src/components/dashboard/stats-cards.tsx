@@ -25,7 +25,9 @@ export const StatsCards = ({ todayRecord, dailyGoal, theme = 'dark', allRecords 
     const weekStart = startOfWeek(now, { weekStartsOn: 1 }); // Assuming Monday start
     const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
 
-    const weeklyMinutes = allRecords.reduce((acc, record) => {
+    const safeRecords = Array.isArray(allRecords) ? allRecords : [];
+
+    const weeklyMinutes = safeRecords.reduce((acc, record) => {
         const recordDate = parseISO(record.id); // Assuming ID is YYYY-MM-DD
         if (isWithinInterval(recordDate, { start: weekStart, end: weekEnd })) {
             return acc + (record.totalFocusMinutes || 0);
