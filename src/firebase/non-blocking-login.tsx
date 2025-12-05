@@ -5,7 +5,25 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
 } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+
+/**
+ * Ensures a user document exists in Firestore. Creates one if it doesn't exist.
+ */
+async function ensureUserDocument(authInstance: Auth, uid: string, email?: string | null): Promise<void> {
+  const firestore = getFirestore(authInstance.app);
+  const userDocRef = doc(firestore, 'users', uid);
+
+  const userDoc = await getDoc(userDocRef);
+  if (!userDoc.exists()) {
+    await setDoc(userDocRef, {
+      id: uid,
+      uid: uid,
+      email: email || null,
+      createdAt: new Date().toISOString()
+    });
+  }
+}
 
 /**
  * Initiates anonymous sign-in (non-blocking).
@@ -25,17 +43,8 @@ export function initiateAnonymousSignIn(authInstance: Auth): void {
 export async function initiateEmailSignUp(authInstance: Auth, email: string, password: string): Promise<void> {
   try {
     const userCredential = await createUserWithEmailAndPassword(authInstance, email, password);
-    const uid = userCredential.user.uid;
-
-    // Create user document with UID as ID (required by security rules)
-    // Security rules require: request.resource.data.id == userId
-    const firestore = getFirestore(authInstance.app);
-    await setDoc(doc(firestore, 'users', uid), {
-      id: uid, // Required by security rules
-      uid: uid,
-      email: email,
-      createdAt: new Date().toISOString()
-    });
+    // Ensure user document exists in Firestore
+    await ensureUserDocument(authInstance, userCredential.user.uid, email);
   } catch (error: unknown) {
     const errorObj = error as { code?: string; message?: string };
     console.error("Sign up error:", errorObj.code, errorObj.message);
@@ -53,7 +62,9 @@ export async function initiateEmailSignUp(authInstance: Auth, email: string, pas
  */
 export async function initiateEmailSignIn(authInstance: Auth, email: string, password: string): Promise<void> {
   try {
-    await signInWithEmailAndPassword(authInstance, email, password);
+    const userCredential = await signInWithEmailAndPassword(authInstance, email, password);
+    // Ensure user document exists (fixes users who exist in Auth but not Firestore)
+    await ensureUserDocument(authInstance, userCredential.user.uid, email);
   } catch (error: unknown) {
     const errorObj = error as { code?: string; message?: string };
     const message = (errorObj.code === 'auth/invalid-credential' || errorObj.code === 'auth/user-not-found' || errorObj.code === 'auth/wrong-password')
