@@ -1,14 +1,48 @@
 'use client';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
-import { ComposedChart, CartesianGrid, XAxis, YAxis, Bar, Scatter } from 'recharts';
-import { ChartData, tickFormatter } from './overall-chart-utils';
+import { ChartContainer, ChartTooltip, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { ComposedChart, CartesianGrid, XAxis, YAxis, Bar, Scatter, TooltipProps } from 'recharts';
+import { ChartData, tickFormatter, formatDuration } from './overall-chart-utils';
 import { CardContent } from '../ui/card';
+import { format, parseISO } from 'date-fns';
 
 interface OverallChartContentProps {
     loading: boolean;
     chartData: ChartData[];
 }
+
+// Custom tooltip component for better formatting
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+    if (!active || !payload || payload.length === 0) return null;
+
+    // Format date for display
+    let formattedDate = label;
+    try {
+        formattedDate = format(parseISO(label), 'MMM d, yyyy');
+    } catch { }
+
+    return (
+        <div className="rounded-lg border bg-background/95 backdrop-blur-sm p-3 shadow-lg">
+            <p className="font-medium text-sm mb-2">{formattedDate}</p>
+            <div className="space-y-1.5">
+                {payload.map((entry, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm">
+                        <div
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: entry.color }}
+                        />
+                        <span className="text-muted-foreground">{entry.name}:</span>
+                        <span className="font-medium">
+                            {entry.dataKey === 'totalFocusMinutes'
+                                ? formatDuration(entry.value as number)
+                                : entry.value}
+                        </span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export const OverallChartContent = ({ loading, chartData }: OverallChartContentProps) => {
     return (
@@ -71,18 +105,20 @@ export const OverallChartContent = ({ loading, chartData }: OverallChartContentP
                             />
                             <ChartTooltip
                                 cursor={{ fill: 'hsl(var(--muted) / 0.3)' }}
-                                content={<ChartTooltipContent indicator="dot" />}
+                                content={<CustomTooltip />}
                             />
                             <ChartLegend content={<ChartLegendContent />} />
                             <Bar
                                 yAxisId="left"
                                 dataKey="totalFocusMinutes"
+                                name="Minutes"
                                 fill="url(#overallBarGradient)"
                                 radius={[4, 4, 0, 0]}
                             />
                             <Scatter
                                 yAxisId="right"
                                 dataKey="totalPomos"
+                                name="Pomos"
                                 fill="hsl(24 95% 53%)"
                                 shape={(props: any) => (
                                     <circle
