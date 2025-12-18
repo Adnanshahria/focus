@@ -5,6 +5,7 @@ import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
 import { doc, collection, Timestamp, writeBatch, increment } from 'firebase/firestore';
 import { TimerMode } from '@/store/timer-state';
+import { addPendingSession } from '@/lib/pending-sessions';
 
 export const useSessionRecorder = () => {
     const { user } = useUser();
@@ -21,6 +22,20 @@ export const useSessionRecorder = () => {
         const durationInMinutes = (Date.now() - sessionStartTime) / (1000 * 60);
         // Do not record very short, likely accidental, sessions.
         if (durationInMinutes < 0.1) return false;
+
+        // If offline, queue the session for later sync
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            console.log('[SessionRecorder] Offline - queuing session for later sync');
+            addPendingSession({
+                userId: user.uid,
+                sessionStartTime,
+                endTime: Date.now(),
+                durationMinutes: durationInMinutes,
+                type: mode,
+                completed: isCompletion,
+            });
+            return true; // Return success - will sync later
+        }
 
         const today = new Date().toISOString().split('T')[0];
         const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
@@ -43,7 +58,7 @@ export const useSessionRecorder = () => {
 
             // 2. Update daily totals using atomic increment
             // We use set with merge: true to ensure the document exists or is created
-            const updateData: any = {
+            const updateData: Record<string, any> = {
                 id: today,
                 date: today,
                 userId: user.uid,
@@ -62,6 +77,18 @@ export const useSessionRecorder = () => {
             return true;
         } catch (error) {
             console.error("Batch write to record session failed: ", error);
+            // If the write fails (possibly due to going offline during write), queue it
+            if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                addPendingSession({
+                    userId: user.uid,
+                    sessionStartTime,
+                    endTime: Date.now(),
+                    durationMinutes: durationInMinutes,
+                    type: mode,
+                    completed: isCompletion,
+                });
+                return true; // Queued for later
+            }
             return false;
         }
     }, [user, firestore]);

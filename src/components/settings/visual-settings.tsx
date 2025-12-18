@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
-import { useUserPreferences } from '@/hooks/use-user-preferences.tsx';
+import { useUserPreferences } from '@/hooks/use-user-preferences';
 
 export function VisualSettings() {
   const { toast } = useToast();

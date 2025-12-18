@@ -4,6 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase';
 import { ThemeProvider } from '@/components/theme-provider';
 import { PwaRegister } from "@/components/pwa-register";
+import { OfflineIndicator } from "@/components/offline-indicator";
+import { PendingSyncProvider } from "@/components/pending-sync-provider";
 
 const APP_NAME = "FocusFlow";
 const APP_DESCRIPTION = "A modern, minimalist Pomodoro & countdown timer designed for deep work and focus.";
@@ -55,11 +57,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
+        <OfflineIndicator />
         <PwaRegister />
         <FirebaseClientProvider>
-          <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
-            {children}
-          </ThemeProvider>
+          <PendingSyncProvider>
+            <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark">
+              {children}
+            </ThemeProvider>
+          </PendingSyncProvider>
         </FirebaseClientProvider>
         <Toaster />
       </body>

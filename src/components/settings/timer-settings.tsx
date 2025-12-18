@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '../ui/skeleton';
-import { useUserPreferences } from '@/hooks/use-user-preferences.tsx';
+import { useUserPreferences } from '@/hooks/use-user-preferences';
 
 const timerSettingsSchema = z.object({
   pomodoroDuration: z.coerce.number().min(1, "Must be at least 1 minute"),

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, ChangeEvent } from 'react';
-import { motion, AnimationProps } from 'framer-motion';
+import { motion, AnimationControls } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { Play, Pause, ArrowLeft, Plus, Minus, XCircle, CheckCircle, Clock } from 'lucide-react';
@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 
 interface FloatingTimerControlsProps {
-  controlsAnimationProps: AnimationProps;
+  controlsAnimationProps: AnimationControls;
   controlsVisible: boolean;
   isActive: boolean;
   isPristine: boolean;

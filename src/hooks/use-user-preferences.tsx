@@ -10,7 +10,7 @@ import { useTimerStore } from '@/store/timer-store';
 
 export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
-const WEEK_START_KEY = 'focusflow_weekStartsOn';
+const PREFERENCES_KEY = 'focusflow_preferences';
 
 export type UserPreferences = {
     theme?: 'light' | 'dark';
@@ -22,25 +22,49 @@ export type UserPreferences = {
     dailyGoalMinutes?: number; // Daily focus goal in minutes (default: 120 = 2 hours)
 }
 
+const DEFAULT_PREFERENCES: UserPreferences = {
+    pomodoroDuration: 25 * 60,
+    shortBreakDuration: 5 * 60,
+    longBreakDuration: 15 * 60,
+    weekStartsOn: 1,
+    dailyGoalMinutes: 120,
+    antiBurnIn: true,
+};
+
+function getLocalPreferences(): UserPreferences {
+    if (typeof window === 'undefined') return DEFAULT_PREFERENCES;
+    try {
+        const stored = localStorage.getItem(PREFERENCES_KEY);
+        if (stored) {
+            return { ...DEFAULT_PREFERENCES, ...JSON.parse(stored) };
+        }
+    } catch (e) {
+        console.error('[Preferences] Failed to load from localStorage:', e);
+    }
+    return DEFAULT_PREFERENCES;
+}
+
+function setLocalPreferences(prefs: UserPreferences) {
+    if (typeof window === 'undefined') return;
+    try {
+        localStorage.setItem(PREFERENCES_KEY, JSON.stringify(prefs));
+    } catch (e) {
+        console.error('[Preferences] Failed to save to localStorage:', e);
+    }
+}
+
 export function useUserPreferences() {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const [isAuthDialogOpen, setAuthDialogOpen] = useState(false);
-    const [localWeekStart, setLocalWeekStart] = useState<WeekStartDay>(1); // Default to Monday
+    const [localPrefs, setLocalPrefs] = useState<UserPreferences>(DEFAULT_PREFERENCES);
     const setTimerStoreDurations = useTimerStore(state => state.setDurations);
     const setTimerStoreVisuals = useTimerStore(state => state.setVisuals);
 
-    // Load from localStorage after mount (avoids hydration mismatch)
+    // Load from localStorage on mount (client-side only)
     useEffect(() => {
-        const stored = localStorage.getItem(WEEK_START_KEY);
-        if (stored !== null) {
-            const parsed = parseInt(stored, 10);
-            if (parsed >= 0 && parsed <= 6) {
-                setLocalWeekStart(parsed as WeekStartDay);
-            }
-        }
+        setLocalPrefs(getLocalPreferences());
     }, []);
-
 
     const userPreferencesRef = useMemoFirebase(() => {
         if (!user || user.isAnonymous) return null;
@@ -48,44 +72,48 @@ export function useUserPreferences() {
         return doc(collection(firestore, `users/${user.uid}/userPreferences`), 'main');
     }, [user, firestore]);
 
-    const { data: preferences, isLoading: isPreferencesLoading } = useDoc<UserPreferences>(userPreferencesRef);
+    const { data: firestorePreferences, isLoading: isPreferencesLoading } = useDoc<UserPreferences>(userPreferencesRef);
 
-    // Sync Firestore preferences to localStorage and local state
+    // Sync Firestore preferences to localStorage when they change
     useEffect(() => {
-        if (preferences?.weekStartsOn !== undefined) {
-            setLocalWeekStart(preferences.weekStartsOn);
-            localStorage.setItem(WEEK_START_KEY, String(preferences.weekStartsOn));
+        if (firestorePreferences) {
+            const merged = { ...localPrefs, ...firestorePreferences };
+            setLocalPrefs(merged);
+            setLocalPreferences(merged);
         }
-    }, [preferences?.weekStartsOn]);
+    }, [firestorePreferences]);
 
-    // This effect is the single source of truth for synchronizing Firestore prefs with the Zustand store.
+    // This effect is the single source of truth for synchronizing prefs with the Zustand store.
+    // It uses localPrefs which is always available (from localStorage or Firestore)
     useEffect(() => {
-        if (preferences) {
-            const { pomodoroDuration, shortBreakDuration, longBreakDuration, antiBurnIn } = preferences;
-            setTimerStoreDurations({
-                pomodoroDuration: pomodoroDuration || 25 * 60,
-                shortBreakDuration: shortBreakDuration || 5 * 60,
-                longBreakDuration: longBreakDuration || 15 * 60,
-            });
-            setTimerStoreVisuals({
-                antiBurnIn: antiBurnIn ?? true
-            });
-        }
-    }, [preferences, setTimerStoreDurations, setTimerStoreVisuals]);
+        const prefs = localPrefs;
+        setTimerStoreDurations({
+            pomodoroDuration: prefs.pomodoroDuration || 25 * 60,
+            shortBreakDuration: prefs.shortBreakDuration || 5 * 60,
+            longBreakDuration: prefs.longBreakDuration || 15 * 60,
+        });
+        setTimerStoreVisuals({
+            antiBurnIn: prefs.antiBurnIn ?? true
+        });
+    }, [localPrefs, setTimerStoreDurations, setTimerStoreVisuals]);
 
     const updatePreferences = useCallback((newPrefs: Partial<UserPreferences>) => {
-        // Update localStorage immediately for weekStartsOn
-        if (newPrefs.weekStartsOn !== undefined) {
-            setLocalWeekStart(newPrefs.weekStartsOn);
-            localStorage.setItem(WEEK_START_KEY, String(newPrefs.weekStartsOn));
-        }
+        // Always update localStorage first for offline support
+        const merged = { ...localPrefs, ...newPrefs };
+        setLocalPrefs(merged);
+        setLocalPreferences(merged);
 
+        // If not logged in, prompt for auth
         if (!user || user.isAnonymous || !userPreferencesRef) {
             setAuthDialogOpen(true);
             return;
         }
-        setDocumentNonBlocking(userPreferencesRef, { id: 'main', ...newPrefs }, { merge: true });
-    }, [user, userPreferencesRef]);
+
+        // Sync to Firestore if online
+        if (typeof navigator !== 'undefined' && navigator.onLine) {
+            setDocumentNonBlocking(userPreferencesRef, { id: 'main', ...newPrefs }, { merge: true });
+        }
+    }, [user, userPreferencesRef, localPrefs]);
 
     const AuthDialog = () => (
         <AuthRequiredDialog
@@ -95,14 +123,8 @@ export function useUserPreferences() {
         />
     );
 
-    // Merge preferences with localStorage value for weekStartsOn (for instant loading)
-    const mergedPreferences = preferences ? {
-        ...preferences,
-        weekStartsOn: preferences.weekStartsOn ?? localWeekStart
-    } : { weekStartsOn: localWeekStart };
-
     return {
-        preferences: mergedPreferences as UserPreferences,
+        preferences: localPrefs,
         isLoading: isUserLoading || isPreferencesLoading,
         updatePreferences,
         AuthDialog,
