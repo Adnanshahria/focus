@@ -1,6 +1,7 @@
 "use client";
 
 import { useTimer } from "@/hooks/use-timer";
+import { useTimerStore } from "@/store/timer-store";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, Clock, Plus, Minus } from "lucide-react";
 import { Loader } from "@/components/ui/loader";
