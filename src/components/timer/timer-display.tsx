@@ -1,6 +1,6 @@
 "use client";
 
-import { useTimer } from "@/hooks/use-timer";
+
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -10,8 +10,12 @@ const formatTime = (seconds: number) => {
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 };
 
+import { useTimerStore } from "@/store/timer-store";
+
 export function TimerDisplay() {
-  const { timeLeft, sessionDuration, isActive } = useTimer();
+  const timeLeft = useTimerStore(state => state.timeLeft);
+  const sessionDuration = useTimerStore(state => state.sessionDuration);
+  const isActive = useTimerStore(state => state.isActive);
 
   const progress = sessionDuration > 0 ? (sessionDuration - timeLeft) / sessionDuration : 0;
   const circumference = 2 * Math.PI * 120;

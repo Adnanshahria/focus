@@ -6,13 +6,25 @@ import { useSessionRecorder } from './use-session-recorder';
 import { useAudioAlert } from './use-audio-alert';
 
 export const useTimer = () => {
-  const store = useTimerStore();
   const {
-    isActive, timeLeft, tick, completeCycle,
     start: startAction, pause: pauseAction, reset: resetAction,
-    mode, sessionStartTime, addTime, subtractTime, setSessionTime,
-    endAndSaveSession: endAndSaveAction, isSaving, setSaving,
-  } = store;
+    addTime, subtractTime, setSessionTime,
+    endAndSaveSession: endAndSaveAction, setSaving,
+  } = useTimerStore();
+
+  // We only subscribe to what we actually need for the logic here.
+  // Note: logic concerning 'isActive' and 'timeLeft' for the tick is mostly handled inside the store actions now,
+  // but we still need the effect to drive the tick if we want to keep the requestAnimationFrame loop here.
+  // Ideally, the loop should be decoupled or the component consuming time should subscribe.
+  // However, to keep this refactor manageable, we'll subscribe to just what strict logic needs.
+
+  const isActive = useTimerStore(state => state.isActive);
+  const timeLeft = useTimerStore(state => state.timeLeft);
+  const mode = useTimerStore(state => state.mode);
+  const sessionStartTime = useTimerStore(state => state.sessionStartTime);
+  const isSaving = useTimerStore(state => state.isSaving);
+  const tick = useTimerStore(state => state.tick);
+  const completeCycle = useTimerStore(state => state.completeCycle);
 
   const { recordSession } = useSessionRecorder();
   const { playBeep, ensureAudioContext } = useAudioAlert();
@@ -29,15 +41,23 @@ export const useTimer = () => {
   const resetSession = useCallback(() => resetAction(), [resetAction]);
 
   const endAndSaveSession = useCallback(async () => {
+    // OPTIMISTIC UPDATE:
+    // 1. Immediately reset the UI state so the user thinks it's done.
+    // 2. Fire the network request in the background (fire-and-forget).
+
     if (isSaving || !sessionStartTime) return;
-    setSaving(true);
-    try {
-      await recordSession(sessionStartTime, mode, false); // Record partial session
-      endAndSaveAction(); // Then reset the state
-    } finally {
-      setSaving(false);
-    }
-  }, [isSaving, sessionStartTime, recordSession, mode, endAndSaveAction, setSaving]);
+
+    // Immediate UI feedback
+    endAndSaveAction();
+
+    // Background write
+    recordSession(sessionStartTime, mode, false).catch(err => {
+      console.error("Background session save failed:", err);
+      // Error handling strategy: The recordSession now has local queueing (see next step), 
+      // so it shouldn't fail unless fatal logic error.
+    });
+
+  }, [isSaving, sessionStartTime, recordSession, mode, endAndSaveAction]);
 
   useEffect(() => {
     if (!isActive) {
@@ -57,6 +77,7 @@ export const useTimer = () => {
         lastTickTimeRef.current = timestamp - (elapsed % 1000);
       }
 
+      // Read state directly from store to avoid closure staleness without dependency
       const state = useTimerStore.getState();
       if (state.timeLeft > 0 && state.isActive) {
         frameIdRef.current = requestAnimationFrame(runTick);
@@ -67,26 +88,28 @@ export const useTimer = () => {
     else lastTickTimeRef.current = null;
 
     return () => { if (frameIdRef.current) cancelAnimationFrame(frameIdRef.current); };
-  }, [isActive, tick]);
+  }, [isActive, tick, timeLeft]); // Re-subscribe when isActive changes
 
   useEffect(() => {
     const handleTimerEnd = async () => {
+      // Check condition but do NOT block UI
       if (timeLeft <= 0 && isActive) {
         playBeep();
-        setSaving(true);
-        try {
-          await recordSession(sessionStartTime, mode, true);
-        } catch (error) {
-          console.error("Failed to record session:", error);
-          // Still complete the cycle to avoid stuck state
-        } finally {
-          completeCycle();
-          setSaving(false);
-        }
+
+        // Optimistic completion
+        completeCycle();
+
+        // Background write
+        recordSession(sessionStartTime, mode, true).catch(err => {
+          console.error("Failed to record completed session in background:", err);
+        });
       }
     }
     handleTimerEnd();
-  }, [timeLeft, isActive, playBeep, recordSession, mode, sessionStartTime, completeCycle, setSaving]);
+  }, [timeLeft, isActive, playBeep, recordSession, mode, sessionStartTime, completeCycle]);
 
-  return { ...store, start, pause, resetSession, addTime, subtractTime, setSessionTime, endAndSaveSession };
+  return {
+    isActive, timeLeft, mode, sessionStartTime, isSaving,
+    start, pause, resetSession, addTime, subtractTime, setSessionTime, endAndSaveSession
+  };
 };

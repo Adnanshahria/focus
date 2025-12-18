@@ -16,8 +16,16 @@ interface FloatingTimerProps {
 }
 
 export function FloatingTimer({ todayRecord, dailyGoal, onExit }: FloatingTimerProps) {
-  const { timeLeft, isActive, start, pause, addTime, subtractTime, setSessionTime, sessionDuration, endAndSaveSession, resetSession, isSaving } = useTimer();
-  const { antiBurnIn } = useTimerStore();
+  // Selective subscriptions for performance
+  const timeLeft = useTimerStore(state => state.timeLeft);
+  const isActive = useTimerStore(state => state.isActive);
+  const sessionDuration = useTimerStore(state => state.sessionDuration);
+  const isSaving = useTimerStore(state => state.isSaving);
+  const antiBurnIn = useTimerStore(state => state.antiBurnIn);
+
+  // Stable actions
+  const { start, pause, addTime, subtractTime, setSessionTime, endAndSaveSession, resetSession } = useTimer();
+
   const controlsAnimation = useAnimation();
   const pixelShiftControls = useAnimation();
   const { controlsVisible, isDimmed, showControls, handleExit: exitFullscreen } = useFloatingTimer(controlsAnimation);

@@ -11,7 +11,15 @@ import { Input } from "@/components/ui/input";
 import { useState, ChangeEvent } from "react";
 
 export function TimerControls() {
-  const { isActive, start, pause, endAndSaveSession, resetSession, timeLeft, sessionDuration, isSaving, setSessionTime, addTime, subtractTime } = useTimer();
+  // Selective subscriptions to prevent full re-renders on every tick
+  const isActive = useTimerStore(state => state.isActive);
+  const timeLeft = useTimerStore(state => state.timeLeft);
+  const sessionDuration = useTimerStore(state => state.sessionDuration);
+  const isSaving = useTimerStore(state => state.isSaving);
+
+  // Actions are stable and won't cause re-renders
+  const { start, pause, endAndSaveSession, resetSession, setSessionTime, addTime, subtractTime } = useTimer();
+
   const [isTimePopupOpen, setIsTimePopupOpen] = useState(false);
   const [customMinutes, setCustomMinutes] = useState(25);
 
