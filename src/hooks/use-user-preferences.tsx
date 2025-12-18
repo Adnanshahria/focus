@@ -77,9 +77,12 @@ export function useUserPreferences() {
     // Sync Firestore preferences to localStorage when they change
     useEffect(() => {
         if (firestorePreferences) {
-            const merged = { ...localPrefs, ...firestorePreferences };
-            setLocalPrefs(merged);
-            setLocalPreferences(merged);
+            // Use functional update to avoid stale closure issue
+            setLocalPrefs(currentLocalPrefs => {
+                const merged = { ...currentLocalPrefs, ...firestorePreferences };
+                setLocalPreferences(merged);
+                return merged;
+            });
         }
     }, [firestorePreferences]);
 
@@ -109,8 +112,8 @@ export function useUserPreferences() {
             return;
         }
 
-        // Sync to Firestore if online
-        if (typeof navigator !== 'undefined' && navigator.onLine) {
+        // Sync to Firestore (Firestore SDK handles offline queuing)
+        if (typeof navigator !== 'undefined') {
             setDocumentNonBlocking(userPreferencesRef, { id: 'main', ...newPrefs }, { merge: true });
         }
     }, [user, userPreferencesRef, localPrefs]);

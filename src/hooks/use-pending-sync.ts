@@ -4,6 +4,7 @@ import { useEffect, useCallback } from 'react';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
 import { doc, collection, Timestamp, writeBatch, increment } from 'firebase/firestore';
+import { format } from 'date-fns';
 import { getPendingSessions, removePendingSession } from '@/lib/pending-sessions';
 import { useOfflineStatus } from './use-offline-status';
 
@@ -22,7 +23,7 @@ export function usePendingSync() {
 
         for (const session of pending) {
             try {
-                const date = new Date(session.sessionStartTime).toISOString().split('T')[0];
+                const date = format(new Date(session.sessionStartTime), 'yyyy-MM-dd');
                 const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, date);
                 const sessionsCollection = collection(focusRecordRef, 'sessions');
                 const newSessionRef = doc(sessionsCollection);

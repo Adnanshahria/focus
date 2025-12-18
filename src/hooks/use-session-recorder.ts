@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useUser } from '@/firebase';
 import { useFirestore } from '@/firebase/hooks/hooks';
 import { doc, collection, Timestamp, writeBatch, increment } from 'firebase/firestore';
+import { format } from 'date-fns';
 import { TimerMode } from '@/store/timer-state';
 import { addPendingSession } from '@/lib/pending-sessions';
 
@@ -37,7 +38,7 @@ export const useSessionRecorder = () => {
             return true; // Return success - will sync later
         }
 
-        const today = new Date().toISOString().split('T')[0];
+        const today = format(new Date(), 'yyyy-MM-dd');
         const focusRecordRef = doc(firestore, `users/${user.uid}/focusRecords`, today);
         const sessionsCollection = collection(focusRecordRef, 'sessions');
         const newSessionRef = doc(sessionsCollection);

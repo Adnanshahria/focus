@@ -23,22 +23,34 @@ export function getPendingSessions(): PendingSession[] {
 
 export function addPendingSession(session: Omit<PendingSession, 'id' | 'createdAt'>) {
     if (typeof window === 'undefined') return;
-    const sessions = getPendingSessions();
-    sessions.push({
-        ...session,
-        id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        createdAt: Date.now(),
-    });
-    localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(sessions));
+    try {
+        const sessions = getPendingSessions();
+        sessions.push({
+            ...session,
+            id: `pending_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            createdAt: Date.now(),
+        });
+        localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(sessions));
+    } catch (e) {
+        console.error('[PendingSessions] Failed to save session to localStorage:', e);
+    }
 }
 
 export function removePendingSession(id: string) {
     if (typeof window === 'undefined') return;
-    const sessions = getPendingSessions().filter(s => s.id !== id);
-    localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(sessions));
+    try {
+        const sessions = getPendingSessions().filter(s => s.id !== id);
+        localStorage.setItem(PENDING_SESSIONS_KEY, JSON.stringify(sessions));
+    } catch (e) {
+        console.error('[PendingSessions] Failed to update localStorage:', e);
+    }
 }
 
 export function clearPendingSessions() {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem(PENDING_SESSIONS_KEY);
+    try {
+        localStorage.removeItem(PENDING_SESSIONS_KEY);
+    } catch (e) {
+        console.error('[PendingSessions] Failed to clear localStorage:', e);
+    }
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export function useOfflineStatus() {
     const [isOnline, setIsOnline] = useState(true);
     const [wasOffline, setWasOffline] = useState(false);
+    const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
         // Set initial state on client
@@ -13,7 +14,11 @@ export function useOfflineStatus() {
         const handleOnline = () => {
             setIsOnline(true);
             setWasOffline(true); // Flag that we came back online
-            setTimeout(() => setWasOffline(false), 3000); // Reset after 3s
+            // Clear any existing timeout
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+            timeoutRef.current = setTimeout(() => setWasOffline(false), 3000); // Reset after 3s
         };
 
         const handleOffline = () => {
@@ -26,6 +31,10 @@ export function useOfflineStatus() {
         return () => {
             window.removeEventListener('online', handleOnline);
             window.removeEventListener('offline', handleOffline);
+            // Cleanup timeout on unmount
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
         };
     }, []);
 
